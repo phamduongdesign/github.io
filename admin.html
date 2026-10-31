@@ -1,1 +1,424 @@
 
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio Admin — Duong Pham</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#f5f4ef;--ink:#22231d;--muted:#77786f;--olive:#777d52;--line:#deddd4;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px Inter,Arial,sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.wrap{max-width:1180px;margin:auto;padding:32px 24px}
+header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+h1{font-size:24px;letter-spacing:-1px;margin:0}
+h2{font-size:18px;margin:0 0 20px}
+small,.muted{color:var(--muted)}
+.btn{border:1px solid var(--ink);background:var(--ink);color:white;padding:11px 16px}
+.btn.secondary{background:transparent;color:var(--ink)}
+.btn.danger{background:#9c4037;border-color:#9c4037}
+.panel{background:var(--white);border:1px solid var(--line);padding:25px;margin-bottom:24px}
+.login{max-width:420px;margin:12vh auto}
+label{display:block;font-size:12px;font-weight:650;margin:16px 0 7px}
+input,textarea,select{width:100%;border:1px solid var(--line);background:white;padding:12px;color:var(--ink);border-radius:0}
+textarea{min-height:100px;resize:vertical}
+input[type=checkbox]{width:auto}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+#message{margin:14px 0;color:var(--olive);line-height:1.5}
+.project{display:grid;grid-template-columns:100px 1fr auto;gap:18px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line)}
+.project img{width:100px;height:80px;object-fit:cover;background:var(--bg)}
+.project strong{display:block;margin-bottom:6px}
+.project-actions{display:flex;gap:7px;flex-wrap:wrap}
+.project-actions button{padding:8px 10px;border:1px solid var(--line);background:white}
+.status{font-size:11px;color:var(--olive);margin-top:5px}
+#admin{display:none}
+#login{display:block}
+.preview{max-width:180px;max-height:130px;object-fit:cover;margin-top:12px;display:none}
+.top-actions{display:flex;gap:10px;align-items:center}
+@media(max-width:650px){
+ .wrap{padding:20px 14px}
+ .row{grid-template-columns:1fr}
+ .project{grid-template-columns:75px 1fr}
+ .project img{width:75px;height:75px}
+ .project-actions{grid-column:2}
+ header{align-items:flex-start;gap:15px}
+ h1{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="login" class="panel login">
+  <h1>DUONG PHAM®</h1>
+  <p class="muted">Portfolio Administration</p>
+  <form id="loginForm">
+    <label>Email</label>
+    <input id="email" type="email" required autocomplete="username"
+      value="phamnguyentrungduong041192@gmail.com">
+    <label>Mật khẩu Supabase</label>
+    <input id="password" type="password" required autocomplete="current-password"
+      placeholder="Nhập mật khẩu tài khoản">
+    <div class="actions">
+      <button class="btn" type="submit">Đăng nhập</button>
+    </div>
+  </form>
+  <div id="loginMessage"></div>
+</section>
+
+<section id="admin">
+  <header>
+    <div>
+      <h1>Portfolio Admin</h1>
+      <small>DUONG PHAM® · Quản lý dự án</small>
+    </div>
+    <div class="top-actions">
+      <button class="btn secondary" id="logout">Đăng xuất</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2 id="formTitle">Thêm dự án mới</h2>
+    <form id="projectForm">
+      <input type="hidden" id="projectId">
+
+      <label>Tên dự án *</label>
+      <input id="title" required placeholder="Ví dụ: Beyond the Current">
+
+      <div class="row">
+        <div>
+          <label>Danh mục *</label>
+          <select id="category" required>
+            <option value="editorial">Editorial</option>
+            <option value="identity">Brand Identity</option>
+            <option value="digital">Digital & Social</option>
+            <option value="print">Print & Infographic</option>
+          </select>
+        </div>
+        <div>
+          <label>Loại thiết kế</label>
+          <input id="projectType" placeholder="Magazine Cover · Editorial">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Năm</label>
+          <input id="year" type="number" value="2026">
+        </div>
+        <div>
+          <label>Thứ tự hiển thị</label>
+          <input id="sortOrder" type="number" value="0">
+        </div>
+      </div>
+
+      <label>Mô tả dự án</label>
+      <textarea id="description" placeholder="Mô tả ngắn về ý tưởng và dự án..."></textarea>
+
+      <label>Ảnh bìa dự án</label>
+      <input id="coverFile" type="file" accept="image/*">
+      <img id="imagePreview" class="preview" alt="Xem trước ảnh bìa">
+      <small>Ảnh sẽ được tải lên bucket portfolio-images.</small>
+
+      <label>
+        <input id="published" type="checkbox" checked>
+        Công khai dự án trên portfolio
+      </label>
+
+      <div class="actions">
+        <button class="btn" type="submit" id="saveButton">Lưu dự án</button>
+        <button class="btn secondary" type="button" id="cancelEdit">Làm mới</button>
+      </div>
+      <div id="message"></div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Danh sách dự án</h2>
+    <div id="projectList" class="muted">Đang tải dự án...</div>
+  </section>
+</section>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://gutlbvueimzjhpgplogf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_hLiulz_jL9N3Is6Bbvcfrg_nhMg39_-';
+const ADMIN_EMAIL = 'phamnguyentrungduong041192@gmail.com';
+const BUCKET = 'portfolio-images';
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+let currentImageUrl = '';
+
+function message(text, error=false) {
+  $('message').textContent = text;
+  $('message').style.color = error ? '#b13e35' : '#777d52';
+}
+
+function loginMessage(text) {
+  $('loginMessage').textContent = text;
+}
+
+function showAdmin(show) {
+  $('login').style.display = show ? 'none' : 'block';
+  $('admin').style.display = show ? 'block' : 'none';
+}
+
+async function checkAdmin(session) {
+  if (!session || session.user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+    showAdmin(false);
+    return false;
+  }
+  showAdmin(true);
+  await loadProjects();
+  return true;
+}
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  loginMessage('Đang đăng nhập...');
+
+  const {data,error} = await db.auth.signInWithPassword({
+    email: $('email').value.trim(),
+    password: $('password').value
+  });
+
+  if (error) {
+    loginMessage('Đăng nhập thất bại: ' + error.message);
+    return;
+  }
+
+  if (!await checkAdmin(data.session)) {
+    await db.auth.signOut();
+    loginMessage('Tài khoản này không được cấp quyền quản trị.');
+  }
+});
+
+$('logout').addEventListener('click', async () => {
+  await db.auth.signOut();
+  showAdmin(false);
+  $('password').value = '';
+});
+
+db.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+    await checkAdmin(session);
+  }
+  if (event === 'SIGNED_OUT') showAdmin(false);
+});
+
+async function loadProjects() {
+  $('projectList').textContent = 'Đang tải...';
+
+  const {data,error} = await db
+    .from('projects')
+    .select('*')
+    .order('sort_order', {ascending:true})
+    .order('created_at', {ascending:false});
+
+  if (error) {
+    $('projectList').textContent = 'Không thể tải dữ liệu: ' + error.message;
+    return;
+  }
+
+  if (!data.length) {
+    $('projectList').textContent = 'Chưa có dự án nào. Hãy thêm dự án đầu tiên.';
+    return;
+  }
+
+  $('projectList').innerHTML = '';
+
+  data.forEach(project => {
+    const item = document.createElement('div');
+    item.className = 'project';
+
+    const img = document.createElement('img');
+    img.alt = project.title || 'Project image';
+    img.src = project.cover_image || '';
+    if (!project.cover_image) img.style.visibility = 'hidden';
+
+    const info = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = project.title || 'Chưa đặt tên';
+
+    const type = document.createElement('small');
+    type.textContent = (project.project_type || project.category || '') +
+      ' · ' + (project.year || '');
+
+    const status = document.createElement('div');
+    status.className = 'status';
+    status.textContent = project.is_published ? '● Đang công khai' : '○ Bản nháp';
+
+    info.append(title,type,status);
+
+    const actions = document.createElement('div');
+    actions.className = 'project-actions';
+
+    const edit = document.createElement('button');
+    edit.textContent = 'Sửa';
+    edit.addEventListener('click', () => editProject(project));
+
+    const toggle = document.createElement('button');
+    toggle.textContent = project.is_published ? 'Ẩn' : 'Công khai';
+    toggle.addEventListener('click', () => togglePublish(project));
+
+    const remove = document.createElement('button');
+    remove.textContent = 'Xóa';
+    remove.addEventListener('click', () => deleteProject(project));
+
+    actions.append(edit,toggle,remove);
+    item.append(img,info,actions);
+    $('projectList').append(item);
+  });
+}
+
+async function uploadCover(file) {
+  const extension = file.name.split('.').pop().toLowerCase();
+  const path = 'covers/' + crypto.randomUUID() + '.' + extension;
+
+  const {error} = await db.storage.from(BUCKET).upload(path,file,{
+    cacheControl:'3600',
+    upsert:false
+  });
+
+  if (error) throw error;
+
+  const {data} = db.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+$('coverFile').addEventListener('change', () => {
+  const file = $('coverFile').files[0];
+  if (!file) return;
+  const preview = $('imagePreview');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+});
+
+$('projectForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('saveButton').disabled = true;
+  message('Đang lưu dự án...');
+
+  try {
+    const id = $('projectId').value;
+    const file = $('coverFile').files[0];
+    let cover = currentImageUrl;
+
+    if (file) cover = await uploadCover(file);
+
+    const record = {
+      title: $('title').value.trim(),
+      category: $('category').value,
+      project_type: $('projectType').value.trim(),
+      year: Number($('year').value) || new Date().getFullYear(),
+      description: $('description').value.trim(),
+      cover_image: cover,
+      sort_order: Number($('sortOrder').value) || 0,
+      is_published: $('published').checked,
+      updated_at: new Date().toISOString()
+    };
+
+    if (id) {
+      const {error} = await db.from('projects').update(record).eq('id',id);
+      if (error) throw error;
+      message('Đã cập nhật dự án thành công.');
+    } else {
+      const {error} = await db.from('projects').insert(record);
+      if (error) throw error;
+      message('Đã thêm dự án thành công.');
+    }
+
+    resetForm();
+    await loadProjects();
+  } catch (error) {
+    message('Có lỗi: ' + error.message, true);
+  } finally {
+    $('saveButton').disabled = false;
+  }
+});
+
+function editProject(project) {
+  $('projectId').value = project.id;
+  $('title').value = project.title || '';
+  $('category').value = project.category || 'editorial';
+  $('projectType').value = project.project_type || '';
+  $('year').value = project.year || '';
+  $('sortOrder').value = project.sort_order ?? 0;
+  $('description').value = project.description || '';
+  $('published').checked = !!project.is_published;
+
+  currentImageUrl = project.cover_image || '';
+  $('coverFile').value = '';
+
+  const preview = $('imagePreview');
+  if (currentImageUrl) {
+    preview.src = currentImageUrl;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+
+  $('formTitle').textContent = 'Chỉnh sửa dự án';
+  $('saveButton').textContent = 'Cập nhật dự án';
+  message('Đang chỉnh sửa: ' + project.title);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function togglePublish(project) {
+  const {error} = await db.from('projects')
+    .update({
+      is_published:!project.is_published,
+      updated_at:new Date().toISOString()
+    })
+    .eq('id',project.id);
+
+  if (error) {
+    alert('Không thể cập nhật: ' + error.message);
+    return;
+  }
+  await loadProjects();
+}
+
+async function deleteProject(project) {
+  if (!confirm('Bạn có chắc muốn xóa dự án "' + project.title + '"?')) return;
+
+  const {error} = await db.from('projects').delete().eq('id',project.id);
+  if (error) {
+    alert('Không thể xóa: ' + error.message);
+    return;
+  }
+  await loadProjects();
+}
+
+function resetForm() {
+  $('projectForm').reset();
+  $('projectId').value = '';
+  $('year').value = new Date().getFullYear();
+  $('sortOrder').value = 0;
+  $('published').checked = true;
+  $('formTitle').textContent = 'Thêm dự án mới';
+  $('saveButton').textContent = 'Lưu dự án';
+  $('imagePreview').style.display = 'none';
+  $('coverFile').value = '';
+  currentImageUrl = '';
+}
+
+$('cancelEdit').addEventListener('click', () => {
+  resetForm();
+  message('');
+});
+
+(async () => {
+  const {data} = await db.auth.getSession();
+  if (data.session) await checkAdmin(data.session);
+})();
+</script>
+</body>
+</html>
+
