@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="DUONG PHAM — Independent visual designer. Editorial, identity, digital and visual communication.">
+<title>DUONG PHAM® — Visual Designer</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --site-primary: #777D52;
+  --site-on-primary: #FFFFFF;
+  --site-secondary: #EAE8DF;
+  --site-on-secondary: #20211D;
+  --site-background: #F8F7F2;
+  --site-on-background: #20211D;
+  --site-font-body: Inter, "Helvetica Neue", Arial, sans-serif;
+  --site-font-heading: Inter, "Helvetica Neue", Arial, sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  --ink: light-dark(#20211D, #F4F2EB);
+  --muted: light-dark(#77776F, #B6B4AA);
+  --paper: light-dark(#F8F7F2, #171814);
+  --line: light-dark(#DCDAD1, #3C3D35);
+  --surface: light-dark(#EFEEE7, #22231E);
+  --olive: var(--site-primary);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--site-font-body); -webkit-font-smoothing: antialiased; }
+button, a { font: inherit; }
+a { color: inherit; text-decoration: none; }
+button { color: inherit; }
+#site-root { min-height: 100vh; width: 100%; background-color: var(--site-background); color: var(--site-on-background); border-radius: 0; }
+.wrap { width: min(1440px, calc(100% - 72px)); margin: 0 auto; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: calc(25px * var(--site-spacing-scale)) 0; border-bottom: 1px solid var(--line); gap: 24px; }
+.brand { display: inline-flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 800; letter-spacing: -.045em; }
+.brand-mark { display: grid; place-items: center; width: 29px; height: 29px; background: var(--olive); color: var(--site-on-primary); font-size: 12px; font-weight: 800; border-radius: 50%; }
+.nav { display: flex; gap: 30px; align-items: center; font-size: 12px; }
+.nav a { color: var(--muted); transition: color .2s ease; }
+.nav a:hover { color: var(--ink); }
+.nav .contact-link { color: var(--ink); border-bottom: 1px solid var(--ink); padding-bottom: 4px; }
+.hero { padding: clamp(66px, 10vw, 148px) 0 48px; }
+.kicker { display: flex; align-items: center; gap: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .14em; font-size: 10px; font-weight: 650; }
+.kicker:before { content: ""; width: 23px; height: 1px; background: var(--olive); }
+h1 { margin: 28px 0 24px; font-family: var(--site-font-heading); font-size: clamp(54px, 10.5vw, calc(148px * var(--site-heading-scale))); line-height: .86; letter-spacing: -.095em; font-weight: 650; }
+h1 .outline { color: transparent; -webkit-text-stroke: 1.4px var(--ink); }
+.hero-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-top: 45px; }
+.hero-copy { max-width: 430px; font-size: 15px; line-height: 1.7; color: var(--muted); }
+.hero-copy strong { color: var(--ink); font-weight: 600; }
+.availability { display: flex; align-items: center; gap: 9px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--olive); box-shadow: 0 0 0 4px color-mix(in srgb, var(--olive) 13%, transparent); }
+.section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; padding: 26px 0 22px; border-top: 1px solid var(--line); }
+.section-title { font-size: 11px; text-transform: uppercase; letter-spacing: .13em; font-weight: 700; }
+.section-note { font-size: 11px; color: var(--muted); }
+.filters { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 24px; }
+.filter { border: 1px solid var(--line); background: transparent; border-radius: 99px; padding: 9px 14px; font-size: 11px; color: var(--muted); cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
+.filter:hover, .filter.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.gallery { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 42px 18px; padding-bottom: 105px; }
+.project { grid-column: span 6; min-width: 0; cursor: pointer; }
+.project:nth-child(3n+2) { grid-column: span 5; }
+.project:nth-child(3n+3) { grid-column: span 7; }
+.project[hidden] { display: none; }
+.artwork { position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; aspect-ratio: 1.2 / 1; background: var(--art-bg, #E9E5D9); color: var(--art-ink, #22231D); isolation: isolate; transition: background .3s; }
+.project:nth-child(4n+1) .artwork { aspect-ratio: 1.05 / 1; }
+.artwork:after { content: ""; position: absolute; inset: 0; border: 1px solid rgba(0,0,0,.04); pointer-events: none; }
+.artwork .art-label { position: absolute; z-index: 2; top: 16px; left: 17px; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+.artwork .art-index { position: absolute; z-index: 2; bottom: 15px; right: 17px; font-size: 10px; }
+.cover { position: relative; width: 45%; aspect-ratio: .71 / 1; background: #F8F4E9; box-shadow: 0 20px 50px #0002; padding: 7%; display: flex; flex-direction: column; justify-content: space-between; transform: rotate(-5deg); transition: transform .45s cubic-bezier(.2,.7,.2,1); }
+.project:hover .cover { transform: rotate(-2deg) translateY(-5px); }
+.cover .mini { font-size: clamp(5px, .7vw, 9px); letter-spacing: .14em; font-weight: 800; }
+.cover .bigtype { font-size: clamp(23px, 4.8vw, 68px); line-height: .78; letter-spacing: -.1em; font-weight: 850; }
+.cover .cover-foot { font-size: clamp(5px, .65vw, 8px); line-height: 1.4; text-transform: uppercase; letter-spacing: .05em; }
+.cover-image { position: absolute; left: 11%; right: 11%; top: 28%; height: 38%; background: linear-gradient(140deg, #a7aa86 0 28%, #d7cdb1 29% 46%, #5f715d 47% 70%, #e5ddca 71%); filter: saturate(.75); }
+.poster { width: 43%; aspect-ratio: .7 / 1; background: #D6E0D1; padding: 7%; position: relative; box-shadow: 0 22px 45px #0002; transform: rotate(4deg); transition: transform .45s; overflow: hidden; }
+.project:hover .poster { transform: rotate(1deg) translateY(-5px); }
+.poster .poster-title { position: relative; z-index: 2; font-size: clamp(18px, 3.7vw, 52px); line-height: .82; font-weight: 850; letter-spacing: -.09em; }
+.poster-shape { position: absolute; width: 120%; height: 52%; left: -10%; bottom: 8%; border-radius: 50% 50% 0 0; background: #7B8256; transform: rotate(-16deg); }
+.poster-shape:after { content: ""; position: absolute; width: 65%; height: 100%; right: -8%; top: -18%; background: #E9B77F; border-radius: 50%; }
+.poster .poster-foot { position: absolute; bottom: 7%; left: 7%; z-index: 3; font-size: 7px; letter-spacing: .1em; }
+.brand-sheet { width: 74%; height: 69%; background: #F4F0E6; box-shadow: 0 18px 40px #0002; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; transform: rotate(-3deg); transition: transform .4s; }
+.project:hover .brand-sheet { transform: rotate(0) translateY(-4px); }
+.brand-tile { display: flex; align-items: center; justify-content: center; background: #E1E4D8; font-size: clamp(12px, 2vw, 27px); font-weight: 800; letter-spacing: -.1em; }
+.brand-tile:nth-child(2) { background: #B3B58E; color: #fff; font-size: clamp(20px, 3.2vw, 42px); }
+.brand-tile:nth-child(3) { background: #272A22; color: #EAE7DA; font-family: Georgia, serif; font-style: italic; }
+.brand-tile:nth-child(4) { background: #D5A579; font-size: 9px; letter-spacing: .08em; }
+.social-stack { width: 76%; display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; transform: rotate(-3deg); transition: transform .4s; }
+.project:hover .social-stack { transform: rotate(0) translateY(-4px); }
+.social-card { aspect-ratio: .76 / 1; padding: 9%; display: flex; flex-direction: column; justify-content: space-between; background: #F2E6D4; color: #272820; }
+.social-card:nth-child(2) { background: #777D52; color: white; transform: translateY(15px); }
+.social-card:nth-child(3) { background: #D7B49A; }
+.social-card b { font-size: clamp(15px, 2.6vw, 36px); line-height: .85; letter-spacing: -.08em; }
+.social-card small { font-size: 7px; letter-spacing: .08em; }
+.menu-scene { width: 65%; display: flex; gap: 8px; align-items: center; justify-content: center; transform: rotate(4deg); transition: transform .4s; }
+.project:hover .menu-scene { transform: rotate(1deg) translateY(-4px); }
+.menu-page { width: 47%; aspect-ratio: .7 / 1; padding: 8%; background: #F6F0E4; box-shadow: 0 15px 30px #0002; }
+.menu-page:nth-child(2) { transform: translateY(16px); background: #D9DFCE; }
+.menu-page h4 { margin: 0 0 18px; font-family: Georgia,serif; font-size: clamp(15px,2vw,27px); font-weight: 400; }
+.menu-line { height: 2px; background: currentColor; opacity: .35; margin: 8px 0; }
+.info-art { width: 80%; display: grid; grid-template-columns: 1fr 1.2fr; align-items: center; gap: 8%; }
+.info-big { font-size: clamp(38px,7vw,92px); line-height: .8; letter-spacing: -.1em; font-weight: 800; }
+.info-bars { display: flex; flex-direction: column; gap: 7px; }
+.info-bars span { height: 17px; background: #777D52; }
+.info-bars span:nth-child(2) { width: 75%; background: #B7B99B; }
+.info-bars span:nth-child(3) { width: 54%; background: #C8A37F; }
+.info-bars span:nth-child(4) { width: 86%; background: #45483A; }
+.project-meta { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; padding-top: 14px; }
+.project-title { font-size: 14px; letter-spacing: -.025em; font-weight: 650; }
+.project-type { color: var(--muted); font-size: 11px; margin-top: 5px; }
+.project-year { color: var(--muted); font-size: 10px; }
+.project-arrow { display: inline-block; margin-left: 6px; transition: transform .2s; }
+.project:hover .project-arrow { transform: translate(3px,-3px); }
+.about { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; padding: 38px 0 110px; border-top: 1px solid var(--line); }
+.about-heading { font-size: clamp(30px, 5vw, 64px); line-height: .94; letter-spacing: -.075em; font-weight: 650; max-width: 520px; }
+.about-body { max-width: 470px; font-size: 14px; line-height: 1.8; color: var(--muted); }
+.about-body p { margin: 0 0 17px; }
+.services { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 23px; }
+.services span { border: 1px solid var(--line); border-radius: 99px; padding: 8px 11px; font-size: 10px; color: var(--ink); }
+.contact { background: var(--site-secondary); color: var(--site-on-secondary); padding: 62px 0 35px; }
+.contact-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.contact-label { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+.contact h2 { font-size: clamp(42px, 8vw, 100px); line-height: .9; letter-spacing: -.085em; font-weight: 650; margin: 52px 0 42px; }
+.contact h2 span { color: var(--olive); }
+.contact-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.cta { border: 1px solid var(--site-on-secondary); padding: 13px 17px; font-size: 11px; display: inline-flex; align-items: center; gap: 14px; transition: background .2s,color .2s; cursor: pointer; }
+.cta.primary { background: var(--site-primary); color: var(--site-on-primary); border-color: var(--site-primary); }
+.cta:hover { background: var(--site-on-secondary); color: var(--site-secondary); }
+.cta.primary:hover { opacity: .85; }
+.footer { border-top: 1px solid color-mix(in srgb, var(--site-on-secondary) 20%, transparent); padding-top: 22px; margin-top: 75px; display: flex; justify-content: space-between; gap: 20px; font-size: 10px; color: color-mix(in srgb, var(--site-on-secondary) 65%, transparent); }
+.modal { display: none; position: fixed; z-index: 20; inset: 0; background: rgba(16,17,14,.65); padding: 22px; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+.modal.open { display: flex; }
+.modal-card { width: min(680px, 100%); max-height: 90vh; overflow: auto; background: var(--paper); color: var(--ink); padding: clamp(24px,5vw,48px); position: relative; }
+.modal-close { position: absolute; top: 15px; right: 18px; border: 1px solid var(--line); background: transparent; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 18px; }
+.modal-kicker { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .15em; }
+.modal h3 { font-size: clamp(32px,6vw,58px); letter-spacing: -.07em; line-height: .95; margin: 28px 0 15px; }
+.modal p { color: var(--muted); font-size: 14px; line-height: 1.8; }
+.modal-detail { border-top: 1px solid var(--line); margin-top: 25px; padding-top: 17px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 11px; }
+.modal-detail span { display: block; color: var(--muted); margin-bottom: 5px; }
+@media (max-width: 700px) {
+  .wrap { width: calc(100% - 36px); }
+  .topbar { padding: 19px 0; }
+  .nav { gap: 14px; font-size: 11px; }
+  .nav a:nth-child(2) { display: none; }
+  .hero { padding-top: 76px; }
+  .hero-bottom { align-items: flex-start; flex-direction: column; gap: 20px; margin-top: 30px; }
+  .hero-copy { font-size: 14px; }
+  .gallery { gap: 29px 10px; padding-bottom: 75px; }
+  .project, .project:nth-child(3n+2), .project:nth-child(3n+3) { grid-column: span 6; }
+  .artwork, .project:nth-child(4n+1) .artwork { aspect-ratio: .8 / 1; }
+  .artwork .art-label { top: 9px; left: 9px; font-size: 7px; }
+  .artwork .art-index { bottom: 9px; right: 9px; font-size: 8px; }
+  .cover { width: 68%; }
+  .poster { width: 65%; }
+  .brand-sheet { width: 86%; height: 65%; gap: 5px; padding: 6px; }
+  .social-stack { width: 90%; gap: 4px; }
+  .social-card small { font-size: 5px; }
+  .menu-scene { width: 84%; gap: 5px; }
+  .menu-page { padding: 6%; }
+  .menu-page h4 { font-size: 17px; margin-bottom: 10px; }
+  .menu-line { margin: 5px 0; }
+  .project-title { font-size: 12px; }
+  .project-type { font-size: 10px; }
+  .project-year { font-size: 9px; }
+  .section-note { display: none; }
+  .about { grid-template-columns: 1fr; gap: 28px; padding-bottom: 75px; }
+  .contact { padding-top: 42px; }
+  .contact h2 { margin: 60px 0 30px; }
+  .footer { margin-top: 55px; flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div id="site-root">
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="DUONG PHAM home"><span class="brand-mark">D.</span><span>DUONG PHAM<span style="color:var(--olive)">®</span></span></a>
+      <nav class="nav" aria-label="Main navigation"><a href="#work">Selected work</a><a href="#about">About</a><a class="contact-link" href="#contact">Let’s talk ↗</a></nav>
+    </header>
+    <main id="top">
+      <section class="hero">
+        <div class="kicker">Independent Visual Designer · Vietnam</div>
+        <h1>Ideas made<br><span class="outline">visible.</span></h1>
+        <div class="hero-bottom">
+          <p class="hero-copy">I create thoughtful visual experiences across <strong>editorial, identity and digital design</strong> — connecting clear ideas with meaningful visuals.</p>
+          <div class="availability"><span class="dot"></span> Available for selected projects</div>
+        </div>
+      </section>
+      <section id="work" aria-labelledby="work-title">
+        <div class="section-head"><div class="section-title" id="work-title">Selected work <span style="color:var(--olive)">(06)</span></div><div class="section-note">A selection of ideas, made tangible · 2023—2026</div></div>
+        <div class="filters" role="group" aria-label="Filter projects">
+          <button class="filter active" data-filter="all" aria-pressed="true">All work</button>
+          <button class="filter" data-filter="editorial" aria-pressed="false">Editorial</button>
+          <button class="filter" data-filter="identity" aria-pressed="false">Brand identity</button>
+          <button class="filter" data-filter="digital" aria-pressed="false">Digital & Social</button>
+          <button class="filter" data-filter="print" aria-pressed="false">Print & Infographic</button>
+        </div>
+        <div class="gallery" id="gallery">
+          <article class="project" tabindex="0" role="button" data-category="editorial" data-title="Beyond the Current" data-type="Editorial Design · Magazine Cover" data-year="2026" data-desc="Một concept bìa tạp chí khai thác câu chuyện ngành thủy sản bằng hình ảnh chủ đạo mạnh, typography tiết chế và hệ thống phân cấp rõ ràng. Thay nội dung này bằng mô tả dự án thực tế của bạn." style="--art-bg:#D9DED1;--art-ink:#22271F">
+            <div class="artwork"><span class="art-label">Editorial / Cover</span><div class="cover"><div class="mini">FIELD NOTES · 06/26</div><div class="cover-image"></div><div class="bigtype">BEYOND<br>THE<br>CURRENT</div><div class="cover-foot">New perspectives<br>on a changing industry</div></div><span class="art-index">01 / 06</span></div>
+            <div class="project-meta"><div><div class="project-title">Beyond the Current <span class="project-arrow">↗</span></div><div class="project-type">Editorial · Magazine Cover</div></div><div class="project-year">2026</div></div>
+          </article>
+          <article class="project" tabindex="0" role="button" data-category="identity" data-title="Mộc — A Slower Ritual" data-type="Brand Identity · Packaging" data-year="2025" data-desc="Hệ thống nhận diện lấy cảm hứng từ vật liệu tự nhiên, nhịp sống chậm và bảng màu trầm ấm. Thay nội dung này bằng bài toán, vai trò và kết quả dự án." style="--art-bg:#E5D8C6;--art-ink:#272820">
+            <div class="artwork"><span class="art-label">Identity / Packaging</span><div class="brand-sheet"><div class="brand-tile">mộc.</div><div class="brand-tile">M</div><div class="brand-tile">slow<br>living</div><div class="brand-tile">A SLOWER RITUAL</div></div><span class="art-index">02 / 06</span></div>
+            <div class="project-meta"><div><div class="project-title">Mộc — A Slower Ritual <span class="project-arrow">↗</span></div><div class="project-type">Brand Identity · Packaging</div></div><div class="project-year">2025</div></div>
+          </article>
+          <article class="project" tabindex="0" role="button" data-category="digital" data-title="Objects of Everyday" data-type="Digital Campaign · Social Media" data-year="2025" data-desc="Bộ social post sử dụng typography lớn, bố cục có nhịp và một hệ thống hình ảnh đồng nhất trên nhiều định dạng. Hãy bổ sung mục tiêu chiến dịch và số lượng thiết kế thực tế." style="--art-bg:#E6C2A7;--art-ink:#24261F">
+            <div class="artwork"><span class="art-label">Digital / Campaign</span><div class="social-stack"><div class="social-card"><small>OBJECTS / 001</small><b>LESS<br>BUT<br>BETTER.</b><small>DESIGNED TO LAST</small></div><div class="social-card"><small>STUDIO NOTES</small><b>LIVE<br>WITH<br>INTENT.</b><small>FORM FOLLOWS LIFE</small></div><div class="social-card"><small>THE EVERYDAY</small><b>MAKE<br>ROOM<br>FOR GOOD.</b><small>COLLECTION 02</small></div></div><span class="art-index">03 / 06</span></div>
+            <div class="project-meta"><div><div class="project-title">Objects of Everyday <span class="project-arrow">↗</span></div><div class="project-type">Digital Campaign · Social Media</div></div><div class="project-year">2025</div></div>
+          </article>
+          <article class="project" tabindex="0" role="button" data-category="print" data-title="A Study in Form" data-type="Poster Design · Art Direction" data-year="2024" data-desc="Poster thử nghiệm hình khối, tương phản màu và kiểu chữ đậm. Dự án thể hiện cách phát triển một ý tưởng thị giác xuyên suốt nhiều kích thước in ấn." style="--art-bg:#D8E1D5;--art-ink:#22251E">
+            <div class="artwork"><span class="art-label">Print / Poster</span><div class="poster"><div class="poster-title">A STUDY<br>IN FORM.</div><div class="poster-shape"></div><div class="poster-foot">FORM / SPACE / COLOUR<br>VISUAL EXPERIMENT 024</div></div><span class="art-index">04 / 06</span></div>
+            <div class="project-meta"><div><div class="project-title">A Study in Form <span class="project-arrow">↗</span></div><div class="project-type">Poster Design · Art Direction</div></div><div class="project-year">2024</div></div>
+          </article>
+          <article class="project" tabindex="0" role="button" data-category="print" data-title="The Green Transition" data-type="Infographic · Editorial Storytelling" data-year="2026" data-desc="Infographic biên tập chuyển dữ liệu phức tạp thành câu chuyện dễ theo dõi bằng thứ bậc thông tin, nhãn ngắn và bảng màu giới hạn. Thay bằng số liệu đã được xác minh từ dự án." style="--art-bg:#E8E7DE;--art-ink:#25271F">
+            <div class="artwork"><span class="art-label">Infographic / Data</span><div class="info-art"><div class="info-big">THE<br>GREEN<br><span style="color:#777D52">SHIFT.</span></div><div class="info-bars"><span></span><span></span><span></span><span></span><small style="font-size:7px;letter-spacing:.1em;margin-top:6px">SYSTEMS · ENERGY · FUTURE</small></div></div><span class="art-index">05 / 06</span></div>
+            <div class="project-meta"><div><div class="project-title">The Green Transition <span class="project-arrow">↗</span></div><div class="project-type">Infographic · Editorial Storytelling</div></div><div class="project-year">2026</div></div>
+          </article>
+          <article class="project" tabindex="0" role="button" data-category="print" data-title="Savour the Season" data-type="Restaurant Menu · Print Design" data-year="2024" data-desc="Thiết kế menu nhà hàng kết hợp typography thanh lịch, hệ thống phân nhóm món rõ ràng và chất liệu giấy gợi cảm giác thủ công. Bổ sung hình ảnh menu thực tế để thay mockup minh họa." style="--art-bg:#D9D9C7;--art-ink:#27291F">
+            <div class="artwork"><span class="art-label">Hospitality / Menu</span><div class="menu-scene"><div class="menu-page"><h4>savour.</h4><div class="menu-line"></div><div class="menu-line" style="width:70%"></div><br><small>SEASONAL<br>INGREDIENTS</small><div class="menu-line"></div><div class="menu-line" style="width:82%"></div><div class="menu-line" style="width:62%"></div></div><div class="menu-page"><h4>the<br>table.</h4><small>MENU · 2024</small><div class="menu-line"></div><div class="menu-line" style="width:80%"></div><div class="menu-line" style="width:60%"></div><br><small>MADE WITH<br>CARE & SEASON</small></div></div><span class="art-index">06 / 06</span></div>
+            <div class="project-meta"><div><div class="project-title">Savour the Season <span class="project-arrow">↗</span></div><div class="project-type">Restaurant Menu · Print Design</div></div><div class="project-year">2024</div></div>
+          </article>
+        </div>
+      </section>
+      <section class="about" id="about">
+        <div><div class="kicker">A little about me</div><div class="about-heading" style="margin-top:25px">Good design makes ideas feel clear.</div></div>
+        <div class="about-body"><p>I’m Duong, a visual designer working across editorial, branding and digital communication. I enjoy turning complex stories into visual systems that feel clear, considered and memorable.</p><p>This portfolio is a curated selection of work, experiments and collaborations. Replace this introduction with your own voice, experience and the kind of projects you want to attract.</p><div class="services"><span>Editorial Design</span><span>Brand Identity</span><span>Social Content</span><span>Poster & Banner</span><span>Menu Design</span><span>eMagazine</span><span>Infographic</span></div></div>
+      </section>
+    </main>
+  </div>
+  <footer class="contact" id="contact"><div class="wrap"><div class="contact-top"><div class="contact-label">Have a project in mind?</div><div class="contact-label">Ho Chi Minh City · Vietnam</div></div><h2>Let’s make<br>something <span>meaningful.</span></h2><div class="contact-actions"><a class="cta primary" id="email-link" href="mailto:hello@duongpham.design">Start a conversation ↗</a><button class="cta" id="copy-email">Copy email address +</button><a class="cta" href="#work">Explore selected work ↑</a></div><div class="footer"><span>© <span id="year"></span> DUONG PHAM® — Visual Designer</span><span>Designed with intention. Made to be useful.</span><a href="#top">Back to top ↑</a></div></div></footer>
+</div>
+<div class="modal" id="project-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-card"><button class="modal-close" id="modal-close" aria-label="Close project details">×</button><div class="modal-kicker" id="modal-kicker">Project overview</div><h3 id="modal-title">Project title</h3><p id="modal-desc"></p><div class="modal-detail"><div><span>Discipline</span><strong id="modal-type"></strong></div><div><span>Year</span><strong id="modal-year"></strong></div></div><p style="font-size:11px;margin-top:22px">Đây là nội dung mẫu. Hãy thay bằng case study, ảnh thật, vai trò và kết quả của dự án.</p></div></div>
+<script>
+(function () {
+  const filters = Array.from(document.querySelectorAll('.filter'));
+  const projects = Array.from(document.querySelectorAll('.project'));
+  const modal = document.getElementById('project-modal');
+  let lastFocused = null;
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  filters.forEach((button) => {
+    button.addEventListener('click', () => {
+      const category = button.dataset.filter;
+      filters.forEach((item) => {
+        const selected = item === button;
+        item.classList.toggle('active', selected);
+        item.setAttribute('aria-pressed', String(selected));
+      });
+      projects.forEach((project) => {
+        project.hidden = category !== 'all' && project.dataset.category !== category;
+      });
+      const count = projects.filter((project) => !project.hidden).length;
+      document.querySelector('#work-title span').textContent = '(' + String(count).padStart(2, '0') + ')';
+    });
+  });
+
+  function openProject(project) {
+    lastFocused = project;
+    document.getElementById('modal-title').textContent = project.dataset.title;
+    document.getElementById('modal-kicker').textContent = 'Selected work / ' + project.dataset.category;
+    document.getElementById('modal-desc').textContent = project.dataset.desc;
+    document.getElementById('modal-type').textContent = project.dataset.type;
+    document.getElementById('modal-year').textContent = project.dataset.year;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('modal-close').focus();
+  }
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    if (lastFocused) lastFocused.focus();
+  }
+  projects.forEach((project) => {
+    project.addEventListener('click', () => openProject(project));
+    project.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openProject(project);
+      }
+    });
+  });
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+  document.getElementById('copy-email').addEventListener('click', async () => {
+    const email = 'hello@duongpham.design';
+    const button = document.getElementById('copy-email');
+    try {
+      await navigator.clipboard.writeText(email);
+      button.textContent = 'Email copied ✓';
+    } catch (error) {
+      window.location.href = 'mailto:' + email;
+      button.textContent = 'Open email app ↗';
+    }
+    window.setTimeout(() => { button.textContent = 'Copy email address +'; }, 2200);
+  });
+})();
+</script>
+</body>
+</html>
