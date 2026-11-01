@@ -106,6 +106,14 @@ h1 .outline { color: transparent; -webkit-text-stroke: 1.4px var(--ink); }
 .info-bars span:nth-child(2) { width: 75%; background: #B7B99B; }
 .info-bars span:nth-child(3) { width: 54%; background: #C8A37F; }
 .info-bars span:nth-child(4) { width: 86%; background: #45483A; }
+.artwork { position: relative; }
+.artwork .project-cover { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; transition:transform .55s cubic-bezier(.2,.7,.2,1); }
+.project:hover .project-cover { transform:scale(1.035); }
+.artwork.has-cover .art-label, .artwork.has-cover .art-index { color:#fff; text-shadow:0 1px 12px #0008; }
+.empty-art { width:100%; height:100%; display:flex; flex-direction:column; justify-content:space-between; padding:clamp(18px,3vw,38px); background:linear-gradient(145deg,var(--art-bg,#E9E5D9),color-mix(in srgb,var(--art-bg,#E9E5D9) 68%, #777D52)); }
+.empty-art strong { font-size:clamp(25px,4vw,58px); line-height:.88; letter-spacing:-.08em; max-width:90%; overflow-wrap:anywhere; }
+.empty-art span { font-size:9px; letter-spacing:.14em; text-transform:uppercase; }
+.gallery-status { grid-column:1/-1; padding:28px 0; color:var(--muted); font-size:13px; line-height:1.7; }
 .project-meta { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; padding-top: 14px; }
 .project-title { font-size: 14px; letter-spacing: -.025em; font-weight: 650; }
 .project-type { color: var(--muted); font-size: 11px; margin-top: 5px; }
@@ -199,30 +207,7 @@ h1 .outline { color: transparent; -webkit-text-stroke: 1.4px var(--ink); }
           <button class="filter" data-filter="print" aria-pressed="false">Print & Infographic</button>
         </div>
         <div class="gallery" id="gallery">
-          <article class="project" tabindex="0" role="button" data-category="editorial" data-title="Beyond the Current" data-type="Editorial Design · Magazine Cover" data-year="2026" data-desc="Một concept bìa tạp chí khai thác câu chuyện ngành thủy sản bằng hình ảnh chủ đạo mạnh, typography tiết chế và hệ thống phân cấp rõ ràng. Thay nội dung này bằng mô tả dự án thực tế của bạn." style="--art-bg:#D9DED1;--art-ink:#22271F">
-            <div class="artwork"><span class="art-label">Editorial / Cover</span><div class="cover"><div class="mini">FIELD NOTES · 06/26</div><div class="cover-image"></div><div class="bigtype">BEYOND<br>THE<br>CURRENT</div><div class="cover-foot">New perspectives<br>on a changing industry</div></div><span class="art-index">01 / 06</span></div>
-            <div class="project-meta"><div><div class="project-title">Beyond the Current <span class="project-arrow">↗</span></div><div class="project-type">Editorial · Magazine Cover</div></div><div class="project-year">2026</div></div>
-          </article>
-          <article class="project" tabindex="0" role="button" data-category="identity" data-title="Mộc — A Slower Ritual" data-type="Brand Identity · Packaging" data-year="2025" data-desc="Hệ thống nhận diện lấy cảm hứng từ vật liệu tự nhiên, nhịp sống chậm và bảng màu trầm ấm. Thay nội dung này bằng bài toán, vai trò và kết quả dự án." style="--art-bg:#E5D8C6;--art-ink:#272820">
-            <div class="artwork"><span class="art-label">Identity / Packaging</span><div class="brand-sheet"><div class="brand-tile">mộc.</div><div class="brand-tile">M</div><div class="brand-tile">slow<br>living</div><div class="brand-tile">A SLOWER RITUAL</div></div><span class="art-index">02 / 06</span></div>
-            <div class="project-meta"><div><div class="project-title">Mộc — A Slower Ritual <span class="project-arrow">↗</span></div><div class="project-type">Brand Identity · Packaging</div></div><div class="project-year">2025</div></div>
-          </article>
-          <article class="project" tabindex="0" role="button" data-category="digital" data-title="Objects of Everyday" data-type="Digital Campaign · Social Media" data-year="2025" data-desc="Bộ social post sử dụng typography lớn, bố cục có nhịp và một hệ thống hình ảnh đồng nhất trên nhiều định dạng. Hãy bổ sung mục tiêu chiến dịch và số lượng thiết kế thực tế." style="--art-bg:#E6C2A7;--art-ink:#24261F">
-            <div class="artwork"><span class="art-label">Digital / Campaign</span><div class="social-stack"><div class="social-card"><small>OBJECTS / 001</small><b>LESS<br>BUT<br>BETTER.</b><small>DESIGNED TO LAST</small></div><div class="social-card"><small>STUDIO NOTES</small><b>LIVE<br>WITH<br>INTENT.</b><small>FORM FOLLOWS LIFE</small></div><div class="social-card"><small>THE EVERYDAY</small><b>MAKE<br>ROOM<br>FOR GOOD.</b><small>COLLECTION 02</small></div></div><span class="art-index">03 / 06</span></div>
-            <div class="project-meta"><div><div class="project-title">Objects of Everyday <span class="project-arrow">↗</span></div><div class="project-type">Digital Campaign · Social Media</div></div><div class="project-year">2025</div></div>
-          </article>
-          <article class="project" tabindex="0" role="button" data-category="print" data-title="A Study in Form" data-type="Poster Design · Art Direction" data-year="2024" data-desc="Poster thử nghiệm hình khối, tương phản màu và kiểu chữ đậm. Dự án thể hiện cách phát triển một ý tưởng thị giác xuyên suốt nhiều kích thước in ấn." style="--art-bg:#D8E1D5;--art-ink:#22251E">
-            <div class="artwork"><span class="art-label">Print / Poster</span><div class="poster"><div class="poster-title">A STUDY<br>IN FORM.</div><div class="poster-shape"></div><div class="poster-foot">FORM / SPACE / COLOUR<br>VISUAL EXPERIMENT 024</div></div><span class="art-index">04 / 06</span></div>
-            <div class="project-meta"><div><div class="project-title">A Study in Form <span class="project-arrow">↗</span></div><div class="project-type">Poster Design · Art Direction</div></div><div class="project-year">2024</div></div>
-          </article>
-          <article class="project" tabindex="0" role="button" data-category="print" data-title="The Green Transition" data-type="Infographic · Editorial Storytelling" data-year="2026" data-desc="Infographic biên tập chuyển dữ liệu phức tạp thành câu chuyện dễ theo dõi bằng thứ bậc thông tin, nhãn ngắn và bảng màu giới hạn. Thay bằng số liệu đã được xác minh từ dự án." style="--art-bg:#E8E7DE;--art-ink:#25271F">
-            <div class="artwork"><span class="art-label">Infographic / Data</span><div class="info-art"><div class="info-big">THE<br>GREEN<br><span style="color:#777D52">SHIFT.</span></div><div class="info-bars"><span></span><span></span><span></span><span></span><small style="font-size:7px;letter-spacing:.1em;margin-top:6px">SYSTEMS · ENERGY · FUTURE</small></div></div><span class="art-index">05 / 06</span></div>
-            <div class="project-meta"><div><div class="project-title">The Green Transition <span class="project-arrow">↗</span></div><div class="project-type">Infographic · Editorial Storytelling</div></div><div class="project-year">2026</div></div>
-          </article>
-          <article class="project" tabindex="0" role="button" data-category="print" data-title="Savour the Season" data-type="Restaurant Menu · Print Design" data-year="2024" data-desc="Thiết kế menu nhà hàng kết hợp typography thanh lịch, hệ thống phân nhóm món rõ ràng và chất liệu giấy gợi cảm giác thủ công. Bổ sung hình ảnh menu thực tế để thay mockup minh họa." style="--art-bg:#D9D9C7;--art-ink:#27291F">
-            <div class="artwork"><span class="art-label">Hospitality / Menu</span><div class="menu-scene"><div class="menu-page"><h4>savour.</h4><div class="menu-line"></div><div class="menu-line" style="width:70%"></div><br><small>SEASONAL<br>INGREDIENTS</small><div class="menu-line"></div><div class="menu-line" style="width:82%"></div><div class="menu-line" style="width:62%"></div></div><div class="menu-page"><h4>the<br>table.</h4><small>MENU · 2024</small><div class="menu-line"></div><div class="menu-line" style="width:80%"></div><div class="menu-line" style="width:60%"></div><br><small>MADE WITH<br>CARE & SEASON</small></div></div><span class="art-index">06 / 06</span></div>
-            <div class="project-meta"><div><div class="project-title">Savour the Season <span class="project-arrow">↗</span></div><div class="project-type">Restaurant Menu · Print Design</div></div><div class="project-year">2024</div></div>
-          </article>
+          <p class="gallery-status">Loading selected projects…</p>
         </div>
       </section>
       <section class="about" id="about">
@@ -236,56 +221,153 @@ h1 .outline { color: transparent; -webkit-text-stroke: 1.4px var(--ink); }
 <div class="modal" id="project-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-card"><button class="modal-close" id="modal-close" aria-label="Close project details">×</button><div class="modal-kicker" id="modal-kicker">Project overview</div><h3 id="modal-title">Project title</h3><p id="modal-desc"></p><div class="modal-detail"><div><span>Discipline</span><strong id="modal-type"></strong></div><div><span>Year</span><strong id="modal-year"></strong></div></div><p style="font-size:11px;margin-top:22px">Đây là nội dung mẫu. Hãy thay bằng case study, ảnh thật, vai trò và kết quả của dự án.</p></div></div>
 <script>
 (function () {
+  const SUPABASE_URL = 'https://gutlbvueimzjhpgplogf.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_hLiulz_jL9N3Is6Bbvcfrg_nhMg39_-';
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const filters = Array.from(document.querySelectorAll('.filter'));
-  const projects = Array.from(document.querySelectorAll('.project'));
-  const modal = document.getElementById('project-modal');
-  let lastFocused = null;
+  const gallery = document.getElementById('gallery');
+  const countLabel = document.querySelector('#work-title span');
+  const projects = [];
+  const categoryNames = {
+    editorial: 'Editorial',
+    identity: 'Brand identity',
+    digital: 'Digital & Social',
+    print: 'Print & Infographic'
+  };
+  const palette = ['#D9DED1','#E5D8C6','#E6C2A7','#D8E1D5','#E8E7DE','#D9D9C7'];
+
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  filters.forEach((button) => {
-    button.addEventListener('click', () => {
-      const category = button.dataset.filter;
-      filters.forEach((item) => {
-        const selected = item === button;
-        item.classList.toggle('active', selected);
-        item.setAttribute('aria-pressed', String(selected));
-      });
-      projects.forEach((project) => {
-        project.hidden = category !== 'all' && project.dataset.category !== category;
-      });
-      const count = projects.filter((project) => !project.hidden).length;
-      document.querySelector('#work-title span').textContent = '(' + String(count).padStart(2, '0') + ')';
-    });
-  });
-
-  function openProject(project) {
-    lastFocused = project;
-    document.getElementById('modal-title').textContent = project.dataset.title;
-    document.getElementById('modal-kicker').textContent = 'Selected work / ' + project.dataset.category;
-    document.getElementById('modal-desc').textContent = project.dataset.desc;
-    document.getElementById('modal-type').textContent = project.dataset.type;
-    document.getElementById('modal-year').textContent = project.dataset.year;
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    document.getElementById('modal-close').focus();
+  function escapeText(value) {
+    return String(value ?? '');
   }
-  function closeModal() {
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-    if (lastFocused) lastFocused.focus();
+  function normalizeCategory(value) {
+    return String(value || '').toLowerCase().trim();
   }
-  projects.forEach((project) => {
-    project.addEventListener('click', () => openProject(project));
-    project.addEventListener('keydown', (event) => {
+  function categoryLabel(value) {
+    return categoryNames[normalizeCategory(value)] || value || 'Design';
+  }
+  function renderProject(project, index) {
+    const category = normalizeCategory(project.category);
+    const article = document.createElement('article');
+    article.className = 'project';
+    article.tabIndex = 0;
+    article.setAttribute('role', 'link');
+    article.setAttribute('aria-label', 'View project: ' + escapeText(project.title));
+    article.dataset.category = category;
+    article.style.setProperty('--art-bg', palette[index % palette.length]);
+    const artwork = document.createElement('div');
+    artwork.className = 'artwork' + (project.cover_image ? ' has-cover' : '');
+    const label = document.createElement('span');
+    label.className = 'art-label';
+    label.textContent = categoryLabel(project.category) + ' / ' + (project.project_type || 'Selected work');
+    const indexLabel = document.createElement('span');
+    indexLabel.className = 'art-index';
+    indexLabel.textContent = String(index + 1).padStart(2, '0') + ' / ' + String(projects.length).padStart(2, '0');
+    if (project.cover_image) {
+      const img = document.createElement('img');
+      img.className = 'project-cover';
+      img.src = project.cover_image;
+      img.alt = project.title || 'Project cover';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      artwork.appendChild(img);
+    } else {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'empty-art';
+      const categoryText = document.createElement('span');
+      categoryText.textContent = categoryLabel(project.category);
+      const title = document.createElement('strong');
+      title.textContent = project.title || 'Untitled project';
+      const foot = document.createElement('span');
+      foot.textContent = project.project_type || 'Visual design · Vietnam';
+      placeholder.append(categoryText, title, foot);
+      artwork.appendChild(placeholder);
+    }
+    artwork.append(label, indexLabel);
+    const meta = document.createElement('div');
+    meta.className = 'project-meta';
+    const info = document.createElement('div');
+    const title = document.createElement('div');
+    title.className = 'project-title';
+    title.textContent = project.title || 'Untitled project';
+    const arrow = document.createElement('span');
+    arrow.className = 'project-arrow';
+    arrow.textContent = '↗';
+    title.appendChild(arrow);
+    const type = document.createElement('div');
+    type.className = 'project-type';
+    type.textContent = project.project_type || categoryLabel(project.category);
+    info.append(title, type);
+    const year = document.createElement('div');
+    year.className = 'project-year';
+    year.textContent = project.year || '';
+    meta.append(info, year);
+    article.append(artwork, meta);
+    const open = () => { window.location.href = 'project.html?id=' + encodeURIComponent(project.id); };
+    article.addEventListener('click', open);
+    article.addEventListener('keydown', event => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        openProject(project);
+        open();
       }
     });
-  });
-  document.getElementById('modal-close').addEventListener('click', closeModal);
-  modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
-  document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+    return article;
+  }
+
+  function applyFilter(button) {
+    filters.forEach(item => {
+      const selected = item === button;
+      item.classList.toggle('active', selected);
+      item.setAttribute('aria-pressed', String(selected));
+    });
+    const category = button.dataset.filter;
+    let visible = 0;
+    Array.from(gallery.querySelectorAll('.project')).forEach(card => {
+      const show = category === 'all' || card.dataset.category === category;
+      card.hidden = !show;
+      if (show) visible++;
+    });
+    countLabel.textContent = '(' + String(visible).padStart(2, '0') + ')';
+  }
+
+  filters.forEach(button => button.addEventListener('click', () => applyFilter(button)));
+
+  async function loadProjects() {
+    gallery.innerHTML = '<p class="gallery-status">Loading selected projects…</p>';
+    const { data, error } = await db
+      .from('projects')
+      .select('id,title,category,project_type,year,description,cover_image,sort_order,created_at,is_published')
+      .eq('is_published', true)
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      gallery.innerHTML = '';
+      const status = document.createElement('p');
+      status.className = 'gallery-status';
+      status.textContent = 'Projects could not be loaded right now. Please try again later.';
+      gallery.appendChild(status);
+      countLabel.textContent = '(00)';
+      console.error('Supabase projects query failed:', error.message);
+      return;
+    }
+
+    projects.push(...(data || []));
+    gallery.innerHTML = '';
+    if (!projects.length) {
+      const status = document.createElement('p');
+      status.className = 'gallery-status';
+      status.textContent = 'No published projects yet. Publish a project from the portfolio admin to show it here.';
+      gallery.appendChild(status);
+      countLabel.textContent = '(00)';
+      return;
+    }
+
+    projects.forEach((project, index) => gallery.appendChild(renderProject(project, index)));
+    countLabel.textContent = '(' + String(projects.length).padStart(2, '0') + ')';
+  }
+
   document.getElementById('copy-email').addEventListener('click', async () => {
     const email = 'hello@duongpham.design';
     const button = document.getElementById('copy-email');
@@ -298,6 +380,8 @@ h1 .outline { color: transparent; -webkit-text-stroke: 1.4px var(--ink); }
     }
     window.setTimeout(() => { button.textContent = 'Copy email address +'; }, 2200);
   });
+
+  loadProjects();
 })();
 </script>
 </body>
