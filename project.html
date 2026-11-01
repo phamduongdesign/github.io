@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Project case study — DUONG PHAM® Visual Designer">
+<title>Project — DUONG PHAM®</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:light;--paper:#F8F7F2;--ink:#20211D;--muted:#77776F;--line:#DCDAD1;--olive:#777D52;--surface:#EFEEE7}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:14px Inter,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,a{font:inherit}
+.wrap{width:min(1200px,calc(100% - 72px));margin:0 auto}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:24px 0;border-bottom:1px solid var(--line);gap:20px}
+.brand{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:800;letter-spacing:-.04em}
+.brand-mark{display:grid;place-items:center;width:29px;height:29px;background:var(--olive);color:white;border-radius:50%;font-size:12px}
+.back{font-size:12px;color:var(--muted)}
+.back:hover{color:var(--ink)}
+main{padding:42px 0 100px}
+.kicker{display:flex;align-items:center;gap:10px;text-transform:uppercase;letter-spacing:.14em;font-size:10px;color:var(--muted)}
+.kicker:before{content:"";width:23px;height:1px;background:var(--olive)}
+.intro{display:grid;grid-template-columns:1.2fr .8fr;align-items:end;gap:50px;padding:70px 0 36px}
+h1{font-size:clamp(44px,8vw,100px);line-height:.9;letter-spacing:-.085em;font-weight:650;margin:22px 0 0;overflow-wrap:anywhere}
+.summary{font-size:14px;line-height:1.85;color:var(--muted);max-width:440px;margin:0}
+.meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:32px}
+.meta small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px}
+.meta strong{font-size:12px;font-weight:600}
+.hero-image{background:var(--surface);min-height:240px;display:grid;place-items:center;overflow:hidden}
+.hero-image img{display:block;width:100%;max-height:900px;object-fit:contain}
+.image-placeholder{padding:80px 24px;text-align:center;color:var(--muted);font-size:12px}
+.story{display:grid;grid-template-columns:.65fr 1.35fr;gap:50px;padding:56px 0}
+.story h2{font-size:clamp(27px,4vw,44px);line-height:.98;letter-spacing:-.06em;font-weight:550;margin:0}
+.story p{max-width:720px;margin:0;color:var(--muted);font-size:14px;line-height:1.9;white-space:pre-line}
+.note{border-top:1px solid var(--line);padding-top:20px;color:var(--muted);font-size:11px;line-height:1.7}
+.footer{border-top:1px solid var(--line);padding-top:20px;display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:10px}
+.state{padding:80px 0;color:var(--muted);line-height:1.8}
+@media(max-width:700px){.wrap{width:calc(100% - 36px)}.intro,.story{grid-template-columns:1fr;gap:22px}.intro{padding-top:50px}.meta{grid-template-columns:1fr 1fr;gap:20px}.meta>div:last-child{grid-column:1/-1}main{padding-top:28px}.hero-image{min-height:180px}.footer{flex-direction:column;gap:8px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="topbar wrap">
+  <a class="brand" href="./index.html#top"><span class="brand-mark">D.</span><span>DUONG PHAM®</span></a>
+  <a class="back" href="./index.html#work">← Back to selected work</a>
+</header>
+<main class="wrap">
+  <div id="loading" class="state">Loading project…</div>
+  <article id="case-study" hidden>
+    <section class="intro">
+      <div><div class="kicker" id="category">Selected work</div><h1 id="title">Project title</h1></div>
+      <p class="summary" id="summary"></p>
+    </section>
+    <section class="meta">
+      <div><small>Discipline</small><strong id="discipline">—</strong></div>
+      <div><small>Year</small><strong id="year">—</strong></div>
+      <div><small>Role</small><strong id="role">Visual design</strong></div>
+    </section>
+    <div class="hero-image" id="hero-image"></div>
+    <section class="story">
+      <h2>The idea<br>behind the work.</h2>
+      <p id="description"></p>
+    </section>
+    <p class="note">This case study is managed through the portfolio admin. Add a clear project description and upload a strong cover image to give visitors the best overview of your work.</p>
+  </article>
+  <div id="error" class="state" hidden>
+    This project could not be found, or it is not currently published.<br><br>
+    <a class="back" href="./index.html#work">← Return to selected work</a>
+  </div>
+</main>
+<footer class="wrap footer"><span>© <span id="current-year"></span> DUONG PHAM® — Visual Designer</span><span>Designed with intention. Made to be useful.</span><a href="./index.html#top">Back to home ↑</a></footer>
+<script>
+(function(){
+  const SUPABASE_URL='https://gutlbvueimzjhpgplogf.supabase.co';
+  const SUPABASE_KEY='sb_publishable_hLiulz_jL9N3Is6Bbvcfrg_nhMg39_-';
+  const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  const $=id=>document.getElementById(id);
+  $('current-year').textContent=new Date().getFullYear();
+  const id=new URLSearchParams(window.location.search).get('id');
+  const names={editorial:'Editorial',identity:'Brand identity',digital:'Digital & Social',print:'Print & Infographic'};
+  async function load(){
+    if(!id){$('loading').hidden=true;$('error').hidden=false;return;}
+    const {data,error}=await db.from('projects').select('id,title,category,project_type,year,description,cover_image,is_published').eq('id',id).eq('is_published',true).maybeSingle();
+    $('loading').hidden=true;
+    if(error||!data){$('error').hidden=false;return;}
+    $('case-study').hidden=false;
+    document.title=(data.title||'Project')+' — DUONG PHAM®';
+    $('category').textContent=(names[String(data.category||'').toLowerCase()]||data.category||'Selected work')+' / Case study';
+    $('title').textContent=data.title||'Untitled project';
+    $('summary').textContent=data.description||'A selected design project by DUONG PHAM®.';
+    $('discipline').textContent=data.project_type||names[String(data.category||'').toLowerCase()]||data.category||'Visual design';
+    $('year').textContent=data.year||'—';
+    $('role').textContent='Concept · Design';
+    $('description').textContent=data.description||'Project details will be added here.';
+    const hero=$('hero-image');
+    if(data.cover_image){
+      const img=document.createElement('img');img.src=data.cover_image;img.alt=data.title||'Project cover';img.loading='eager';hero.appendChild(img);
+    }else{
+      const placeholder=document.createElement('div');placeholder.className='image-placeholder';placeholder.textContent='Add a cover image in Portfolio Admin to display it here.';hero.appendChild(placeholder);
+    }
+  }
+  load();
+})();
+</script>
+</body>
+</html>
