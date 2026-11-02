@@ -1,77 +1,277 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="DUONG PHAM — Graphic designer, Vietnam">
-<meta name="theme-color" content="#F8F7F2">
-<title>DUONG PHAM® — Graphic Designer</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pham Duong — Design Portfolio</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{color-scheme:light;--site-primary:#1F2A44;--site-accent:#C49A6C;--site-hover-bg:#CDE3ED;--site-hover-text:#1F2A44;--site-hover-border:transparent;--site-on-primary:#F8F7F2;--paper:#F8F7F2;--ink:#1F2A44;--muted:#77776F;--line:#DCDAD1;--surface:#EFEEE7;--accent:var(--site-accent);--accent-soft:#F1E9DE}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}button{font:inherit}.wrap{width:min(1440px,calc(100% - 72px));margin:auto}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:24px 0;border-bottom:1px solid var(--line);gap:24px}.brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;letter-spacing:-.04em}.brand-mark{width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--ink);border-radius:50%;font-size:11px}.nav{display:flex;gap:30px;font-size:12px;color:var(--muted)}.nav a:hover{color:var(--site-accent)}
-.hero{padding:38px 0 65px}.hero-visual{width:100%;height:clamp(280px,48vw,640px);margin:0 0 clamp(42px,6vw,76px);overflow:hidden;background:var(--surface)}.hero-visual img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 48%}.kicker{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:10px;letter-spacing:.15em;text-transform:uppercase}.kicker:before{content:"";width:24px;height:1px;background:var(--accent)}h1{font-size:clamp(56px,10vw,140px);line-height:.86;letter-spacing:-.095em;font-weight:600;margin:28px 0}h1 span{color:transparent;-webkit-text-stroke:1.5px var(--ink)}.hero-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:30px}.hero-copy{max-width:460px;color:var(--muted);font-size:15px;line-height:1.8;margin:0}.availability{font-size:11px;color:var(--muted);white-space:nowrap}.availability:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:10px}
-.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;padding:24px 0;border-top:1px solid var(--line)}.section-title{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:700}.section-note{font-size:11px;color:var(--muted)}.filters{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 28px}.filter{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:99px;padding:9px 15px;font-size:11px;cursor:pointer;transition:all .2s}.filter:hover,.filter:focus-visible{background:var(--site-hover-bg);border-color:transparent;color:var(--site-hover-text);outline:none}.filter.active{background:var(--ink);border-color:var(--ink);color:#fff}
-.gallery{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:44px 18px;padding-bottom:110px}.project{grid-column:span 6;min-width:0;cursor:pointer;outline:none}.project:nth-child(3n+2){grid-column:span 5}.project:nth-child(3n+3){grid-column:span 7}.project[hidden]{display:none}.artwork{position:relative;overflow:hidden;aspect-ratio:1.18/1;background:var(--surface)}.project:nth-child(4n+1) .artwork{aspect-ratio:1.02/1}.project-cover{display:block;width:100%;height:100%;object-fit:cover;transition:transform .55s}.project:hover .project-cover,.project:focus-visible .project-cover{transform:scale(1.035)}.art-label,.art-index{position:absolute;z-index:2;color:#fff;text-shadow:0 1px 12px #0008;font-size:9px;letter-spacing:.12em;text-transform:uppercase}.art-label{top:16px;left:17px}.art-index{right:17px;bottom:15px}.empty-art{height:100%;min-height:240px;padding:clamp(20px,3vw,38px);display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(145deg,#E7E4DA,#D6D0C3);color:var(--ink)}.empty-art span{font-size:9px;letter-spacing:.14em;text-transform:uppercase}.empty-art strong{font-size:clamp(28px,4.5vw,62px);line-height:.9;letter-spacing:-.08em;overflow-wrap:anywhere}.project-meta{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;padding-top:14px}.project-title{font-size:14px;font-weight:650;letter-spacing:-.025em}.project-type{font-size:11px;color:var(--muted);margin-top:5px}.project-year{font-size:10px;color:var(--muted);white-space:nowrap}.project-arrow{display:inline-block;margin-left:6px;transition:transform .2s}.project:hover .project-arrow{transform:translate(3px,-3px)}.gallery-status{grid-column:1/-1;padding:28px 0;color:var(--muted);font-size:13px;line-height:1.7}
-.about{display:grid;grid-template-columns:1fr 1fr;gap:50px;padding:38px 0 110px;border-top:1px solid var(--line)}.about-heading{font-size:clamp(32px,5vw,66px);line-height:.94;letter-spacing:-.075em;font-weight:600;max-width:540px;margin-top:25px}.about-body{max-width:490px;color:var(--muted);font-size:14px;line-height:1.85}.about-body p{margin:0 0 17px}.services{display:flex;flex-wrap:wrap;gap:7px;margin-top:22px}.services span{border:1px solid var(--line);border-radius:99px;padding:8px 11px;font-size:10px;color:var(--ink)}
-.contact{background:var(--site-primary);color:var(--site-on-primary);padding:62px 0 32px}.contact-top{display:flex;justify-content:space-between;gap:20px;font-size:10px;letter-spacing:.14em;text-transform:uppercase}.contact h2{font-size:clamp(44px,8vw,100px);line-height:.9;letter-spacing:-.085em;font-weight:550;margin:55px 0 40px}.contact h2 span{color:#D9A18A}.contact-actions{display:flex;gap:10px;flex-wrap:wrap}.cta{display:inline-flex;align-items:center;gap:12px;border:1px solid #77776F;padding:13px 17px;font-size:11px;transition:all .2s}.cta.primary{background:var(--site-accent);border-color:var(--site-accent);color:var(--site-hover-text)}.cta:hover{background:var(--site-hover-bg);border-color:var(--site-hover-border);color:var(--site-hover-text)}.footer{border-top:1px solid #ffffff30;padding-top:20px;margin-top:70px;display:flex;justify-content:space-between;gap:20px;color:#b9b7af;font-size:10px}
-@media(max-width:700px){.wrap{width:calc(100% - 36px)}.topbar{padding:19px 0}.nav{gap:14px;font-size:11px}.nav a:nth-child(2){display:none}.hero{padding-top:76px}.hero-bottom{align-items:flex-start;flex-direction:column;gap:18px}.hero-copy{font-size:14px}.section-head{align-items:flex-start;flex-direction:column}.section-note{display:none}.gallery{gap:30px 10px;padding-bottom:76px}.project,.project:nth-child(3n+2),.project:nth-child(3n+3){grid-column:span 6}.artwork,.project:nth-child(4n+1) .artwork{aspect-ratio:.8/1}.art-label{top:9px;left:9px;font-size:7px}.art-index{right:9px;bottom:9px;font-size:8px}.project-title{font-size:12px}.project-type{font-size:10px}.project-year{font-size:9px}.about{grid-template-columns:1fr;gap:25px;padding-bottom:75px}.contact{padding-top:42px}.contact h2{margin:55px 0 30px}.footer{flex-direction:column;gap:9px;margin-top:50px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
+:root {
+  /* QUICK COLOR EDIT: chỉ cần đổi các mã HEX trong nhóm này */
+  --site-primary: #1F2A44;
+  --site-accent: #C49A6C;
+  --site-hover-bg: #C49A6C;
+  --site-hover-text: #1F2A44;
+  --site-hover-border: #C49A6C;
+  --site-on-primary: #f8f6f0;
+  --site-secondary: #e8e3d9;
+  --site-on-secondary: #292923;
+  --site-background: #f6f4ef;
+  --site-on-background: #292923;
+  --site-font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --site-font-heading: "Helvetica Neue", Arial, sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  color-scheme: light dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: light-dark(#f6f4ef, #20201d); color: light-dark(#292923, #f4f0e8); font-family: var(--site-font-body); -webkit-font-smoothing: antialiased; }
+button, a { font: inherit; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; }
+.site-root { min-height: 100vh; background-color: var(--site-background); color: var(--site-on-background); border-radius: 0; overflow: clip; }
+.wrap { width: min(1420px, calc(100% - 72px)); margin-inline: auto; }
+.topbar { min-height: 78px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(41,41,35,.15); gap:24px; }
+.brand { font-size:14px; letter-spacing:-.03em; font-weight:750; display:flex; align-items:center; gap:10px; white-space:nowrap; }
+.brand-mark { width:28px; height:28px; border:1px solid currentColor; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:600; }
+.nav { display:flex; align-items:center; gap:28px; font-size:12px; color:#77766f; }
+.nav a { transition:color .2s ease; }
+.nav a:hover, .nav a:focus-visible { color:var(--site-accent); }
+.availability { display:flex; align-items:center; gap:8px; font-size:11px; color:#68685f; white-space:nowrap; }
+.dot { width:6px; height:6px; border-radius:50%; background:#7c8c68; box-shadow:0 0 0 4px rgba(124,140,104,.12); }
+.hero { padding: clamp(70px, 10vw, 142px) 0 70px; }
+.hero-image { width:100%; height:clamp(220px,38vw,500px); margin-bottom:42px; overflow:hidden; background:#dce5e9; }
+.hero-image img { display:block; width:100%; height:100%; object-fit:cover; object-position:center 48%; }
+.eyebrow { display:flex; align-items:center; gap:12px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#77766f; }
+.eyebrow:before { content:""; width:28px; height:1px; background:currentColor; }
+h1 { max-width:1000px; margin:26px 0 24px; font-family:var(--site-font-heading); font-size:clamp(48px, 8.2vw, 112px); font-weight:500; line-height:.96; letter-spacing:-.085em; white-space:pre-line; }
+h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
+.hero-bottom { display:flex; align-items:flex-end; justify-content:space-between; gap:28px; }
+.hero-copy { max-width:420px; color:#74736c; font-size:14px; line-height:1.75; }
+.hero-meta { text-align:right; font-size:11px; line-height:1.9; color:#77766f; }
+.hero-meta strong { color:var(--site-on-background); font-weight:600; }
+.section-head { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; border-top:1px solid rgba(41,41,35,.18); padding-top:22px; margin-bottom:28px; }
+.section-title { font-size:12px; font-weight:650; letter-spacing:.02em; }
+.section-sub { color:#77766f; font-size:11px; margin-top:7px; }
+.filters { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
+.filter { background:transparent; border:1px solid rgba(41,41,35,.2); color:#6c6b64; padding:9px 13px; border-radius:999px; font-size:11px; transition:all .2s ease; }
+.filter:hover, .filter:focus-visible { background:var(--site-hover-bg); color:var(--site-hover-text); border-color:var(--site-hover-border); }
+.filter.active { background:var(--site-primary); color:var(--site-on-primary); border-color:var(--site-primary); }
+.gallery { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:44px 18px; padding-bottom:112px; }
+.project { min-width:0; cursor:pointer; outline:none; border-radius:8px; transition:color .2s ease; }
+.project:hover .project-name, .project:focus-visible .project-name { color:var(--site-accent); }
+.project:hover .project-type, .project:hover .project-year, .project:focus-visible .project-type, .project:focus-visible .project-year { color:#4f4b45; }
+.project[hidden] { display:none; }
+.art { aspect-ratio: .91 / 1; border-radius:calc(8px * var(--site-radius-scale)); overflow:hidden; position:relative; background:#e5e0d5; isolation:isolate; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
+.project:hover .art { transform:translateY(-4px); }
+.art svg { display:block; width:100%; height:100%; }
+.art.wide { aspect-ratio:1.22 / 1; }
+.art.tall { aspect-ratio:.78 / 1; }
+.project-info { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding-top:13px; }
+.project-name { font-size:13px; font-weight:600; letter-spacing:-.02em; }
+.project-type { font-size:11px; color:#77766f; margin-top:5px; }
+.project-year { font-size:10px; color:#77766f; padding-top:2px; white-space:nowrap; }
+.view-link { display:inline-flex; align-items:center; gap:9px; font-size:11px; margin-top:14px; color:#77766f; transition:color .2s ease; }
+.view-link span { display:grid; place-items:center; width:23px; height:23px; border:1px solid rgba(41,41,35,.25); border-radius:50%; transition:transform .2s, background .2s, color .2s, border-color .2s; }
+.project:hover .view-link, .project:focus-visible .view-link { color:var(--site-accent); }
+.project:hover .view-link span, .project:focus-visible .view-link span { background:var(--site-hover-bg); color:var(--site-hover-text); border-color:var(--site-hover-border); }
+.project:hover .view-link span { transform:translate(2px,-2px); }
+.about { display:grid; grid-template-columns:1fr 1fr; gap:50px; border-top:1px solid rgba(41,41,35,.18); padding:34px 0 95px; }
+.about h2 { font-size:clamp(28px,4vw,48px); font-weight:500; line-height:1.05; letter-spacing:-.06em; margin:0; max-width:500px; }
+.about-text { max-width:490px; font-size:13px; line-height:1.85; color:#74736c; }
+.skills { display:flex; flex-wrap:wrap; gap:7px; margin-top:22px; }
+.skill { padding:8px 11px; border:1px solid rgba(41,41,35,.18); border-radius:999px; font-size:10px; color:#57574f; transition:background .2s ease,color .2s ease,border-color .2s ease; }
+.skill:hover { background:var(--site-hover-bg); color:var(--site-hover-text); border-color:var(--site-hover-border); }
+.contact { background:var(--site-primary); color:var(--site-on-primary); padding:55px 0 30px; }
+.contact-top { display:flex; justify-content:space-between; align-items:flex-start; gap:30px; }
+.contact h2 { margin:0; font-size:clamp(38px,6.5vw,82px); line-height:.98; font-weight:500; letter-spacing:-.075em; }
+.contact h2 em { font-family:Georgia,serif; font-weight:400; }
+.contact-action { margin-top:8px; border:1px solid rgba(248,246,240,.55); border-radius:999px; padding:13px 17px; display:inline-flex; align-items:center; gap:20px; font-size:11px; white-space:nowrap; transition:background .2s ease,color .2s ease,border-color .2s ease; }
+.contact-action:hover { background:var(--site-hover-bg); color:var(--site-hover-text); border-color:var(--site-hover-border); }
+.footer { border-top:1px solid rgba(248,246,240,.22); margin-top:65px; padding-top:18px; display:flex; justify-content:space-between; gap:20px; font-size:10px; color:#c1beb5; }
+.modal { position:fixed; inset:0; z-index:20; display:none; place-items:center; padding:24px; background:rgba(24,24,21,.58); backdrop-filter:blur(8px); }
+.modal.open { display:grid; }
+.modal-panel { background:#f6f4ef; color:#292923; width:min(800px,100%); max-height:90vh; overflow:auto; border-radius:10px; padding:22px; box-shadow:0 24px 80px rgba(0,0,0,.18); }
+.modal-head { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; padding-bottom:18px; }
+.modal-title { font-size:23px; letter-spacing:-.05em; }
+.modal-close { border:1px solid #d7d3c9; background:transparent; border-radius:50%; width:34px; height:34px; font-size:19px; }
+.modal-art { border-radius:6px; overflow:hidden; }
+.modal-art svg { width:100%; height:auto; display:block; }
+.modal-description { color:#6f6e66; font-size:13px; line-height:1.8; max-width:580px; padding:16px 0 4px; }
+.detail-page { display:none; padding:48px 0 100px; }
+.detail-page.active { display:block; }
+.detail-back { display:inline-flex; gap:10px; align-items:center; color:#77766f; font-size:12px; margin-bottom:36px; transition:color .2s ease; }
+.detail-back:hover, .detail-back:focus-visible { color:var(--site-accent); }
+.detail-heading { display:grid; grid-template-columns:1.3fr .7fr; gap:40px; align-items:end; padding-bottom:34px; }
+.detail-heading h1 { font-size:clamp(44px,7vw,88px); margin:18px 0 0; }
+.detail-summary { font-size:13px; line-height:1.85; color:#74736c; max-width:420px; }
+.detail-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; border-top:1px solid rgba(41,41,35,.18); border-bottom:1px solid rgba(41,41,35,.18); padding:18px 0; margin-bottom:36px; }
+.detail-meta small { display:block; color:#77766f; font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; }
+.detail-meta strong { font-size:12px; font-weight:550; }
+.detail-hero-art { border-radius:calc(8px * var(--site-radius-scale)); overflow:hidden; background:#e5e0d5; }
+.detail-hero-art { margin-bottom:38px; }
+.detail-hero-art svg { display:block; width:100%; height:auto; }
+.detail-story { display:grid; grid-template-columns:.6fr 1.4fr; gap:40px; padding:52px 0; }
+.detail-story h2 { font-size:clamp(24px,3vw,38px); font-weight:500; letter-spacing:-.055em; margin:0; }
+.detail-story p { margin:0; color:#74736c; font-size:14px; line-height:1.9; max-width:700px; }
+.detail-mockups { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.detail-mockup { min-height:240px; border-radius:calc(8px * var(--site-radius-scale)); background:#e8e3d9; padding:clamp(22px,5vw,64px); display:grid; place-items:center; overflow:hidden; }
+.detail-mockup .art { width:100%; max-width:520px; box-shadow:0 16px 36px rgba(0,0,0,.08); }
+.detail-next { display:flex; justify-content:space-between; align-items:center; gap:20px; border-top:1px solid rgba(41,41,35,.18); margin-top:58px; padding-top:24px; }
+.detail-next button { background:transparent; border:0; padding:0; color:inherit; text-align:left; cursor:pointer; }
+.detail-next strong { display:block; font-size:18px; font-weight:500; margin-top:7px; }
+.detail-next .eyebrow { font-size:9px; }
+@media (max-width:900px) { .gallery { grid-template-columns:repeat(2,minmax(0,1fr)); gap:36px 14px; } .nav { gap:16px; } .wrap { width:calc(100% - 44px); } }
+@media (max-width:620px) { .wrap { width:calc(100% - 32px); } .topbar { min-height:66px; } .nav { display:none; } .availability { font-size:10px; } .hero { padding:76px 0 58px; } h1 { font-size:clamp(46px,13vw,76px); } .hero-bottom { align-items:flex-start; flex-direction:column; } .hero-meta { text-align:left; } .section-head { align-items:flex-start; flex-direction:column; } .filters { justify-content:flex-start; } .gallery { grid-template-columns:1fr; gap:30px; padding-bottom:76px; } .art, .art.wide, .art.tall { aspect-ratio:1.02 / 1; } .about { grid-template-columns:1fr; gap:24px; padding-bottom:70px; } .contact-top { flex-direction:column; } .contact-action { margin-top:0; } .footer { flex-direction:column; gap:8px; margin-top:48px; } .detail-heading,.detail-story { grid-template-columns:1fr; gap:22px; } .detail-meta { grid-template-columns:1fr 1fr; } .detail-mockups { grid-template-columns:1fr; } .detail-mockup { min-height:190px; } .detail-next { align-items:flex-start; flex-direction:column; } }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; } }
 </style>
 </head>
 <body>
-<div id="top">
-<header class="topbar wrap"><a class="brand" href="#top"><span class="brand-mark">D.</span><span>DUONG PHAM®</span></a><nav class="nav"><a href="#work">Selected work</a><a href="#about">About</a><a href="#contact">Let’s talk ↗</a></nav></header>
-<main>
-<section class="hero wrap"><div class="hero-visual"><img src="https://images.unsplash.com/photo-1428908728789-d2de25dbd4e2?auto=format&amp;fit=crop&amp;fm=jpg&amp;ixlib=rb-4.1.0&amp;q=85&amp;w=2400" alt="White clouds above a mountain landscape" fetchpriority="high"></div><div class="kicker">Independent Graphic Designer · Vietnam</div><h1>Ideas made<br><span>visible.</span></h1><div class="hero-bottom"><p class="hero-copy">I create thoughtful visual experiences across editorial, identity and digital design — connecting clear ideas with meaningful visuals.</p><div class="availability">Available for selected projects</div></div></section>
-<section class="wrap" id="work"><div class="section-head"><div class="section-title">Selected work <span id="project-count">(00)</span></div><div class="section-note">A selection of visual stories and design systems.</div></div>
-<div class="filters" role="group" aria-label="Filter projects"><button class="filter active" data-filter="all" aria-pressed="true">All work</button><button class="filter" data-filter="editorial" aria-pressed="false">Editorial</button><button class="filter" data-filter="identity" aria-pressed="false">Brand identity</button><button class="filter" data-filter="digital" aria-pressed="false">Digital & Social</button><button class="filter" data-filter="print" aria-pressed="false">Print & Infographic</button></div>
-<div class="gallery" id="gallery"><p class="gallery-status">Loading selected projects…</p></div></section>
-<section class="about wrap" id="about"><div><div class="kicker">A little about me</div><div class="about-heading">Good design makes ideas feel clear.</div></div><div class="about-body"><p>I’m Duong, a graphic designer working across editorial, branding and digital communication. I enjoy turning complex stories into visual systems that feel clear, considered and memorable.</p><p>This portfolio is a curated selection of work, experiments and collaborations.</p><div class="services"><span>Editorial Design</span><span>Brand Identity</span><span>Social Content</span><span>Poster & Banner</span><span>Menu Design</span><span>eMagazine</span><span>Infographic</span></div></div></section>
-</main>
-<footer class="contact" id="contact"><div class="wrap"><div class="contact-top"><span>Have a project in mind?</span><span>Ho Chi Minh City · Vietnam</span></div><h2>Let’s make<br>something <span>meaningful.</span></h2><div class="contact-actions"><a class="cta primary" href="mailto:phamnguyentrungduong041192@gmail.com">Start a conversation ↗</a><a class="cta" href="mailto:phamnguyentrungduong041192@gmail.com">phamnguyentrungduong041192@gmail.com</a></div><div class="footer"><span>© <span id="year"></span> DUONG PHAM® — Visual Designer</span><span>Designed with intention. Made to be useful.</span><a href="#top">Back to top ↑</a></div></div></footer>
+<div class="site-root" id="top">
+  <header class="topbar wrap">
+    <a class="brand" href="#top" aria-label="Pham Duong home"><span class="brand-mark">PD</span><span>PHAM DUONG®</span></a>
+    <nav class="nav" aria-label="Main navigation"><a href="#work" data-home-link>Selected work</a><a href="#about" data-home-link>About</a><a href="#contact" data-home-link>Contact</a></nav>
+    <div class="availability"><span class="dot"></span> Available for selected projects</div>
+  </header>
+  <main>
+    <section class="hero wrap" id="home-hero">
+        <div class="hero-image"><img id="hero-image" src="https://images.unsplash.com/photo-1428908728789-d2de25dbd4e2?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=85&w=2400" alt="Portfolio hero image" fetchpriority="high"></div>
+      <div class="eyebrow" id="hero-eyebrow">Independent graphic designer · Vietnam</div>
+      <h1 id="hero-headline">Ideas made
+visible, with intent.</h1>
+      <div class="hero-bottom">
+        <p class="hero-copy" id="hero-intro">I create visual identities, editorial experiences and digital stories with a focus on clarity, character and thoughtful details.</p>
+        <div class="hero-meta"><strong id="hero-meta-title">Graphic Design & Art Direction</strong><br><span id="hero-meta-lines">Editorial · Identity · Digital
+Ho Chi Minh City, VN</span></div>
+      </div>
+    </section>
+    <section class="wrap" id="work">
+      <div class="section-head">
+        <div><div class="section-title">Selected work <span id="project-count">/ 06</span></div><div class="section-sub">A selection of visual stories and design systems.</div></div>
+        <div class="filters" role="group" aria-label="Filter projects">
+          <button class="filter active" data-filter="All">All work</button><button class="filter" data-filter="Editorial">Editorial</button><button class="filter" data-filter="Identity">Identity</button><button class="filter" data-filter="Digital">Digital</button><button class="filter" data-filter="Print">Print</button>
+        </div>
+      </div>
+      <div class="gallery" id="gallery">
+        <article class="project" tabindex="0" role="button" data-category="Editorial" data-title="Tide / Seafood Journal" data-type="Editorial design · Magazine cover" data-description="An editorial direction exploring the relationship between coastal life, sustainable aquaculture and contemporary Vietnamese seafood culture. Replace this concept artwork with your finished cover and real-world mockups.">
+          <div class="art wide"><svg viewBox="0 0 700 560" xmlns="http://www.w3.org/2000/svg"><rect width="700" height="560" fill="#e5dfd1"/><rect x="44" y="38" width="612" height="484" fill="#f3eee2"/><path d="M44 348 C150 295 225 385 338 326 S530 300 656 356 V522 H44Z" fill="#6b817b"/><path d="M44 408 C190 360 244 448 360 391 S540 372 656 424 V522 H44Z" fill="#243f3e"/><circle cx="478" cy="188" r="83" fill="#d2a15d"/><path d="M86 380 C164 342 223 345 278 371" fill="none" stroke="#f3eee2" stroke-width="3" opacity=".7"/><text x="78" y="91" font-size="14" letter-spacing="4" fill="#253b38">FIELD NOTES / 01</text><text x="76" y="164" font-family="Georgia,serif" font-size="73" fill="#263b37" letter-spacing="-4">TIDE</text><text x="80" y="194" font-size="12" letter-spacing="3" fill="#263b37">SEAFOOD JOURNAL</text><text x="80" y="470" font-size="11" letter-spacing="2" fill="#f3eee2">CULTURE · WATER · FUTURE</text><path d="M540 96 l28 -16 24 22 -20 26Z" fill="#263b37"/></svg></div>
+          <div class="project-info"><div><div class="project-name">Tide / Seafood Journal</div><div class="project-type">Editorial · Magazine cover</div></div><div class="project-year">2026</div></div><div class="view-link">View project <span>↗</span></div>
+        </article>
+        <article class="project" tabindex="0" role="button" data-category="Identity" data-title="Mộc — Brand Identity" data-type="Brand identity · Packaging" data-description="A restrained identity system inspired by natural materials, tactile forms and Vietnamese craft. Replace the sample artwork with the actual logo system, stationery and packaging mockups.">
+          <div class="art tall"><svg viewBox="0 0 560 700" xmlns="http://www.w3.org/2000/svg"><rect width="560" height="700" fill="#b9a98d"/><rect x="46" y="44" width="468" height="612" rx="3" fill="#d8cdb9"/><rect x="91" y="87" width="378" height="526" fill="#f0eadc"/><circle cx="280" cy="275" r="103" fill="#465548"/><circle cx="280" cy="275" r="76" fill="#d8cdb9"/><path d="M240 298 C258 242 309 226 328 253 C346 278 309 320 280 329 C257 335 240 320 240 298Z" fill="#465548"/><text x="280" y="436" text-anchor="middle" font-family="Georgia,serif" font-size="53" fill="#3c483a" letter-spacing="-2">mộc</text><text x="280" y="468" text-anchor="middle" font-size="10" letter-spacing="4" fill="#6f735f">OBJECTS WITH ORIGIN</text><text x="280" y="578" text-anchor="middle" font-size="9" letter-spacing="3" fill="#797b69">EST. 2024 · VIETNAM</text></svg></div>
+          <div class="project-info"><div><div class="project-name">Mộc — Brand Identity</div><div class="project-type">Identity · Packaging</div></div><div class="project-year">2026</div></div><div class="view-link">View project <span>↗</span></div>
+        </article>
+        <article class="project" tabindex="0" role="button" data-category="Digital" data-title="Slow Living / Social Campaign" data-type="Digital campaign · Art direction" data-description="A social-first campaign concept built around quiet typography, an earthy palette and a consistent visual rhythm. Replace the sample artwork with campaign posts and final social formats.">
+          <div class="art"><svg viewBox="0 0 560 620" xmlns="http://www.w3.org/2000/svg"><rect width="560" height="620" fill="#e8b9a0"/><rect x="36" y="35" width="488" height="550" rx="4" fill="#f1d8c8"/><circle cx="280" cy="294" r="160" fill="#d77d5d"/><circle cx="280" cy="294" r="125" fill="#efc9ae"/><path d="M280 169 C310 228 356 259 404 294 C350 327 312 361 280 419 C249 359 211 326 156 294 C212 260 250 226 280 169Z" fill="#384e43"/><text x="64" y="83" font-size="11" letter-spacing="3" fill="#394b3e">SLOW LIVING / SOCIAL SERIES</text><text x="280" y="500" text-anchor="middle" font-family="Georgia,serif" font-size="47" fill="#394b3e">Make room</text><text x="280" y="538" text-anchor="middle" font-family="Georgia,serif" font-size="47" fill="#394b3e" font-style="italic">to feel.</text></svg></div>
+          <div class="project-info"><div><div class="project-name">Slow Living</div><div class="project-type">Digital · Social campaign</div></div><div class="project-year">2025</div></div><div class="view-link">View project <span>↗</span></div>
+        </article>
+        <article class="project" tabindex="0" role="button" data-category="Print" data-title="The Art of Form / Book Cover" data-type="Book design · Cover system" data-description="A book-cover concept using typographic contrast and a simple geometric form. Replace with the final cover, spine, back cover and print mockup.">
+          <div class="art tall"><svg viewBox="0 0 560 700" xmlns="http://www.w3.org/2000/svg"><rect width="560" height="700" fill="#d4d0c6"/><rect x="75" y="42" width="410" height="616" fill="#f5f1e7"/><rect x="111" y="78" width="338" height="544" fill="#d9d2c2"/><path d="M111 78 H449 V622 H111Z" fill="#e6dfd0"/><circle cx="280" cy="305" r="118" fill="#b85e43"/><circle cx="280" cy="305" r="75" fill="#e6dfd0"/><rect x="265" y="187" width="30" height="236" fill="#263c37"/><text x="137" y="124" font-size="10" letter-spacing="2.5" fill="#263c37">STUDIES IN VISUAL CULTURE</text><text x="137" y="493" font-family="Georgia,serif" font-size="47" fill="#263c37">The Art</text><text x="137" y="537" font-family="Georgia,serif" font-size="47" fill="#263c37">of Form</text><text x="137" y="576" font-size="9" letter-spacing="2" fill="#5f6559">A STUDY OF SHAPE & MEANING</text></svg></div>
+          <div class="project-info"><div><div class="project-name">The Art of Form</div><div class="project-type">Print · Book cover</div></div><div class="project-year">2025</div></div><div class="view-link">View project <span>↗</span></div>
+        </article>
+        <article class="project" tabindex="0" role="button" data-category="Editorial" data-title="Green Current / E-magazine" data-type="E-magazine · Infographic" data-description="An editorial visual system for communicating energy efficiency across the seafood value chain. Use real spreads, data visualization and responsive article screenshots in the final portfolio.">
+          <div class="art wide"><svg viewBox="0 0 700 560" xmlns="http://www.w3.org/2000/svg"><rect width="700" height="560" fill="#253f39"/><rect x="28" y="28" width="644" height="504" fill="#e8e5d8"/><rect x="54" y="54" width="592" height="452" fill="#f2efe5"/><rect x="54" y="54" width="592" height="54" fill="#d4d9c7"/><text x="77" y="86" font-size="11" letter-spacing="3" fill="#253f39">GREEN CURRENT / ISSUE 04</text><text x="77" y="174" font-family="Georgia,serif" font-size="54" fill="#253f39">The energy</text><text x="77" y="227" font-family="Georgia,serif" font-size="54" fill="#253f39" font-style="italic">of change.</text><rect x="77" y="265" width="245" height="139" fill="#b6c7b1"/><path d="M77 356 Q146 298 202 349 T322 337 V404 H77Z" fill="#547d70"/><path d="M77 380 Q144 347 204 378 T322 363 V404 H77Z" fill="#294f49"/><rect x="344" y="265" width="275" height="8" fill="#a8a99a"/><rect x="344" y="286" width="230" height="6" fill="#c8c7ba"/><rect x="344" y="302" width="255" height="6" fill="#c8c7ba"/><circle cx="381" cy="363" r="36" fill="#c58b5b"/><circle cx="473" cy="363" r="36" fill="#6e8e78"/><circle cx="565" cy="363" r="36" fill="#263f39"/><text x="381" y="367" text-anchor="middle" font-size="10" fill="#fff">01</text><text x="473" y="367" text-anchor="middle" font-size="10" fill="#fff">02</text><text x="565" y="367" text-anchor="middle" font-size="10" fill="#fff">03</text><text x="77" y="462" font-size="10" letter-spacing="2" fill="#253f39">A BETTER WAY THROUGH THE VALUE CHAIN</text></svg></div>
+          <div class="project-info"><div><div class="project-name">Green Current</div><div class="project-type">E-magazine · Infographic</div></div><div class="project-year">2025</div></div><div class="view-link">View project <span>↗</span></div>
+        </article>
+        <article class="project" tabindex="0" role="button" data-category="Identity" data-title="Nami / Café & Culture" data-type="Logo design · Brand system" data-description="A compact identity for a café and culture concept, with a flexible mark, typography and application system. Replace with the approved logo and real brand mockups.">
+          <div class="art"><svg viewBox="0 0 560 620" xmlns="http://www.w3.org/2000/svg"><rect width="560" height="620" fill="#d7d8cb"/><rect x="35" y="35" width="490" height="550" fill="#f2f0e7"/><rect x="75" y="75" width="410" height="470" fill="#dfe2d6"/><circle cx="280" cy="262" r="108" fill="#263e38"/><path d="M180 268 Q228 199 280 268 T380 268" fill="none" stroke="#e8e5d8" stroke-width="9"/><path d="M180 292 Q228 223 280 292 T380 292" fill="none" stroke="#e8e5d8" stroke-width="5"/><text x="280" y="420" text-anchor="middle" font-family="Georgia,serif" font-size="69" fill="#263e38" letter-spacing="-4">nami</text><text x="280" y="454" text-anchor="middle" font-size="10" letter-spacing="4" fill="#53685b">COFFEE · PEOPLE · PLACE</text><text x="280" y="510" text-anchor="middle" font-size="9" letter-spacing="2" fill="#788276">IDENTITY STUDY / 2025</text></svg></div>
+          <div class="project-info"><div><div class="project-name">Nami / Café & Culture</div><div class="project-type">Identity · Logo design</div></div><div class="project-year">2025</div></div><div class="view-link">View project <span>↗</span></div>
+        </article>
+      </div>
+    </section>
+    <section class="about wrap" id="about">
+      <div><div class="eyebrow">A little about me</div><h2>Thoughtful design.<br>Clear stories.<br><em>Lasting impressions.</em></h2></div>
+      <div class="about-text">I’m Pham Duong, a graphic designer working across editorial, visual identity and digital communication. I’m interested in the meeting point between strong ideas, thoughtful typography and practical design systems.<div class="skills"><span class="skill">Editorial design</span><span class="skill">Logo & identity</span><span class="skill">Digital content</span><span class="skill">Menu design</span><span class="skill">Book cover</span><span class="skill">E-magazine & infographic</span></div></div>
+    </section>
+    <section class="contact" id="contact"><div class="wrap"><div class="contact-top"><h2>Have a good idea?<br><em>Let’s make it real.</em></h2><a class="contact-action" href="mailto:phamnguyentrungduong041192@gmail.com">Start a conversation <span>↗</span></a></div><div class="footer"><span>© 2026 PHAM DUONG — DESIGN PORTFOLIO</span><span>Independent designer · Vietnam</span><a href="#top">Back to top ↑</a></div></div></section>
+  </main>
 </div>
+<section class="detail-page wrap" id="project-detail" aria-live="polite">
+  <a class="detail-back" href="#work" id="detail-back">← Back to selected work</a>
+  <div class="detail-hero-art" id="detail-art"></div>
+  <div class="detail-heading"><div><div class="eyebrow" id="detail-category">Selected project</div><h1 id="detail-title">Project title</h1></div><p class="detail-summary" id="detail-summary"></p></div>
+  <div class="detail-meta"><div><small>Discipline</small><strong id="detail-discipline">Editorial design</strong></div><div><small>Year</small><strong id="detail-year">2026</strong></div><div><small>Role</small><strong id="detail-role">Art direction · Design</strong></div></div>
+  <div class="detail-story"><h2>The idea<br><em>behind the work.</em></h2><p id="detail-story-copy"></p></div>
+  <div class="detail-mockups" id="detail-mockups"></div>
+  <div class="detail-next"><div><div class="eyebrow">Keep exploring</div><button id="detail-next"><strong>Next project ↗</strong></button></div><a class="detail-back" href="#work">All selected work →</a></div>
+</section>
+<div class="modal" id="project-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-panel"><div class="modal-head"><div><div class="eyebrow">Selected project</div><div class="modal-title" id="modal-title">Project title</div><div class="section-sub" id="modal-type"></div></div><button class="modal-close" id="modal-close" aria-label="Close">×</button></div><div class="modal-art" id="modal-art"></div><p class="modal-description" id="modal-description"></p></div></div>
 <script>
-(() => {
-'use strict';
-const SUPABASE_URL='https://gutlbvueimzjhpgplogf.supabase.co';
-const SUPABASE_KEY='sb_publishable_hLiulz_jL9N3Is6Bbvcfrg_nhMg39_-';
-const gallery=document.getElementById('gallery'),countLabel=document.getElementById('project-count');
-const filters=[...document.querySelectorAll('.filter')];
-const names={editorial:'Editorial',identity:'Brand identity',digital:'Digital & Social',print:'Print & Infographic'};
-document.getElementById('year').textContent=new Date().getFullYear();
-function status(message){gallery.replaceChildren();const p=document.createElement('p');p.className='gallery-status';p.textContent=message;gallery.appendChild(p);countLabel.textContent='(00)'}
-function cardFor(project,index,total){
- const category=String(project.category||'').toLowerCase().trim(),card=document.createElement('article');
- card.className='project';card.tabIndex=0;card.setAttribute('role','link');card.setAttribute('aria-label','View project: '+(project.title||'Untitled project'));card.dataset.category=category;
- const art=document.createElement('div');art.className='artwork';
- const label=document.createElement('span');label.className='art-label';label.textContent=(names[category]||project.category||'Design')+' / '+(project.project_type||'Selected work');
- const number=document.createElement('span');number.className='art-index';number.textContent=String(index+1).padStart(2,'0')+' / '+String(total).padStart(2,'0');
- if(project.cover_image){
-  const img=document.createElement('img');img.className='project-cover';img.src=project.cover_image;img.alt=project.title||'Project cover';img.loading='lazy';img.decoding='async';
-  img.onerror=()=>{art.replaceChildren();const empty=document.createElement('div');empty.className='empty-art';const t=document.createElement('strong');t.textContent=project.title||'Untitled project';const s=document.createElement('span');s.textContent=project.project_type||'Visual design';empty.append(t,s);art.append(empty,label,number)};
-  art.appendChild(img);
- }else{const empty=document.createElement('div');empty.className='empty-art';const t=document.createElement('strong');t.textContent=project.title||'Untitled project';const s=document.createElement('span');s.textContent=project.project_type||names[category]||'Visual design';empty.append(t,s);art.appendChild(empty)}
- art.append(label,number);
- const meta=document.createElement('div');meta.className='project-meta';const info=document.createElement('div');const title=document.createElement('div');title.className='project-title';title.textContent=project.title||'Untitled project';const arrow=document.createElement('span');arrow.className='project-arrow';arrow.textContent='↗';title.appendChild(arrow);const type=document.createElement('div');type.className='project-type';type.textContent=project.project_type||names[category]||'Visual design';info.append(title,type);const year=document.createElement('div');year.className='project-year';year.textContent=project.year||'';meta.append(info,year);card.append(art,meta);
- const open=()=>{window.location.href='./project.html?id='+encodeURIComponent(project.id)};
- card.addEventListener('click',open);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
- return card;
+const SUPABASE_URL = 'https://gutlbvueimzjhpgplogf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_hLiulz_jL9N3Is6Bbvcfrg_nhMg39_-';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+async function loadHomepageSettings() {
+  const { data, error } = await supabaseClient.from('site_settings').select('hero_image, hero_eyebrow, hero_headline, hero_intro, hero_meta_title, hero_meta_lines').eq('id', 'homepage').maybeSingle();
+  if (error || !data) return;
+  if (data.hero_image) document.getElementById('hero-image').src = data.hero_image;
+  if (data.hero_eyebrow) document.getElementById('hero-eyebrow').textContent = data.hero_eyebrow;
+  if (data.hero_headline) document.getElementById('hero-headline').textContent = data.hero_headline;
+  if (data.hero_intro) document.getElementById('hero-intro').textContent = data.hero_intro;
+  if (data.hero_meta_title) document.getElementById('hero-meta-title').textContent = data.hero_meta_title;
+  if (data.hero_meta_lines) document.getElementById('hero-meta-lines').textContent = data.hero_meta_lines;
 }
-function filterBy(button){filters.forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});const category=button.dataset.filter;let visible=0;gallery.querySelectorAll('.project').forEach(card=>{const show=category==='all'||card.dataset.category===category;card.hidden=!show;if(show)visible++});countLabel.textContent='('+String(visible).padStart(2,'0')+')'}
-filters.forEach(b=>b.addEventListener('click',()=>filterBy(b)));
-async function load(){
- if(!window.supabase){status('The gallery could not start. Please refresh the page.');return}
- try{
-  const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-  const {data,error}=await db.from('projects').select('id,title,category,project_type,year,description,cover_image,sort_order,created_at,is_published').eq('is_published',true).order('sort_order',{ascending:true}).order('created_at',{ascending:false});
-  if(error){console.error('Supabase query error:',error);status('Projects could not be loaded. Please check the public SELECT policy for the projects table.');return}
-  if(!data||!data.length){status('No published projects yet. Publish a project from Portfolio Admin to display it here.');return}
-  gallery.replaceChildren();data.forEach((project,i)=>gallery.appendChild(cardFor(project,i,data.length)));countLabel.textContent='('+String(data.length).padStart(2,'0')+')';
- }catch(error){console.error('Portfolio error:',error);status('Something went wrong while loading projects. Please refresh and try again.')}
+loadHomepageSettings();
+const filters = document.querySelectorAll('.filter');
+const projects = [...document.querySelectorAll('.project')];
+const count = document.getElementById('project-count');
+const homeSections = [...document.querySelectorAll('#home-hero, #work, #about, .contact')];
+const detailPage = document.getElementById('project-detail');
+let activeProjectIndex = 0;
+filters.forEach(button => button.addEventListener('click', () => {
+  filters.forEach(item => item.classList.toggle('active', item === button));
+  const category = button.dataset.filter;
+  let visible = 0;
+  projects.forEach(project => {
+    const show = category === 'All' || project.dataset.category === category;
+    project.hidden = !show;
+    if (show) visible++;
+  });
+  count.textContent = '/ ' + String(visible).padStart(2, '0');
+}));
+const detailFields = { title:document.getElementById('detail-title'), category:document.getElementById('detail-category'), summary:document.getElementById('detail-summary'), discipline:document.getElementById('detail-discipline'), year:document.getElementById('detail-year'), art:document.getElementById('detail-art'), story:document.getElementById('detail-story-copy'), mockups:document.getElementById('detail-mockups') };
+function showHome() {
+  homeSections.forEach(section => section.style.display = '');
+  detailPage.classList.remove('active');
+  document.title = 'Pham Duong — Design Portfolio';
 }
-load();
-})();
+function openProject(project, updateHistory = true) {
+  activeProjectIndex = projects.indexOf(project);
+  detailFields.title.textContent = project.dataset.title;
+  detailFields.category.textContent = project.dataset.category + ' / Selected project';
+  detailFields.summary.textContent = project.dataset.description;
+  detailFields.discipline.textContent = project.dataset.type;
+  detailFields.year.textContent = project.querySelector('.project-year').textContent;
+  detailFields.art.innerHTML = project.querySelector('.art').innerHTML;
+  detailFields.story.textContent = project.dataset.description + ' The full case study can be expanded with the original design rationale, creative process, final deliverables and production photography.';
+  detailFields.mockups.innerHTML = '';
+  for (let i = 0; i < 2; i++) {
+    const frame = document.createElement('div');
+    frame.className = 'detail-mockup';
+    const artwork = project.querySelector('.art').cloneNode(true);
+    artwork.classList.remove('wide','tall');
+    frame.appendChild(artwork);
+    detailFields.mockups.appendChild(frame);
+  }
+  homeSections.forEach(section => section.style.display = 'none');
+  detailPage.classList.add('active');
+  document.title = project.dataset.title + ' — Pham Duong';
+  if (updateHistory) history.pushState({ project: activeProjectIndex }, '', '#project-' + (activeProjectIndex + 1));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+projects.forEach(project => {
+  project.addEventListener('click', () => openProject(project));
+  project.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openProject(project); } });
+});
+document.getElementById('detail-back').addEventListener('click', event => { event.preventDefault(); history.pushState({}, '', '#work'); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); });
+document.querySelectorAll('.detail-back[href="#work"]').forEach(link => link.addEventListener('click', event => { if (link.id === 'detail-back') return; event.preventDefault(); history.pushState({}, '', '#work'); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); }));
+document.querySelectorAll('[data-home-link]').forEach(link => link.addEventListener('click', () => { showHome(); }));
+document.getElementById('detail-next').addEventListener('click', () => openProject(projects[(activeProjectIndex + 1) % projects.length]));
+window.addEventListener('popstate', () => { const match = location.hash.match(/^#project-(\d+)$/); if (match && projects[Number(match[1]) - 1]) openProject(projects[Number(match[1]) - 1], false); else showHome(); });
+const initialMatch = location.hash.match(/^#project-(\d+)$/);
+if (initialMatch && projects[Number(initialMatch[1]) - 1]) openProject(projects[Number(initialMatch[1]) - 1], false);
 </script>
 </body>
 </html>
