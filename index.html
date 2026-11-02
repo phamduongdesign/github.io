@@ -8,6 +8,9 @@
 <meta property="og:title" content="Pham Duong — Design Portfolio">
 <meta property="og:description" content="Independent graphic designer working across editorial, visual identity and digital communication.">
 <meta property="og:image" content="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Manrope:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -40,7 +43,8 @@ button { cursor: pointer; }
 .wrap { width: min(1420px, calc(100% - 72px)); margin-inline: auto; }
 .topbar { min-height: 78px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(41,41,35,.15); gap:24px; }
 .brand { font-size:14px; letter-spacing:-.03em; font-weight:750; display:flex; align-items:center; gap:10px; white-space:nowrap; }
-.brand-mark { width:28px; height:28px; border:1px solid currentColor; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:600; }
+.brand-mark { width:28px; height:28px; border:1px solid currentColor; border-radius:50%; display:grid; place-items:center; overflow:hidden; font-size:11px; font-weight:600; flex:none; }
+.brand-mark img { width:100%; height:100%; object-fit:cover; display:block; }
 .nav { display:flex; align-items:center; gap:28px; font-size:12px; color:#77766f; }
 .nav a { transition:color .2s ease; }
 .nav a:hover, .nav a:focus-visible { color:var(--site-accent); }
@@ -137,7 +141,7 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
 <body>
 <div class="site-root" id="top">
   <header class="topbar wrap">
-    <a class="brand" href="#top" aria-label="Pham Duong home"><span class="brand-mark">PD</span><span>PHAM DUONG®</span></a>
+    <a class="brand" href="#top" aria-label="Pham Duong home"><span class="brand-mark" id="brand-avatar">PD</span><span>PHAM DUONG®</span></a>
     <nav class="nav" aria-label="Main navigation"><a href="#work" data-home-link>Selected work</a><a href="#about" data-home-link>About</a><a href="#contact" data-home-link>Contact</a></nav>
     <div class="availability"><span class="dot"></span> Available for selected projects</div>
   </header>
@@ -210,10 +214,11 @@ const SUPABASE_KEY = 'sb_publishable_hLiulz_jL9N3Is6Bbvcfrg_nhMg39_-';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let siteSeoTitle = 'Pham Duong — Design Portfolio';
 async function loadHomepageSettings() {
-  const fields = 'hero_image, hero_eyebrow, hero_headline, hero_intro, hero_meta_title, hero_meta_lines, about_heading, about_eyebrow, about_body, about_skills, contact_heading, contact_cta, contact_email, contact_location, social_instagram, social_behance, social_linkedin, social_facebook, theme_primary, theme_accent, theme_background, theme_text, theme_font, seo_title, seo_description, seo_image';
+  const fields = 'hero_image, hero_eyebrow, hero_headline, hero_intro, hero_meta_title, hero_meta_lines, about_heading, about_eyebrow, about_body, about_skills, contact_heading, contact_cta, contact_email, contact_location, social_instagram, social_behance, social_linkedin, social_facebook, theme_primary, theme_accent, theme_background, theme_text, theme_font, theme_font_weight, theme_font_style, avatar_image, seo_title, seo_description, seo_image';
   const { data, error } = await supabaseClient.from('site_settings').select(fields).eq('id', 'homepage').maybeSingle();
   if (error || !data) return;
   if (data.hero_image) document.getElementById('hero-image').src = data.hero_image;
+  if (data.avatar_image) { const avatar = document.getElementById('brand-avatar'); avatar.textContent = ''; const image = document.createElement('img'); image.src = data.avatar_image; image.alt = 'Avatar'; avatar.appendChild(image); }
   if (data.hero_eyebrow) document.getElementById('hero-eyebrow').textContent = data.hero_eyebrow;
   if (data.hero_headline) document.getElementById('hero-headline').textContent = data.hero_headline;
   if (data.hero_intro) document.getElementById('hero-intro').textContent = data.hero_intro;
@@ -239,6 +244,8 @@ async function loadHomepageSettings() {
   if (data.theme_background) root.style.setProperty('--site-background', data.theme_background);
   if (data.theme_text) root.style.setProperty('--site-on-background', data.theme_text);
   if (data.theme_font) { root.style.setProperty('--site-font-body', `'${data.theme_font}', sans-serif`); root.style.setProperty('--site-font-heading', `'${data.theme_font}', sans-serif`); }
+  if (data.theme_font_weight) { document.body.style.fontWeight = data.theme_font_weight; document.querySelectorAll('h1,h2,.brand,.project-name').forEach(node => node.style.fontWeight = data.theme_font_weight); }
+  if (data.theme_font_style) { document.body.style.fontStyle = data.theme_font_style; document.querySelectorAll('h1,h2,.brand,.project-name').forEach(node => node.style.fontStyle = data.theme_font_style); }
   if (data.seo_title) { siteSeoTitle = data.seo_title; document.title = siteSeoTitle; document.querySelector('meta[property="og:title"]').content = siteSeoTitle; }
   if (data.seo_description) { document.querySelector('meta[name="description"]').content = data.seo_description; document.querySelector('meta[property="og:description"]').content = data.seo_description; }
   if (data.seo_image) document.querySelector('meta[property="og:image"]').content = data.seo_image;
