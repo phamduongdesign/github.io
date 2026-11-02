@@ -40,6 +40,7 @@ button, a { font: inherit; }
 a { color: inherit; text-decoration: none; }
 button { cursor: pointer; }
 .site-root { min-height: 100vh; background-color: var(--site-background); color: var(--site-on-background); border-radius: 0; overflow: clip; }
+.site-root.project-open { min-height:0; }
 .wrap { width: min(1420px, calc(100% - 72px)); margin-inline: auto; }
 .topbar { min-height: 78px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(41,41,35,.15); gap:24px; }
 .brand { font-size:14px; letter-spacing:-.03em; font-weight:750; display:flex; align-items:center; gap:10px; white-space:nowrap; }
@@ -77,12 +78,10 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
 .project:hover .art { transform:translateY(-4px); }
 .art svg { display:block; width:100%; height:100%; }
 .art img { display:block; width:100%; height:100%; object-fit:cover; }
-.detail-hero-art img { display:block; width:100%; height:auto; max-height:780px; object-fit:contain; background:#e8e3d9; }
-.detail-mockup img { display:block; width:100%; height:100%; max-height:620px; object-fit:contain; }
 .art.wide { aspect-ratio:1.22 / 1; }
 .art.tall { aspect-ratio:.78 / 1; }
 .project-info { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding-top:13px; }
-.project-name { font-size:13px; font-weight:600; letter-spacing:-.02em; }
+.project-name { font-size:16px; font-weight:600; letter-spacing:-.025em; }
 .project-type { font-size:11px; color:#77766f; margin-top:5px; }
 .project-year { font-size:10px; color:#77766f; padding-top:2px; white-space:nowrap; }
 .view-link { display:inline-flex; align-items:center; gap:9px; font-size:11px; margin-top:14px; color:#77766f; transition:color .2s ease; }
@@ -92,6 +91,8 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
 .project:hover .view-link span { transform:translate(2px,-2px); }
 .about { display:grid; grid-template-columns:1fr 1fr; gap:50px; border-top:1px solid rgba(41,41,35,.18); padding:34px 0 95px; }
 .about h2 { font-size:clamp(28px,4vw,48px); font-weight:500; line-height:1.05; letter-spacing:-.06em; margin:0; max-width:500px; }
+.about #about-eyebrow { margin-bottom:18px; }
+.about-text { padding-top:38px; }
 #about-heading, #contact-heading { white-space:pre-line; }
 .about-text { max-width:490px; font-size:13px; line-height:1.85; color:#74736c; }
 .skills { display:flex; flex-wrap:wrap; gap:7px; margin-top:22px; }
@@ -113,20 +114,21 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
 .modal-art { border-radius:6px; overflow:hidden; }
 .modal-art svg { width:100%; height:auto; display:block; }
 .modal-description { color:#6f6e66; font-size:13px; line-height:1.8; max-width:580px; padding:16px 0 4px; }
-.detail-page { display:none; padding:10px 0 0px; }
+.topbar.project-open { display:none; }
+.detail-page { display:none; padding:34px 0 100px; }
 .detail-page.active { display:block; }
-.detail-back { display:inline-flex; gap:10px; align-items:center; color:#77766f; font-size:12px; margin-bottom:80px; transition:color .2s ease; }
+.detail-back { display:inline-flex; gap:10px; align-items:center; color:#77766f; font-size:12px; margin-bottom:38px; transition:color .2s ease; }
 .detail-back:hover, .detail-back:focus-visible { color:var(--site-accent); }
-.detail-heading { display:grid; grid-template-columns:1.3fr .7fr; gap:40px; align-items:end; padding-bottom:34px; }
+.detail-heading { display:grid; grid-template-columns:1fr; gap:0; align-items:start; padding:28px 0 34px; }
 .detail-heading h1 { font-size:clamp(44px,7vw,88px); margin:18px 0 0; }
-.detail-summary { font-size:13px; line-height:1.85; color:#74736c; max-width:420px; }
-.detail-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; border-top:1px solid rgba(41,41,35,.18); border-bottom:1px solid rgba(41,41,35,.18); padding:18px 0; margin-bottom:36px; }
+.detail-summary { font-size:13px; line-height:1.85; color:#74736c; max-width:720px; text-align:left; margin:0 0 116px calc(50% + 9px); }
+.detail-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; border-top:1px solid rgba(41,41,35,.18); border-bottom:1px solid rgba(41,41,35,.18); padding:18px 0; margin-bottom:22px; text-align:left; }
 .detail-meta small { display:block; color:#77766f; font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; }
 .detail-meta strong { font-size:12px; font-weight:550; }
 .detail-hero-art { border-radius:calc(8px * var(--site-radius-scale)); overflow:hidden; background:#e5e0d5; }
 .detail-hero-art { margin-bottom:38px; }
 .detail-hero-art svg { display:block; width:100%; height:auto; }
-.detail-story { display:grid; grid-template-columns:.6fr 1.4fr; gap:40px; padding:52px 0; }
+.detail-story { display:none; }
 .detail-story h2 { font-size:clamp(24px,3vw,38px); font-weight:500; letter-spacing:-.055em; margin:0; }
 .detail-story p { margin:0; color:#74736c; font-size:14px; line-height:1.9; max-width:700px; }
 .detail-mockups { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
@@ -137,7 +139,7 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
 .detail-next strong { display:block; font-size:18px; font-weight:500; margin-top:7px; }
 .detail-next .eyebrow { font-size:9px; }
 @media (max-width:900px) { .gallery { grid-template-columns:repeat(2,minmax(0,1fr)); gap:36px 14px; } .nav { gap:16px; } .wrap { width:calc(100% - 44px); } }
-@media (max-width:620px) { .wrap { width:calc(100% - 32px); } .topbar { min-height:66px; } .nav { display:none; } .availability { font-size:10px; } .hero { padding:76px 0 58px; } h1 { font-size:clamp(46px,13vw,76px); } .hero-bottom { align-items:flex-start; flex-direction:column; } .hero-meta { text-align:left; } .section-head { align-items:flex-start; flex-direction:column; } .filters { justify-content:flex-start; } .gallery { grid-template-columns:1fr; gap:30px; padding-bottom:76px; } .art, .art.wide, .art.tall { aspect-ratio:1.02 / 1; } .about { grid-template-columns:1fr; gap:24px; padding-bottom:70px; } .contact-top { flex-direction:column; } .contact-action { margin-top:0; } .footer { flex-direction:column; gap:8px; margin-top:48px; } .detail-heading,.detail-story { grid-template-columns:1fr; gap:22px; } .detail-meta { grid-template-columns:1fr 1fr; } .detail-mockups { grid-template-columns:1fr; } .detail-mockup { min-height:190px; } .detail-next { align-items:flex-start; flex-direction:column; } }
+@media (max-width:620px) { .wrap { width:calc(100% - 32px); } .topbar { min-height:66px; } .nav { display:none; } .availability { font-size:10px; } .hero { padding:76px 0 58px; } h1 { font-size:clamp(46px,13vw,76px); } .hero-bottom { align-items:flex-start; flex-direction:column; } .hero-meta { text-align:left; } .section-head { align-items:flex-start; flex-direction:column; } .filters { justify-content:flex-start; } .gallery { grid-template-columns:1fr; gap:30px; padding-bottom:76px; } .art, .art.wide, .art.tall { aspect-ratio:1.02 / 1; } .about { grid-template-columns:1fr; gap:24px; padding-bottom:70px; } .about-text { padding-top:0; } .contact-top { flex-direction:column; } .contact-action { margin-top:0; } .footer { flex-direction:column; gap:8px; margin-top:48px; } .detail-heading,.detail-story { grid-template-columns:1fr; gap:22px; } .detail-meta { grid-template-columns:1fr 1fr; } .detail-mockups { grid-template-columns:1fr; } .detail-mockup { min-height:190px; } .detail-next { align-items:flex-start; flex-direction:column; } }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; } }
 </style>
 </head>
@@ -204,9 +206,9 @@ Ho Chi Minh City, VN</span></div>
 <section class="detail-page wrap" id="project-detail" aria-live="polite">
   <a class="detail-back" href="#work" id="detail-back">← Back to selected work</a>
   <div class="detail-hero-art" id="detail-art"></div>
-  <div class="detail-heading"><div><div class="eyebrow" id="detail-category">Selected project</div><h1 id="detail-title">Project title</h1></div><p class="detail-summary" id="detail-summary"></p></div>
-  <div class="detail-meta"><div><small>Discipline</small><strong id="detail-discipline">Editorial design</strong></div><div><small>Year</small><strong id="detail-year">2026</strong></div><div><small>Role</small><strong id="detail-role">Art direction · Design</strong></div></div>
-  <div class="detail-story"><h2>The idea<br><em>behind the work.</em></h2><p id="detail-story-copy"></p></div>
+  <div class="detail-heading"><div><div class="eyebrow" id="detail-category">Selected project</div><h1 id="detail-title">Project title</h1></div></div>
+  <div class="detail-meta"><div><small>Discipline</small><strong id="detail-discipline">Editorial design</strong></div><div><small>Year</small><strong id="detail-year">2026</strong></div></div>
+  <p class="detail-summary" id="detail-summary"></p>
   <div class="detail-mockups" id="detail-mockups"></div>
   <div class="detail-next"><div><div class="eyebrow">Keep exploring</div><button id="detail-next"><strong>Next project ↗</strong></button></div><a class="detail-back" href="#work">All selected work →</a></div>
 </section>
@@ -254,182 +256,109 @@ async function loadHomepageSettings() {
   if (data.seo_image) document.querySelector('meta[property="og:image"]').content = data.seo_image;
 }
 loadHomepageSettings();
-
-// Portfolio projects are loaded from the same Supabase table used by Admin.
-const gallery = document.getElementById('gallery');
+const filters = document.querySelectorAll('.filter');
+let projects = [...document.querySelectorAll('.project')];
 const count = document.getElementById('project-count');
-const filters = [...document.querySelectorAll('.filter')];
 const homeSections = [...document.querySelectorAll('#home-hero, #work, #about, .contact')];
 const detailPage = document.getElementById('project-detail');
-const detailFields = {
-  title:document.getElementById('detail-title'), category:document.getElementById('detail-category'),
-  summary:document.getElementById('detail-summary'), discipline:document.getElementById('detail-discipline'),
-  year:document.getElementById('detail-year'), art:document.getElementById('detail-art'),
-  story:document.getElementById('detail-story-copy'), mockups:document.getElementById('detail-mockups')
-};
-const categoryLabels = { editorial:'Editorial', identity:'Identity', digital:'Digital', print:'Print' };
-let projects = [];
 let activeProjectIndex = 0;
-let activeFilter = 'All';
-
-function makeProjectImage(url, alt) {
-  const img = document.createElement('img');
-  img.src = url;
-  img.alt = alt || 'Project image';
-  img.loading = 'lazy';
-  img.decoding = 'async';
-  img.onerror = () => { img.style.display = 'none'; };
-  return img;
-}
-
-function renderProjects() {
-  gallery.innerHTML = '';
-  const visibleProjects = projects.filter(project => activeFilter === 'All' || categoryLabels[project.category] === activeFilter);
-  count.textContent = '/ ' + String(visibleProjects.length).padStart(2, '0');
-  if (!visibleProjects.length) {
-    const empty = document.createElement('p');
-    empty.className = 'section-sub';
-    empty.style.gridColumn = '1 / -1';
-    empty.style.padding = '28px 0 60px';
-    empty.textContent = projects.length ? 'Chưa có dự án trong danh mục này.' : 'Các dự án đang được cập nhật. Vui lòng quay lại sau.';
-    gallery.appendChild(empty);
-    return;
-  }
-  visibleProjects.forEach(project => {
-    const card = document.createElement('article');
-    card.className = 'project';
-    card.tabIndex = 0;
-    card.setAttribute('role', 'button');
-    const category = categoryLabels[project.category] || project.category || 'Selected work';
-    card.dataset.category = category;
-    card.dataset.title = project.title || 'Untitled project';
-    card.dataset.type = project.project_type || category;
-    card.dataset.description = project.description || '';
-    card.dataset.projectId = project.id;
-
-    const art = document.createElement('div');
-    art.className = 'art';
-    if (project.cover_image) art.appendChild(makeProjectImage(project.cover_image, project.title));
-    else art.style.background = '#e8e3d9';
-
-    const info = document.createElement('div');
-    info.className = 'project-info';
-    const textWrap = document.createElement('div');
-    const name = document.createElement('div');
-    name.className = 'project-name';
-    name.textContent = project.title || 'Untitled project';
-    const type = document.createElement('div');
-    type.className = 'project-type';
-    type.textContent = project.project_type || category;
-    textWrap.append(name, type);
-    const year = document.createElement('div');
-    year.className = 'project-year';
-    year.textContent = project.year || '';
-    info.append(textWrap, year);
-    const link = document.createElement('div');
-    link.className = 'view-link';
-    link.append(document.createTextNode('View project '));
-    const arrow = document.createElement('span');
-    arrow.textContent = '↗';
-    link.appendChild(arrow);
-    card.append(art, info, link);
-    card.addEventListener('click', () => openProject(project));
-    card.addEventListener('keydown', event => {
-      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openProject(project); }
-    });
-    gallery.appendChild(card);
-  });
-}
-
 filters.forEach(button => button.addEventListener('click', () => {
   filters.forEach(item => item.classList.toggle('active', item === button));
-  activeFilter = button.dataset.filter;
-  renderProjects();
+  const category = button.dataset.filter;
+  let visible = 0;
+  projects.forEach(project => {
+    const show = category === 'All' || project.dataset.category === category;
+    project.hidden = !show;
+    if (show) visible++;
+  });
+  count.textContent = '/ ' + String(visible).padStart(2, '0');
 }));
-
+const detailFields = { title:document.getElementById('detail-title'), category:document.getElementById('detail-category'), summary:document.getElementById('detail-summary'), discipline:document.getElementById('detail-discipline'), year:document.getElementById('detail-year'), art:document.getElementById('detail-art'), mockups:document.getElementById('detail-mockups') };
 function showHome() {
   homeSections.forEach(section => section.style.display = '');
+  document.querySelector('.topbar').classList.remove('project-open');
+  document.querySelector('.site-root').classList.remove('project-open');
   detailPage.classList.remove('active');
   document.title = siteSeoTitle;
 }
-
 function openProject(project, updateHistory = true) {
-  activeProjectIndex = projects.findIndex(item => item.id === project.id);
-  const category = categoryLabels[project.category] || project.category || 'Selected work';
-  detailFields.title.textContent = project.title || 'Untitled project';
-  detailFields.category.textContent = category + ' / Selected project';
-  detailFields.summary.textContent = project.description || '';
-  detailFields.discipline.textContent = project.project_type || category;
-  detailFields.year.textContent = project.year || '';
-  detailFields.art.innerHTML = '';
-  if (project.cover_image) detailFields.art.appendChild(makeProjectImage(project.cover_image, project.title));
-  detailFields.story.textContent = project.description || '';
+  activeProjectIndex = projects.indexOf(project);
+  detailFields.title.textContent = project.dataset.title;
+  detailFields.category.textContent = project.dataset.category + ' / Selected project';
+  detailFields.summary.textContent = project.dataset.description;
+  detailFields.discipline.textContent = project.dataset.type;
+  detailFields.year.textContent = project.querySelector('.project-year').textContent;
+  detailFields.art.innerHTML = project.querySelector('.art').innerHTML;
   detailFields.mockups.innerHTML = '';
-  const galleryImages = Array.isArray(project.gallery_images) ? project.gallery_images.filter(url => typeof url === 'string' && url.trim()) : [];
-  galleryImages.forEach((url, index) => {
+  for (let i = 0; i < 2; i++) {
     const frame = document.createElement('div');
     frame.className = 'detail-mockup';
-    frame.appendChild(makeProjectImage(url, (project.title || 'Project') + ' — image ' + (index + 1)));
+    const artwork = project.querySelector('.art').cloneNode(true);
+    artwork.classList.remove('wide','tall');
+    frame.appendChild(artwork);
     detailFields.mockups.appendChild(frame);
-  });
-  if (!galleryImages.length) detailFields.mockups.style.display = 'none';
-  else detailFields.mockups.style.display = 'grid';
+  }
   homeSections.forEach(section => section.style.display = 'none');
+  document.querySelector('.topbar').classList.add('project-open');
+  document.querySelector('.site-root').classList.add('project-open');
   detailPage.classList.add('active');
-  document.title = (project.title || 'Project') + ' — Pham Duong';
-  if (updateHistory) history.pushState({ projectId: project.id }, '', '#project-' + encodeURIComponent(project.id));
+  document.title = project.dataset.title + ' — Pham Duong';
+  if (updateHistory) history.pushState({ project: activeProjectIndex }, '', '#project-' + (activeProjectIndex + 1));
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
+projects.forEach(project => {
+  project.addEventListener('click', () => openProject(project));
+  project.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openProject(project); } });
+});
+document.getElementById('detail-back').addEventListener('click', event => { event.preventDefault(); history.pushState({}, '', '#work'); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); });
+document.querySelectorAll('.detail-back[href="#work"]').forEach(link => link.addEventListener('click', event => { if (link.id === 'detail-back') return; event.preventDefault(); history.pushState({}, '', '#work'); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); }));
+document.querySelectorAll('[data-home-link]').forEach(link => link.addEventListener('click', () => { showHome(); }));
+document.getElementById('detail-next').addEventListener('click', () => openProject(projects[(activeProjectIndex + 1) % projects.length]));
+window.addEventListener('popstate', () => { const match = location.hash.match(/^#project-(\d+)$/); if (match && projects[Number(match[1]) - 1]) openProject(projects[Number(match[1]) - 1], false); else showHome(); });
+const initialMatch = location.hash.match(/^#project-(\d+)$/);
+if (initialMatch && projects[Number(initialMatch[1]) - 1]) openProject(projects[Number(initialMatch[1]) - 1], false);
 async function loadHomepageProjects() {
-  gallery.innerHTML = '<p class="section-sub" style="grid-column:1/-1;padding:28px 0 60px">Đang tải dự án...</p>';
-  const { data, error } = await supabaseClient
-    .from('projects')
-    .select('id,title,category,project_type,year,description,cover_image,gallery_images,sort_order,is_published')
-    .eq('is_published', true)
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: false });
-  if (error) {
-    gallery.innerHTML = '';
-    const message = document.createElement('p');
-    message.className = 'section-sub';
-    message.style.gridColumn = '1 / -1';
-    message.style.padding = '28px 0 60px';
-    message.textContent = 'Chưa thể tải dự án. Vui lòng kiểm tra quyền đọc công khai (SELECT) của bảng projects trong Supabase.';
-    gallery.appendChild(message);
-    count.textContent = '/ 00';
-    console.error('Supabase projects error:', error);
-    return;
-  }
-  projects = (data || []).filter(project => project.cover_image);
-  renderProjects();
-  const match = location.hash.match(/^#project-(.+)$/);
-  if (match) {
-    const id = decodeURIComponent(match[1]);
-    const selected = projects.find(project => String(project.id) === id);
-    if (selected) openProject(selected, false);
-  }
+  const { data, error } = await supabaseClient.from('projects').select('*').eq('is_published', true);
+  if (error) { console.error('Không tải được danh sách dự án:', error); return; }
+  if (!Array.isArray(data)) return;
+  const gallery = document.getElementById('gallery');
+  const published = data.filter(item => item.cover_image);
+  if (!published.length) { gallery.innerHTML = ''; projects = []; count.textContent = '/ 00'; return; }
+  const getValue = (item, keys, fallback = '') => {
+    for (const key of keys) if (item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== '') return String(item[key]).trim();
+    return fallback;
+  };
+  gallery.innerHTML = '';
+  published.forEach(item => {
+    const title = getValue(item, ['title', 'name'], 'Untitled project');
+    const category = getValue(item, ['category', 'design_type', 'type', 'discipline'], 'Other');
+    const discipline = getValue(item, ['discipline', 'design_type', 'type', 'category'], category);
+    const year = getValue(item, ['year'], '');
+    const description = getValue(item, ['summary', 'description'], '');
+    const imageUrl = getValue(item, ['cover_image']);
+    const card = document.createElement('article');
+    card.className = 'project'; card.tabIndex = 0; card.setAttribute('role', 'button');
+    card.dataset.category = category; card.dataset.title = title; card.dataset.type = discipline; card.dataset.description = description;
+    const art = document.createElement('div'); art.className = 'art';
+    const image = document.createElement('img'); image.src = imageUrl; image.alt = title; image.loading = 'lazy';
+    art.appendChild(image);
+    const info = document.createElement('div'); info.className = 'project-info';
+    const textWrap = document.createElement('div');
+    const name = document.createElement('div'); name.className = 'project-name'; name.textContent = title;
+    const type = document.createElement('div'); type.className = 'project-type'; type.textContent = discipline;
+    textWrap.append(name, type);
+    const yearNode = document.createElement('div'); yearNode.className = 'project-year'; yearNode.textContent = year;
+    info.append(textWrap, yearNode);
+    const link = document.createElement('div'); link.className = 'view-link'; link.append(document.createTextNode('View project '));
+    const arrow = document.createElement('span'); arrow.textContent = '↗'; link.appendChild(arrow);
+    card.append(art, info, link); gallery.appendChild(card);
+    card.addEventListener('click', () => openProject(card));
+    card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openProject(card); } });
+  });
+  projects = [...gallery.querySelectorAll('.project')];
+  count.textContent = '/ ' + String(projects.length).padStart(2, '0');
+  filters.forEach(button => button.classList.toggle('active', button.dataset.filter === 'All'));
 }
-
-function goToWork() {
-  history.pushState({}, '', '#work');
-  showHome();
-  document.getElementById('work').scrollIntoView({ behavior:'smooth' });
-}
-document.getElementById('detail-back').addEventListener('click', event => { event.preventDefault(); goToWork(); });
-document.querySelectorAll('.detail-back[href="#work"]').forEach(link => {
-  if (link.id !== 'detail-back') link.addEventListener('click', event => { event.preventDefault(); goToWork(); });
-});
-document.querySelectorAll('[data-home-link]').forEach(link => link.addEventListener('click', showHome));
-document.getElementById('detail-next').addEventListener('click', () => {
-  if (projects.length) openProject(projects[(activeProjectIndex + 1) % projects.length]);
-});
-window.addEventListener('popstate', () => {
-  const match = location.hash.match(/^#project-(.+)$/);
-  const selected = match ? projects.find(project => String(project.id) === decodeURIComponent(match[1])) : null;
-  if (selected) openProject(selected, false);
-  else showHome();
-});
 loadHomepageProjects();
 </script>
 </body>
