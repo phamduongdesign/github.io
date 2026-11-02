@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pham Duong — Design Portfolio</title>
+<meta name="description" content="Independent graphic designer working across editorial, visual identity and digital communication.">
+<meta property="og:title" content="Pham Duong — Design Portfolio">
+<meta property="og:description" content="Independent graphic designer working across editorial, visual identity and digital communication.">
+<meta property="og:image" content="">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -81,6 +85,7 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
 .project:hover .view-link span { transform:translate(2px,-2px); }
 .about { display:grid; grid-template-columns:1fr 1fr; gap:50px; border-top:1px solid rgba(41,41,35,.18); padding:34px 0 95px; }
 .about h2 { font-size:clamp(28px,4vw,48px); font-weight:500; line-height:1.05; letter-spacing:-.06em; margin:0; max-width:500px; }
+#about-heading, #contact-heading { white-space:pre-line; }
 .about-text { max-width:490px; font-size:13px; line-height:1.85; color:#74736c; }
 .skills { display:flex; flex-wrap:wrap; gap:7px; margin-top:22px; }
 .skill { padding:8px 11px; border:1px solid rgba(41,41,35,.18); border-radius:999px; font-size:10px; color:#57574f; transition:background .2s ease,color .2s ease,border-color .2s ease; }
@@ -183,10 +188,10 @@ Ho Chi Minh City, VN</span></div>
       </div>
     </section>
     <section class="about wrap" id="about">
-      <div><div class="eyebrow">A little about me</div><h2>Thoughtful design.<br>Clear stories.<br><em>Lasting impressions.</em></h2></div>
-      <div class="about-text">I’m Pham Duong, a graphic designer working across editorial, visual identity and digital communication. I’m interested in the meeting point between strong ideas, thoughtful typography and practical design systems.<div class="skills"><span class="skill">Editorial design</span><span class="skill">Logo & identity</span><span class="skill">Digital content</span><span class="skill">Menu design</span><span class="skill">Book cover</span><span class="skill">E-magazine & infographic</span></div></div>
+      <div><div class="eyebrow" id="about-eyebrow">A little about me</div><h2 id="about-heading">Thoughtful design.<br>Clear stories.<br><em>Lasting impressions.</em></h2></div>
+      <div class="about-text" id="about-body">I’m Pham Duong, a graphic designer working across editorial, visual identity and digital communication. I’m interested in the meeting point between strong ideas, thoughtful typography and practical design systems.<div class="skills" id="about-skills"><span class="skill">Editorial design</span><span class="skill">Logo & identity</span><span class="skill">Digital content</span><span class="skill">Menu design</span><span class="skill">Book cover</span><span class="skill">E-magazine & infographic</span></div></div>
     </section>
-    <section class="contact" id="contact"><div class="wrap"><div class="contact-top"><h2>Have a good idea?<br><em>Let’s make it real.</em></h2><a class="contact-action" href="mailto:phamnguyentrungduong041192@gmail.com">Start a conversation <span>↗</span></a></div><div class="footer"><span>© 2026 PHAM DUONG — DESIGN PORTFOLIO</span><span>Independent designer · Vietnam</span><a href="#top">Back to top ↑</a></div></div></section>
+    <section class="contact" id="contact"><div class="wrap"><div class="contact-top"><h2 id="contact-heading">Have a good idea?<br><em>Let’s make it real.</em></h2><a class="contact-action" id="contact-cta" href="mailto:phamnguyentrungduong041192@gmail.com">Start a conversation <span>↗</span></a></div><div class="footer"><span>© 2026 PHAM DUONG — DESIGN PORTFOLIO</span><span id="contact-location">Independent designer · Vietnam</span><div id="social-links"></div><a href="#top">Back to top ↑</a></div></div></section>
   </main>
 </div>
 <section class="detail-page wrap" id="project-detail" aria-live="polite">
@@ -203,8 +208,10 @@ Ho Chi Minh City, VN</span></div>
 const SUPABASE_URL = 'https://gutlbvueimzjhpgplogf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hLiulz_jL9N3Is6Bbvcfrg_nhMg39_-';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let siteSeoTitle = 'Pham Duong — Design Portfolio';
 async function loadHomepageSettings() {
-  const { data, error } = await supabaseClient.from('site_settings').select('hero_image, hero_eyebrow, hero_headline, hero_intro, hero_meta_title, hero_meta_lines').eq('id', 'homepage').maybeSingle();
+  const fields = 'hero_image, hero_eyebrow, hero_headline, hero_intro, hero_meta_title, hero_meta_lines, about_heading, about_eyebrow, about_body, about_skills, contact_heading, contact_cta, contact_email, contact_location, social_instagram, social_behance, social_linkedin, social_facebook, theme_primary, theme_accent, theme_background, theme_text, theme_font, seo_title, seo_description, seo_image';
+  const { data, error } = await supabaseClient.from('site_settings').select(fields).eq('id', 'homepage').maybeSingle();
   if (error || !data) return;
   if (data.hero_image) document.getElementById('hero-image').src = data.hero_image;
   if (data.hero_eyebrow) document.getElementById('hero-eyebrow').textContent = data.hero_eyebrow;
@@ -212,6 +219,29 @@ async function loadHomepageSettings() {
   if (data.hero_intro) document.getElementById('hero-intro').textContent = data.hero_intro;
   if (data.hero_meta_title) document.getElementById('hero-meta-title').textContent = data.hero_meta_title;
   if (data.hero_meta_lines) document.getElementById('hero-meta-lines').textContent = data.hero_meta_lines;
+  if (data.about_eyebrow) document.getElementById('about-eyebrow').textContent = data.about_eyebrow;
+  if (data.about_heading) document.getElementById('about-heading').textContent = data.about_heading;
+  if (data.about_body) document.getElementById('about-body').firstChild.textContent = data.about_body;
+  if (data.about_skills) {
+    const skills = Array.isArray(data.about_skills) ? data.about_skills : String(data.about_skills).split(/[,\n]/);
+    document.getElementById('about-skills').innerHTML = skills.map(skill => String(skill).trim()).filter(Boolean).map(skill => `<span class="skill"></span>`).join('');
+    document.querySelectorAll('#about-skills .skill').forEach((node, index) => { node.textContent = String(skills.filter(skill => String(skill).trim())[index]).trim(); });
+  }
+  if (data.contact_heading) document.getElementById('contact-heading').textContent = data.contact_heading;
+  if (data.contact_cta) document.getElementById('contact-cta').firstChild.textContent = data.contact_cta + ' ';
+  if (data.contact_email) document.getElementById('contact-cta').href = 'mailto:' + data.contact_email;
+  if (data.contact_location) document.getElementById('contact-location').textContent = data.contact_location;
+  const social = [['Instagram', data.social_instagram], ['Behance', data.social_behance], ['LinkedIn', data.social_linkedin], ['Facebook', data.social_facebook]].filter(item => item[1]);
+  document.getElementById('social-links').innerHTML = social.map(item => `<a href="${item[1]}" target="_blank" rel="noopener noreferrer" style="margin-right:14px">${item[0]}</a>`).join('');
+  const root = document.documentElement;
+  if (data.theme_primary) root.style.setProperty('--site-primary', data.theme_primary);
+  if (data.theme_accent) { root.style.setProperty('--site-accent', data.theme_accent); root.style.setProperty('--site-hover-bg', data.theme_accent); root.style.setProperty('--site-hover-border', data.theme_accent); }
+  if (data.theme_background) root.style.setProperty('--site-background', data.theme_background);
+  if (data.theme_text) root.style.setProperty('--site-on-background', data.theme_text);
+  if (data.theme_font) { root.style.setProperty('--site-font-body', `'${data.theme_font}', sans-serif`); root.style.setProperty('--site-font-heading', `'${data.theme_font}', sans-serif`); }
+  if (data.seo_title) { siteSeoTitle = data.seo_title; document.title = siteSeoTitle; document.querySelector('meta[property="og:title"]').content = siteSeoTitle; }
+  if (data.seo_description) { document.querySelector('meta[name="description"]').content = data.seo_description; document.querySelector('meta[property="og:description"]').content = data.seo_description; }
+  if (data.seo_image) document.querySelector('meta[property="og:image"]').content = data.seo_image;
 }
 loadHomepageSettings();
 const filters = document.querySelectorAll('.filter');
@@ -235,7 +265,7 @@ const detailFields = { title:document.getElementById('detail-title'), category:d
 function showHome() {
   homeSections.forEach(section => section.style.display = '');
   detailPage.classList.remove('active');
-  document.title = 'Pham Duong — Design Portfolio';
+  document.title = siteSeoTitle;
 }
 function openProject(project, updateHistory = true) {
   activeProjectIndex = projects.indexOf(project);
