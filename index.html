@@ -76,6 +76,9 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
 .art { aspect-ratio: .91 / 1; border-radius:calc(8px * var(--site-radius-scale)); overflow:hidden; position:relative; background:#e5e0d5; isolation:isolate; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
 .project:hover .art { transform:translateY(-4px); }
 .art svg { display:block; width:100%; height:100%; }
+.art img { display:block; width:100%; height:100%; object-fit:cover; }
+.detail-hero-art img { display:block; width:100%; height:auto; max-height:780px; object-fit:contain; background:#e8e3d9; }
+.detail-mockup img { display:block; width:100%; height:100%; max-height:620px; object-fit:contain; }
 .art.wide { aspect-ratio:1.22 / 1; }
 .art.tall { aspect-ratio:.78 / 1; }
 .project-info { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding-top:13px; }
@@ -251,64 +254,183 @@ async function loadHomepageSettings() {
   if (data.seo_image) document.querySelector('meta[property="og:image"]').content = data.seo_image;
 }
 loadHomepageSettings();
-const filters = document.querySelectorAll('.filter');
-const projects = [...document.querySelectorAll('.project')];
+
+// Portfolio projects are loaded from the same Supabase table used by Admin.
+const gallery = document.getElementById('gallery');
 const count = document.getElementById('project-count');
+const filters = [...document.querySelectorAll('.filter')];
 const homeSections = [...document.querySelectorAll('#home-hero, #work, #about, .contact')];
 const detailPage = document.getElementById('project-detail');
+const detailFields = {
+  title:document.getElementById('detail-title'), category:document.getElementById('detail-category'),
+  summary:document.getElementById('detail-summary'), discipline:document.getElementById('detail-discipline'),
+  year:document.getElementById('detail-year'), art:document.getElementById('detail-art'),
+  story:document.getElementById('detail-story-copy'), mockups:document.getElementById('detail-mockups')
+};
+const categoryLabels = { editorial:'Editorial', identity:'Identity', digital:'Digital', print:'Print' };
+let projects = [];
 let activeProjectIndex = 0;
+let activeFilter = 'All';
+
+function makeProjectImage(url, alt) {
+  const img = document.createElement('img');
+  img.src = url;
+  img.alt = alt || 'Project image';
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.onerror = () => { img.style.display = 'none'; };
+  return img;
+}
+
+function renderProjects() {
+  gallery.innerHTML = '';
+  const visibleProjects = projects.filter(project => activeFilter === 'All' || categoryLabels[project.category] === activeFilter);
+  count.textContent = '/ ' + String(visibleProjects.length).padStart(2, '0');
+  if (!visibleProjects.length) {
+    const empty = document.createElement('p');
+    empty.className = 'section-sub';
+    empty.style.gridColumn = '1 / -1';
+    empty.style.padding = '28px 0 60px';
+    empty.textContent = projects.length ? 'Chưa có dự án trong danh mục này.' : 'Các dự án đang được cập nhật. Vui lòng quay lại sau.';
+    gallery.appendChild(empty);
+    return;
+  }
+  visibleProjects.forEach(project => {
+    const card = document.createElement('article');
+    card.className = 'project';
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    const category = categoryLabels[project.category] || project.category || 'Selected work';
+    card.dataset.category = category;
+    card.dataset.title = project.title || 'Untitled project';
+    card.dataset.type = project.project_type || category;
+    card.dataset.description = project.description || '';
+    card.dataset.projectId = project.id;
+
+    const art = document.createElement('div');
+    art.className = 'art';
+    if (project.cover_image) art.appendChild(makeProjectImage(project.cover_image, project.title));
+    else art.style.background = '#e8e3d9';
+
+    const info = document.createElement('div');
+    info.className = 'project-info';
+    const textWrap = document.createElement('div');
+    const name = document.createElement('div');
+    name.className = 'project-name';
+    name.textContent = project.title || 'Untitled project';
+    const type = document.createElement('div');
+    type.className = 'project-type';
+    type.textContent = project.project_type || category;
+    textWrap.append(name, type);
+    const year = document.createElement('div');
+    year.className = 'project-year';
+    year.textContent = project.year || '';
+    info.append(textWrap, year);
+    const link = document.createElement('div');
+    link.className = 'view-link';
+    link.append(document.createTextNode('View project '));
+    const arrow = document.createElement('span');
+    arrow.textContent = '↗';
+    link.appendChild(arrow);
+    card.append(art, info, link);
+    card.addEventListener('click', () => openProject(project));
+    card.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openProject(project); }
+    });
+    gallery.appendChild(card);
+  });
+}
+
 filters.forEach(button => button.addEventListener('click', () => {
   filters.forEach(item => item.classList.toggle('active', item === button));
-  const category = button.dataset.filter;
-  let visible = 0;
-  projects.forEach(project => {
-    const show = category === 'All' || project.dataset.category === category;
-    project.hidden = !show;
-    if (show) visible++;
-  });
-  count.textContent = '/ ' + String(visible).padStart(2, '0');
+  activeFilter = button.dataset.filter;
+  renderProjects();
 }));
-const detailFields = { title:document.getElementById('detail-title'), category:document.getElementById('detail-category'), summary:document.getElementById('detail-summary'), discipline:document.getElementById('detail-discipline'), year:document.getElementById('detail-year'), art:document.getElementById('detail-art'), story:document.getElementById('detail-story-copy'), mockups:document.getElementById('detail-mockups') };
+
 function showHome() {
   homeSections.forEach(section => section.style.display = '');
   detailPage.classList.remove('active');
   document.title = siteSeoTitle;
 }
+
 function openProject(project, updateHistory = true) {
-  activeProjectIndex = projects.indexOf(project);
-  detailFields.title.textContent = project.dataset.title;
-  detailFields.category.textContent = project.dataset.category + ' / Selected project';
-  detailFields.summary.textContent = project.dataset.description;
-  detailFields.discipline.textContent = project.dataset.type;
-  detailFields.year.textContent = project.querySelector('.project-year').textContent;
-  detailFields.art.innerHTML = project.querySelector('.art').innerHTML;
-  detailFields.story.textContent = project.dataset.description + ' The full case study can be expanded with the original design rationale, creative process, final deliverables and production photography.';
+  activeProjectIndex = projects.findIndex(item => item.id === project.id);
+  const category = categoryLabels[project.category] || project.category || 'Selected work';
+  detailFields.title.textContent = project.title || 'Untitled project';
+  detailFields.category.textContent = category + ' / Selected project';
+  detailFields.summary.textContent = project.description || '';
+  detailFields.discipline.textContent = project.project_type || category;
+  detailFields.year.textContent = project.year || '';
+  detailFields.art.innerHTML = '';
+  if (project.cover_image) detailFields.art.appendChild(makeProjectImage(project.cover_image, project.title));
+  detailFields.story.textContent = project.description || '';
   detailFields.mockups.innerHTML = '';
-  for (let i = 0; i < 2; i++) {
+  const galleryImages = Array.isArray(project.gallery_images) ? project.gallery_images.filter(url => typeof url === 'string' && url.trim()) : [];
+  galleryImages.forEach((url, index) => {
     const frame = document.createElement('div');
     frame.className = 'detail-mockup';
-    const artwork = project.querySelector('.art').cloneNode(true);
-    artwork.classList.remove('wide','tall');
-    frame.appendChild(artwork);
+    frame.appendChild(makeProjectImage(url, (project.title || 'Project') + ' — image ' + (index + 1)));
     detailFields.mockups.appendChild(frame);
-  }
+  });
+  if (!galleryImages.length) detailFields.mockups.style.display = 'none';
+  else detailFields.mockups.style.display = 'grid';
   homeSections.forEach(section => section.style.display = 'none');
   detailPage.classList.add('active');
-  document.title = project.dataset.title + ' — Pham Duong';
-  if (updateHistory) history.pushState({ project: activeProjectIndex }, '', '#project-' + (activeProjectIndex + 1));
+  document.title = (project.title || 'Project') + ' — Pham Duong';
+  if (updateHistory) history.pushState({ projectId: project.id }, '', '#project-' + encodeURIComponent(project.id));
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-projects.forEach(project => {
-  project.addEventListener('click', () => openProject(project));
-  project.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openProject(project); } });
+
+async function loadHomepageProjects() {
+  gallery.innerHTML = '<p class="section-sub" style="grid-column:1/-1;padding:28px 0 60px">Đang tải dự án...</p>';
+  const { data, error } = await supabaseClient
+    .from('projects')
+    .select('id,title,category,project_type,year,description,cover_image,gallery_images,sort_order,is_published')
+    .eq('is_published', true)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: false });
+  if (error) {
+    gallery.innerHTML = '';
+    const message = document.createElement('p');
+    message.className = 'section-sub';
+    message.style.gridColumn = '1 / -1';
+    message.style.padding = '28px 0 60px';
+    message.textContent = 'Chưa thể tải dự án. Vui lòng kiểm tra quyền đọc công khai (SELECT) của bảng projects trong Supabase.';
+    gallery.appendChild(message);
+    count.textContent = '/ 00';
+    console.error('Supabase projects error:', error);
+    return;
+  }
+  projects = (data || []).filter(project => project.cover_image);
+  renderProjects();
+  const match = location.hash.match(/^#project-(.+)$/);
+  if (match) {
+    const id = decodeURIComponent(match[1]);
+    const selected = projects.find(project => String(project.id) === id);
+    if (selected) openProject(selected, false);
+  }
+}
+
+function goToWork() {
+  history.pushState({}, '', '#work');
+  showHome();
+  document.getElementById('work').scrollIntoView({ behavior:'smooth' });
+}
+document.getElementById('detail-back').addEventListener('click', event => { event.preventDefault(); goToWork(); });
+document.querySelectorAll('.detail-back[href="#work"]').forEach(link => {
+  if (link.id !== 'detail-back') link.addEventListener('click', event => { event.preventDefault(); goToWork(); });
 });
-document.getElementById('detail-back').addEventListener('click', event => { event.preventDefault(); history.pushState({}, '', '#work'); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); });
-document.querySelectorAll('.detail-back[href="#work"]').forEach(link => link.addEventListener('click', event => { if (link.id === 'detail-back') return; event.preventDefault(); history.pushState({}, '', '#work'); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); }));
-document.querySelectorAll('[data-home-link]').forEach(link => link.addEventListener('click', () => { showHome(); }));
-document.getElementById('detail-next').addEventListener('click', () => openProject(projects[(activeProjectIndex + 1) % projects.length]));
-window.addEventListener('popstate', () => { const match = location.hash.match(/^#project-(\d+)$/); if (match && projects[Number(match[1]) - 1]) openProject(projects[Number(match[1]) - 1], false); else showHome(); });
-const initialMatch = location.hash.match(/^#project-(\d+)$/);
-if (initialMatch && projects[Number(initialMatch[1]) - 1]) openProject(projects[Number(initialMatch[1]) - 1], false);
+document.querySelectorAll('[data-home-link]').forEach(link => link.addEventListener('click', showHome));
+document.getElementById('detail-next').addEventListener('click', () => {
+  if (projects.length) openProject(projects[(activeProjectIndex + 1) % projects.length]);
+});
+window.addEventListener('popstate', () => {
+  const match = location.hash.match(/^#project-(.+)$/);
+  const selected = match ? projects.find(project => String(project.id) === decodeURIComponent(match[1])) : null;
+  if (selected) openProject(selected, false);
+  else showHome();
+});
+loadHomepageProjects();
 </script>
 </body>
 </html>
