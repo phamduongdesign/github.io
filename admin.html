@@ -48,6 +48,12 @@ input[type=checkbox]{width:auto}
 .gallery-item button{border:1px solid var(--line);background:#fff;padding:5px 7px;margin:2px 2px 0 0;font-size:11px}
 .gallery-item .remove-gallery{color:#9c4037}
 .top-actions{display:flex;gap:10px;align-items:center}
+.admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.admin-tab{border:1px solid var(--line);background:transparent;color:var(--muted);padding:11px 16px;font-size:12px}
+.admin-tab.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.tab-help{margin:-8px 0 18px;color:var(--muted);font-size:12px;line-height:1.6}
+.tab-panel[hidden]{display:none!important}
+.field-help{display:block;color:var(--muted);font-size:11px;line-height:1.55;margin-top:6px}
 @media(max-width:650px){
  .wrap{padding:20px 14px}
  .row{grid-template-columns:1fr}
@@ -90,7 +96,44 @@ input[type=checkbox]{width:auto}
     </div>
   </header>
 
-  <section class="panel">
+  <nav class="admin-tabs" aria-label="Các khu vực quản trị">
+    <button type="button" class="admin-tab active" data-tab="hero">01 · Trang chủ & Hero</button>
+    <button type="button" class="admin-tab" data-tab="editorial">02 · Editorial</button>
+    <button type="button" class="admin-tab" data-tab="identity">03 · Brand Identity</button>
+    <button type="button" class="admin-tab" data-tab="digital">04 · Digital & Social</button>
+    <button type="button" class="admin-tab" data-tab="print">05 · Print & Infographic</button>
+  </nav>
+
+  <section class="panel tab-panel" id="heroPanel" data-panel="hero">
+    <h2>Trang chủ & Hero</h2>
+    <p class="tab-help">Quản lý nội dung xuất hiện ở phần đầu trang chủ. Mỗi trường đều có chú thích vị trí hiển thị. Lưu ý: cần tạo bảng site_settings trong Supabase theo hướng dẫn sau khi cập nhật file.</p>
+    <form id="heroForm">
+      <label>Ảnh Hero — ảnh ngang lớn đầu trang</label>
+      <input id="heroImageFile" type="file" accept="image/*">
+      <small class="upload-note">Đề xuất 2400 × 1000 px hoặc tỷ lệ 2.4:1 · JPG/WebP · khoảng 300–700 KB. Đây là ảnh banner lớn ngay dưới thanh menu.</small>
+      <div id="heroImageInfo" class="file-check" aria-live="polite"></div>
+      <img id="heroImagePreview" class="preview" alt="Xem trước ảnh Hero">
+      <label>Eyebrow — dòng chữ nhỏ phía trên tiêu đề</label>
+      <input id="heroEyebrow" placeholder="Independent graphic designer · Vietnam">
+      <small class="field-help">Vị trí: ngay trên tiêu đề lớn, ví dụ lĩnh vực chuyên môn hoặc địa điểm.</small>
+      <label>Tiêu đề chính Hero</label>
+      <textarea id="heroHeadline" placeholder="Ideas made visible, with intent."></textarea>
+      <small class="field-help">Vị trí: tiêu đề lớn nhất trên trang chủ. Có thể xuống dòng bằng cách xuống dòng trong ô này.</small>
+      <label>Mô tả ngắn Hero</label>
+      <textarea id="heroIntro" placeholder="Giới thiệu ngắn về định hướng thiết kế của bạn..."></textarea>
+      <small class="field-help">Vị trí: đoạn giới thiệu nằm dưới tiêu đề, phía bên trái.</small>
+      <label>Thông tin chuyên môn</label>
+      <input id="heroMetaTitle" placeholder="Graphic Design & Art Direction">
+      <small class="field-help">Vị trí: dòng chữ đậm bên phải phần giới thiệu.</small>
+      <label>Các lĩnh vực / địa điểm</label>
+      <textarea id="heroMetaLines" placeholder="Editorial · Identity · Digital&#10;Ho Chi Minh City, VN"></textarea>
+      <small class="field-help">Vị trí: các dòng thông tin nhỏ bên phải phần giới thiệu.</small>
+      <div class="actions"><button class="btn" type="submit" id="saveHeroButton">Lưu nội dung trang chủ</button></div>
+      <div id="heroMessage" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <section class="panel tab-panel" id="projectEditorPanel" data-panel="projects" hidden>
     <h2 id="formTitle">Thêm dự án mới</h2>
     <form id="projectForm">
       <input type="hidden" id="projectId">
@@ -154,8 +197,9 @@ input[type=checkbox]{width:auto}
     </form>
   </section>
 
-  <section class="panel">
-    <h2>Danh sách dự án</h2>
+  <section class="panel tab-panel" id="projectListPanel" data-panel="projects" hidden>
+    <h2 id="projectListTitle">Danh sách dự án</h2>
+    <p class="tab-help" id="projectListHelp">Danh sách chỉ hiển thị dự án thuộc tab đang chọn.</p>
     <div id="projectList" class="muted">Đang tải dự án...</div>
   </section>
 </section>
@@ -172,6 +216,39 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = id => document.getElementById(id);
 let currentImageUrl = '';
 let currentGalleryImages = [];
+let activeTab = 'hero';
+let cachedProjects = [];
+let currentHeroImageUrl = '';
+
+const categoryTabs = {
+  editorial: {label:'Editorial', title:'Dự án Editorial'},
+  identity: {label:'Brand Identity', title:'Dự án Brand Identity'},
+  digital: {label:'Digital & Social', title:'Dự án Digital & Social'},
+  print: {label:'Print & Infographic', title:'Dự án Print & Infographic'}
+};
+
+function setActiveTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.admin-tab').forEach(button => {
+    const selected = button.dataset.tab === tab;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-selected', String(selected));
+  });
+  $('heroPanel').hidden = tab !== 'hero';
+  $('projectEditorPanel').hidden = tab === 'hero';
+  $('projectListPanel').hidden = tab === 'hero';
+  if (tab !== 'hero') {
+    $('category').value = tab;
+    $('projectListTitle').textContent = categoryTabs[tab].title;
+    $('projectListHelp').textContent = 'Đang xem riêng các dự án thuộc nhóm ' + categoryTabs[tab].label + '. Dự án đã có vẫn được giữ nguyên.';
+    $('formTitle').textContent = 'Thêm dự án — ' + categoryTabs[tab].label;
+    renderProjectList();
+  }
+}
+
+document.querySelectorAll('.admin-tab').forEach(button => {
+  button.addEventListener('click', () => setActiveTab(button.dataset.tab));
+});
 
 function message(text, error=false) {
   $('message').textContent = text;
@@ -193,6 +270,7 @@ async function checkAdmin(session) {
     return false;
   }
   showAdmin(true);
+  await loadHeroSettings();
   await loadProjects();
   return true;
 }
@@ -244,11 +322,16 @@ async function loadProjects() {
     return;
   }
 
+  cachedProjects = data || [];
+  renderProjectList();
+}
+
+function renderProjectList() {
+  const data = cachedProjects.filter(project => project.category === activeTab);
   if (!data.length) {
-    $('projectList').textContent = 'Chưa có dự án nào. Hãy thêm dự án đầu tiên.';
+    $('projectList').textContent = 'Chưa có dự án trong mục này. Bạn có thể thêm dự án mới ở biểu mẫu phía trên.';
     return;
   }
-
   $('projectList').innerHTML = '';
 
   data.forEach(project => {
@@ -294,6 +377,74 @@ async function loadProjects() {
     $('projectList').append(item);
   });
 }
+
+async function loadHeroSettings() {
+  const {data,error} = await db.from('site_settings').select('*').eq('id','homepage').maybeSingle();
+  if (error) {
+    $('heroMessage').textContent = 'Chưa đọc được cài đặt trang chủ. Hãy tạo bảng site_settings bằng câu lệnh SQL được cung cấp.';
+    $('heroMessage').style.color = '#a45a24';
+    return;
+  }
+  if (!data) return;
+  $('heroEyebrow').value = data.hero_eyebrow || '';
+  $('heroHeadline').value = data.hero_headline || '';
+  $('heroIntro').value = data.hero_intro || '';
+  $('heroMetaTitle').value = data.hero_meta_title || '';
+  $('heroMetaLines').value = data.hero_meta_lines || '';
+  currentHeroImageUrl = data.hero_image || '';
+  if (currentHeroImageUrl) {
+    $('heroImagePreview').src = currentHeroImageUrl;
+    $('heroImagePreview').style.display = 'block';
+  }
+}
+
+$('heroImageFile').addEventListener('change', async () => {
+  const file = $('heroImageFile').files[0];
+  $('heroImageInfo').innerHTML = '';
+  if (!file) return;
+  const preview = $('heroImagePreview');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+  await showImageFileInfo([file], 'heroImageInfo', 'gallery');
+});
+
+$('heroForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  $('saveHeroButton').disabled = true;
+  $('heroMessage').textContent = 'Đang lưu nội dung trang chủ...';
+  $('heroMessage').style.color = 'var(--olive)';
+  try {
+    const file = $('heroImageFile').files[0];
+    let imageUrl = currentHeroImageUrl;
+    if (file) {
+      const extension = file.name.split('.').pop().toLowerCase();
+      const path = 'hero/' + crypto.randomUUID() + '.' + extension;
+      const {error:uploadError} = await db.storage.from(BUCKET).upload(path,file,{cacheControl:'3600',upsert:false});
+      if (uploadError) throw uploadError;
+      imageUrl = db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    }
+    const settings = {
+      id:'homepage', hero_image:imageUrl,
+      hero_eyebrow:$('heroEyebrow').value.trim(),
+      hero_headline:$('heroHeadline').value.trim(),
+      hero_intro:$('heroIntro').value.trim(),
+      hero_meta_title:$('heroMetaTitle').value.trim(),
+      hero_meta_lines:$('heroMetaLines').value.trim(),
+      updated_at:new Date().toISOString()
+    };
+    const {error} = await db.from('site_settings').upsert(settings,{onConflict:'id'});
+    if (error) throw error;
+    currentHeroImageUrl = imageUrl;
+    $('heroImageFile').value = '';
+    $('heroImageInfo').innerHTML = '';
+    $('heroMessage').textContent = 'Đã lưu nội dung Hero. Sau khi kết nối trang chủ với bảng cài đặt, nội dung sẽ hiển thị trên website.';
+  } catch (error) {
+    $('heroMessage').textContent = 'Không thể lưu: ' + error.message;
+    $('heroMessage').style.color = '#b13e35';
+  } finally {
+    $('saveHeroButton').disabled = false;
+  }
+});
 
 async function uploadCover(file) {
   const extension = file.name.split('.').pop().toLowerCase();
@@ -573,6 +724,7 @@ function resetForm() {
   $('year').value = new Date().getFullYear();
   $('sortOrder').value = 0;
   $('published').checked = true;
+  if (activeTab !== 'hero') $('category').value = activeTab;
   $('formTitle').textContent = 'Thêm dự án mới';
   $('saveButton').textContent = 'Lưu dự án';
   $('imagePreview').style.display = 'none';
@@ -588,7 +740,10 @@ function resetForm() {
 $('cancelEdit').addEventListener('click', () => {
   resetForm();
   message('');
+  $('category').value = activeTab;
 });
+
+setActiveTab('hero');
 
 (async () => {
   const {data} = await db.auth.getSession();
