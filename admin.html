@@ -58,6 +58,11 @@ input[type=checkbox]{width:auto}
 .cms-group{border-top:1px solid var(--line);padding-top:18px;margin-top:24px}
 .cms-group h3{font-size:14px;margin:0 0 8px}
 .cms-note{background:#f5f4ef;padding:12px 14px;font-size:12px;line-height:1.65;color:#62645b;margin:14px 0}
+.color-field{display:grid;grid-template-columns:54px 1fr;gap:10px;align-items:center}
+.color-field input[type=color]{width:54px;height:42px;padding:4px;cursor:pointer}
+.color-swatch{height:42px;border:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 10px;font:12px ui-monospace,monospace;background:#fff}
+.color-chip{width:22px;height:22px;border:1px solid rgba(0,0,0,.12);border-radius:50%}
+.avatar-preview{width:76px;height:76px;border-radius:50%;object-fit:cover;border:1px solid var(--line);background:#f5f4ef;display:none;margin-top:10px}
 @media(max-width:650px){
  .wrap{padding:20px 14px}
  .row{grid-template-columns:1fr}
@@ -144,6 +149,13 @@ input[type=checkbox]{width:auto}
     <p class="tab-help">Quản lý phần giới thiệu, liên hệ, giao diện và thông tin SEO. Sau khi lưu, các trường sẽ được đồng bộ vào Supabase; cần cập nhật trang chủ để hiển thị các nội dung này.</p>
     <form id="cmsForm">
       <div class="cms-group">
+        <h3>Avatar — Ảnh đại diện góc trái</h3>
+        <label>Ảnh avatar website</label>
+        <input id="avatarFile" type="file" accept="image/*">
+        <small class="field-help">Ảnh hiển thị trong vòng tròn nhỏ bên trái tên PHAM DUONG trên thanh đầu trang. Nên dùng ảnh vuông, JPG/PNG/WebP.</small>
+        <img id="avatarPreview" class="avatar-preview" alt="Xem trước avatar">
+      </div>
+      <div class="cms-group">
         <h3>About — Giới thiệu bản thân</h3>
         <div class="cms-grid">
           <div><label>Tiêu đề About</label><input id="aboutHeading" placeholder="Thoughtful design. Clear stories."></div>
@@ -168,13 +180,15 @@ input[type=checkbox]{width:auto}
       <div class="cms-group">
         <h3>Giao diện — Visual settings</h3>
         <div class="cms-grid">
-          <div><label>Màu chủ đạo</label><input id="themePrimary" type="color" value="#1F2A44"></div>
-          <div><label>Màu nhấn</label><input id="themeAccent" type="color" value="#C49A6C"></div>
-          <div><label>Màu nền</label><input id="themeBackground" type="color" value="#F6F4EF"></div>
-          <div><label>Màu chữ</label><input id="themeText" type="color" value="#292923"></div>
-          <div><label>Font chữ</label><select id="themeFont"><option value="Inter">Inter</option><option value="Helvetica Neue">Helvetica Neue</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option></select></div>
+          <div><label>Màu chủ đạo</label><div class="color-field"><input id="themePrimary" type="color" value="#1F2A44"><div class="color-swatch"><span id="themePrimaryValue">#1F2A44</span><span class="color-chip" id="themePrimaryChip"></span></div></div></div>
+          <div><label>Màu nhấn</label><div class="color-field"><input id="themeAccent" type="color" value="#C49A6C"><div class="color-swatch"><span id="themeAccentValue">#C49A6C</span><span class="color-chip" id="themeAccentChip"></span></div></div></div>
+          <div><label>Màu nền</label><div class="color-field"><input id="themeBackground" type="color" value="#F6F4EF"><div class="color-swatch"><span id="themeBackgroundValue">#F6F4EF</span><span class="color-chip" id="themeBackgroundChip"></span></div></div></div>
+          <div><label>Màu chữ</label><div class="color-field"><input id="themeText" type="color" value="#292923"><div class="color-swatch"><span id="themeTextValue">#292923</span><span class="color-chip" id="themeTextChip"></span></div></div></div>
+          <div><label>Font chữ</label><select id="themeFont"><option value="Inter">Inter</option><option value="DM Sans">DM Sans</option><option value="Manrope">Manrope</option><option value="Plus Jakarta Sans">Plus Jakarta Sans</option><option value="Helvetica Neue">Helvetica Neue</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Playfair Display">Playfair Display</option><option value="Cormorant Garamond">Cormorant Garamond</option></select></div>
+          <div><label>Độ đậm font (Weight)</label><select id="themeFontWeight"><option value="300">Light · 300</option><option value="400" selected>Regular · 400</option><option value="500">Medium · 500</option><option value="600">Semibold · 600</option><option value="700">Bold · 700</option><option value="800">Extra Bold · 800</option></select></div>
+          <div><label>Kiểu font (Style)</label><select id="themeFontStyle"><option value="normal">Normal</option><option value="italic">Italic</option></select></div>
         </div>
-        <p class="cms-note">Các tùy chỉnh giao diện được lưu riêng. Trang chủ cần được cập nhật phần đọc cấu hình giao diện để áp dụng các giá trị này.</p>
+        <p class="cms-note">Màu sẽ hiển thị trực tiếp bằng ô màu và mã HEX. Font, độ đậm và kiểu chữ được áp dụng đồng bộ cho nội dung website.</p>
       </div>
       <div class="cms-group">
         <h3>SEO — Thông tin tìm kiếm</h3>
@@ -362,6 +376,23 @@ $('logout').addEventListener('click', async () => {
   $('password').value = '';
 });
 
+let currentAvatarUrl = '';
+$('avatarFile').addEventListener('change', () => {
+  const file = $('avatarFile').files[0];
+  if (!file) return;
+  $('avatarPreview').src = URL.createObjectURL(file);
+  $('avatarPreview').style.display = 'block';
+});
+
+function refreshColorSwatches() {
+  ['themePrimary','themeAccent','themeBackground','themeText'].forEach(id => {
+    const value = $(id).value.toUpperCase();
+    $(id + 'Value').textContent = value;
+    $(id + 'Chip').style.backgroundColor = value;
+  });
+}
+['themePrimary','themeAccent','themeBackground','themeText'].forEach(id => $(id).addEventListener('input', refreshColorSwatches));
+
 db.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
     await checkAdmin(session);
@@ -507,26 +538,39 @@ $('heroForm').addEventListener('submit', async event => {
   }
 });
 
-const cmsFields = ['aboutHeading','aboutEyebrow','aboutBody','aboutSkills','contactHeading','contactCta','contactEmail','contactLocation','socialInstagram','socialBehance','socialLinkedin','socialFacebook','themePrimary','themeAccent','themeBackground','themeText','themeFont','seoTitle','seoDescription','seoImage'];
+const cmsFields = ['aboutHeading','aboutEyebrow','aboutBody','aboutSkills','contactHeading','contactCta','contactEmail','contactLocation','socialInstagram','socialBehance','socialLinkedin','socialFacebook','themePrimary','themeAccent','themeBackground','themeText','themeFont','themeFontWeight','themeFontStyle','seoTitle','seoDescription','seoImage'];
 async function loadCmsSettings() {
   const {data,error} = await db.from('site_settings').select('*').eq('id','homepage').maybeSingle();
   if (error) { $('cmsMessage').textContent = 'Không thể tải cài đặt: ' + error.message; return; }
   if (!data) return;
-  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactLocation:'contact_location',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
+  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactLocation:'contact_location',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',themeFontWeight:'theme_font_weight',themeFontStyle:'theme_font_style',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
   cmsFields.forEach(id => { const value = data[columns[id]]; if (value !== null && value !== undefined && $(id)) $(id).value = value; });
+  currentAvatarUrl = data.avatar_image || '';
+  if (currentAvatarUrl) { $('avatarPreview').src = currentAvatarUrl; $('avatarPreview').style.display = 'block'; }
+  refreshColorSwatches();
 }
 $('cmsForm').addEventListener('submit', async event => {
   event.preventDefault();
   $('saveCmsButton').disabled = true;
   $('cmsMessage').textContent = 'Đang lưu...';
-  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactLocation:'contact_location',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
+  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactLocation:'contact_location',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',themeFontWeight:'theme_font_weight',themeFontStyle:'theme_font_style',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
   const settings = {id:'homepage',updated_at:new Date().toISOString()};
   cmsFields.forEach(id => { settings[columns[id]] = $(id).value.trim(); });
   try {
+    const avatarFile = $('avatarFile').files[0];
+    if (avatarFile) {
+      const extension = avatarFile.name.split('.').pop().toLowerCase();
+      const path = 'avatar/' + crypto.randomUUID() + '.' + extension;
+      const {error:uploadError} = await db.storage.from(BUCKET).upload(path,avatarFile,{cacheControl:'3600',upsert:false});
+      if (uploadError) throw uploadError;
+      currentAvatarUrl = db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    }
+    settings.avatar_image = currentAvatarUrl;
     const {error} = await db.from('site_settings').upsert(settings,{onConflict:'id'});
     if (error) throw error;
     $('cmsMessage').textContent = 'Đã lưu nội dung và cài đặt vào Supabase.';
     $('cmsMessage').style.color = 'var(--olive)';
+    $('avatarFile').value = '';
   } catch (error) {
     $('cmsMessage').textContent = 'Không thể lưu: ' + error.message;
     $('cmsMessage').style.color = '#b13e35';
