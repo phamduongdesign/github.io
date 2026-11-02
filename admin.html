@@ -38,6 +38,9 @@ input[type=checkbox]{width:auto}
 #admin{display:none}
 #login{display:block}
 .preview{max-width:180px;max-height:130px;object-fit:cover;margin-top:12px;display:none}
+.upload-note{display:block;margin-top:8px;padding:10px 12px;background:#f5f4ef;border-left:3px solid var(--olive);color:#5e6055;font-size:12px;line-height:1.65}
+.file-check{display:grid;gap:5px;margin-top:9px;font-size:12px;line-height:1.5;color:var(--muted)}
+.file-check .file-good{color:#5d7141}.file-check .file-warn{color:#a45a24}
 .gallery-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:14px}
 .gallery-item{border:1px solid var(--line);padding:7px;background:#fff;min-width:0}
 .gallery-item img{width:100%;height:100px;object-fit:cover;display:block;background:var(--bg)}
@@ -127,11 +130,14 @@ input[type=checkbox]{width:auto}
 
       <label>Ảnh bìa dự án</label>
       <input id="coverFile" type="file" accept="image/*">
+      <small class="upload-note">KÍCH THƯỚC ĐỀ XUẤT: <strong>1600 × 1200 px (tỷ lệ 4:3)</strong> · Ưu tiên JPG/WebP · Dung lượng khoảng <strong>200–450 KB</strong>. Ảnh bìa là ảnh đại diện trên trang chủ. Không bắt buộc đúng tuyệt đối kích thước này; tránh làm méo ảnh.</small>
+      <div id="coverFileInfo" class="file-check" aria-live="polite"></div>
       <img id="imagePreview" class="preview" alt="Xem trước ảnh bìa">
-      <small>Ảnh bìa được dùng làm ảnh đại diện trên trang chủ.</small>
 
       <label>Ảnh thư viện dự án (có thể chọn nhiều ảnh)</label>
       <input id="galleryFiles" type="file" accept="image/*" multiple>
+      <small class="upload-note">KÍCH THƯỚC ĐỀ XUẤT: cạnh dài khoảng <strong>1800 px</strong>, giữ nguyên tỷ lệ ảnh gốc · Ưu tiên JPG/WebP · khoảng <strong>250–600 KB/ảnh</strong>. Có thể dùng ảnh ngang, dọc hoặc vuông trong cùng dự án. PNG phù hợp khi cần nền trong suốt.</small>
+      <div id="galleryFileInfo" class="file-check" aria-live="polite"></div>
       <small>Chọn nhiều ảnh cùng lúc. Ảnh sẽ được thêm vào thư viện của dự án khi bạn lưu.</small>
       <div id="galleryPreview" class="gallery-preview"></div>
 
@@ -386,15 +392,69 @@ function renderGalleryPreview() {
   });
 }
 
-$('coverFile').addEventListener('change', () => {
+function formatFileSize(bytes) {
+  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+async function showImageFileInfo(files, targetId, mode) {
+  const target = $(targetId);
+  target.innerHTML = '';
+  for (const file of files) {
+    const line = document.createElement('div');
+    line.textContent = 'Đang đọc thông tin: ' + file.name;
+    target.appendChild(line);
+    try {
+      const image = await createImageBitmap(file);
+      const width = image.width;
+      const height = image.height;
+      image.close();
+      const ratio = width / height;
+      const details = document.createElement('div');
+      const sizeText = formatFileSize(file.size);
+      const isLarge = file.size > 1024 * 1024;
+      let recommendation = '';
+      if (mode === 'cover') {
+        const ratioIsClose = Math.abs(ratio - (4 / 3)) < 0.04;
+        recommendation = ratioIsClose
+          ? 'Tỷ lệ gần 4:3, phù hợp ảnh bìa.'
+          : 'Ảnh không theo tỷ lệ 4:3; vẫn tải được, hãy kiểm tra cách ảnh hiển thị.';
+      } else {
+        const longEdge = Math.max(width, height);
+        recommendation = longEdge >= 1200 && longEdge <= 2200
+          ? 'Kích thước phù hợp cho gallery.'
+          : (longEdge < 1200
+            ? 'Ảnh có thể hơi nhỏ khi hiển thị lớn.'
+            : 'Ảnh lớn hơn mức đề xuất; cân nhắc giảm cạnh dài về khoảng 1800–2000 px.');
+      }
+      details.className = isLarge ? 'file-warn' : 'file-good';
+      details.textContent = file.name + ' — ' + width + ' × ' + height + ' px · ' + sizeText + '. ' +
+        recommendation + (isLarge ? ' Dung lượng trên 1 MB; nên nén ảnh để website tải nhanh hơn.' : '');
+      line.replaceWith(details);
+    } catch (error) {
+      line.className = 'file-warn';
+      line.textContent = file.name + ' — không đọc được kích thước ảnh. Hãy dùng JPG, PNG hoặc WebP.';
+    }
+  }
+}
+
+$('coverFile').addEventListener('change', async () => {
   const file = $('coverFile').files[0];
-  if (!file) return;
+  $('coverFileInfo').innerHTML = '';
+  if (!file) {
+    $('imagePreview').style.display = 'none';
+    return;
+  }
   const preview = $('imagePreview');
   preview.src = URL.createObjectURL(file);
   preview.style.display = 'block';
+  await showImageFileInfo([file], 'coverFileInfo', 'cover');
 });
 
-$('galleryFiles').addEventListener('change', renderGalleryPreview);
+$('galleryFiles').addEventListener('change', async () => {
+  renderGalleryPreview();
+  await showImageFileInfo([...$('galleryFiles').files], 'galleryFileInfo', 'gallery');
+});
 
 $('projectForm').addEventListener('submit', async e => {
   e.preventDefault();
@@ -463,6 +523,8 @@ function editProject(project) {
     : [];
   $('coverFile').value = '';
   $('galleryFiles').value = '';
+  $('coverFileInfo').innerHTML = '';
+  $('galleryFileInfo').innerHTML = '';
   renderGalleryPreview();
 
   const preview = $('imagePreview');
@@ -516,6 +578,8 @@ function resetForm() {
   $('imagePreview').style.display = 'none';
   $('coverFile').value = '';
   $('galleryFiles').value = '';
+  $('coverFileInfo').innerHTML = '';
+  $('galleryFileInfo').innerHTML = '';
   currentImageUrl = '';
   currentGalleryImages = [];
   renderGalleryPreview();
