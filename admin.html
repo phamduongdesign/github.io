@@ -38,7 +38,31 @@ input[type=checkbox]{width:auto}
 #admin{display:none}
 #login{display:block}
 .preview{max-width:180px;max-height:130px;object-fit:cover;margin-top:12px;display:none}
+.upload-note{display:block;margin-top:8px;padding:10px 12px;background:#f5f4ef;border-left:3px solid var(--olive);color:#5e6055;font-size:12px;line-height:1.65}
+.file-check{display:grid;gap:5px;margin-top:9px;font-size:12px;line-height:1.5;color:var(--muted)}
+.file-check .file-good{color:#5d7141}.file-check .file-warn{color:#a45a24}
+.gallery-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:14px}
+.gallery-item{border:1px solid var(--line);padding:7px;background:#fff;min-width:0}
+.gallery-item img{width:100%;height:100px;object-fit:cover;display:block;background:var(--bg)}
+.gallery-item small{display:block;overflow-wrap:anywhere;margin:6px 0;font-size:10px}
+.gallery-item button{border:1px solid var(--line);background:#fff;padding:5px 7px;margin:2px 2px 0 0;font-size:11px}
+.gallery-item .remove-gallery{color:#9c4037}
 .top-actions{display:flex;gap:10px;align-items:center}
+.admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.admin-tab{border:1px solid var(--line);background:transparent;color:var(--muted);padding:11px 16px;font-size:12px}
+.admin-tab.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.tab-help{margin:-8px 0 18px;color:var(--muted);font-size:12px;line-height:1.6}
+.tab-panel[hidden]{display:none!important}
+.field-help{display:block;color:var(--muted);font-size:11px;line-height:1.55;margin-top:6px}
+.cms-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px}
+.cms-group{border-top:1px solid var(--line);padding-top:18px;margin-top:24px}
+.cms-group h3{font-size:14px;margin:0 0 8px}
+.cms-note{background:#f5f4ef;padding:12px 14px;font-size:12px;line-height:1.65;color:#62645b;margin:14px 0}
+.color-field{display:grid;grid-template-columns:54px 1fr;gap:10px;align-items:center}
+.color-field input[type=color]{width:54px;height:42px;padding:4px;cursor:pointer}
+.color-swatch{height:42px;border:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 10px;font:12px ui-monospace,monospace;background:#fff}
+.color-chip{width:22px;height:22px;border:1px solid rgba(0,0,0,.12);border-radius:50%}
+.avatar-preview{width:76px;height:76px;border-radius:50%;object-fit:cover;border:1px solid var(--line);background:#f5f4ef;display:none;margin-top:10px}
 .type-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}
 .type-control{border:1px solid var(--line);padding:14px;background:#fbfbf8}
 .type-control strong{display:block;font-size:12px;margin-bottom:8px}
@@ -49,7 +73,7 @@ input[type=checkbox]{width:auto}
 @media(max-width:650px){
  .wrap{padding:20px 14px}
  .row{grid-template-columns:1fr}
- .type-controls{grid-template-columns:1fr}
+ .cms-grid{grid-template-columns:1fr}
  .project{grid-template-columns:75px 1fr}
  .project img{width:75px;height:75px}
  .project-actions{grid-column:2}
@@ -89,7 +113,102 @@ input[type=checkbox]{width:auto}
     </div>
   </header>
 
-  <section class="panel">
+  <nav class="admin-tabs" aria-label="Các khu vực quản trị">
+    <button type="button" class="admin-tab active" data-tab="hero">01 · Trang chủ & Hero</button>
+    <button type="button" class="admin-tab" data-tab="editorial">02 · Editorial</button>
+    <button type="button" class="admin-tab" data-tab="identity">03 · Brand Identity</button>
+    <button type="button" class="admin-tab" data-tab="digital">04 · Digital & Social</button>
+    <button type="button" class="admin-tab" data-tab="print">05 · Print & Infographic</button>
+    <button type="button" class="admin-tab" data-tab="cms">06 · Nội dung & Cài đặt</button>
+  </nav>
+
+  <section class="panel tab-panel" id="heroPanel" data-panel="hero">
+    <h2>Trang chủ & Hero</h2>
+    <p class="tab-help">Quản lý nội dung xuất hiện ở phần đầu trang chủ. Mỗi trường đều có chú thích vị trí hiển thị. Lưu ý: cần tạo bảng site_settings trong Supabase theo hướng dẫn sau khi cập nhật file.</p>
+    <form id="heroForm">
+      <label>Ảnh Hero — ảnh ngang lớn đầu trang</label>
+      <input id="heroImageFile" type="file" accept="image/*">
+      <small class="upload-note">Đề xuất 2400 × 1000 px hoặc tỷ lệ 2.4:1 · JPG/WebP · khoảng 300–700 KB. Đây là ảnh banner lớn ngay dưới thanh menu.</small>
+      <div id="heroImageInfo" class="file-check" aria-live="polite"></div>
+      <img id="heroImagePreview" class="preview" alt="Xem trước ảnh Hero">
+      <label>Eyebrow — dòng chữ nhỏ phía trên tiêu đề</label>
+      <input id="heroEyebrow" placeholder="Independent graphic designer · Vietnam">
+      <small class="field-help">Vị trí: ngay trên tiêu đề lớn, ví dụ lĩnh vực chuyên môn hoặc địa điểm.</small>
+      <label>Tiêu đề chính Hero</label>
+      <textarea id="heroHeadline" placeholder="Ideas made visible, with intent."></textarea>
+      <small class="field-help">Vị trí: tiêu đề lớn nhất trên trang chủ. Có thể xuống dòng bằng cách xuống dòng trong ô này.</small>
+      <label>Mô tả ngắn Hero</label>
+      <textarea id="heroIntro" placeholder="Giới thiệu ngắn về định hướng thiết kế của bạn..."></textarea>
+      <small class="field-help">Vị trí: đoạn giới thiệu nằm dưới tiêu đề, phía bên trái.</small>
+      <label>Thông tin chuyên môn</label>
+      <input id="heroMetaTitle" placeholder="Graphic Design & Art Direction">
+      <small class="field-help">Vị trí: dòng chữ đậm bên phải phần giới thiệu.</small>
+      <label>Các lĩnh vực / địa điểm</label>
+      <textarea id="heroMetaLines" placeholder="Editorial · Identity · Digital&#10;Ho Chi Minh City, VN"></textarea>
+      <small class="field-help">Vị trí: các dòng thông tin nhỏ bên phải phần giới thiệu.</small>
+      <div class="actions"><button class="btn" type="submit" id="saveHeroButton">Lưu nội dung trang chủ</button></div>
+      <div id="heroMessage" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <section class="panel tab-panel" id="cmsPanel" data-panel="cms" hidden>
+    <h2>Nội dung & Cài đặt website</h2>
+    <p class="tab-help">Quản lý phần giới thiệu, liên hệ, giao diện và thông tin SEO. Sau khi lưu, các trường sẽ được đồng bộ vào Supabase; cần cập nhật trang chủ để hiển thị các nội dung này.</p>
+    <form id="cmsForm">
+      <div class="cms-group">
+        <h3>Avatar — Ảnh đại diện góc trái</h3>
+        <label>Ảnh avatar website</label>
+        <input id="avatarFile" type="file" accept="image/*">
+        <small class="field-help">Ảnh hiển thị trong vòng tròn nhỏ bên trái tên PHAM DUONG trên thanh đầu trang. Nên dùng ảnh vuông, JPG/PNG/WebP.</small>
+        <img id="avatarPreview" class="avatar-preview" alt="Xem trước avatar">
+      </div>
+      <div class="cms-group">
+        <h3>About — Giới thiệu bản thân</h3>
+        <div class="cms-grid">
+          <div><label>Tiêu đề About</label><input id="aboutHeading" placeholder="Thoughtful design. Clear stories."></div>
+          <div><label>Dòng giới thiệu nhỏ</label><input id="aboutEyebrow" placeholder="A little about me"></div>
+        </div>
+        <label>Nội dung giới thiệu</label><textarea id="aboutBody" placeholder="Giới thiệu về kinh nghiệm, tư duy và định hướng thiết kế..."></textarea>
+        <label>Kỹ năng / dịch vụ (mỗi dòng một mục)</label><textarea id="aboutSkills" placeholder="Editorial design&#10;Brand identity&#10;Digital content"></textarea>
+      </div>
+      <div class="cms-group">
+        <h3>Contact — Liên hệ</h3>
+        <div class="cms-grid">
+          <div><label>Tiêu đề liên hệ</label><input id="contactHeading" placeholder="Have a good idea? Let’s make it real."></div>
+          <div><label>Nút kêu gọi hành động</label><input id="contactCta" placeholder="Start a conversation"></div>
+          <div><label>Email liên hệ</label><input id="contactEmail" type="email" placeholder="your@email.com"></div>
+          <div><label>Địa điểm / dòng chân trang</label><input id="contactLocation" placeholder="Ho Chi Minh City · Vietnam"></div>
+          <div><label>Instagram URL</label><input id="socialInstagram" type="url" placeholder="https://instagram.com/..."></div>
+          <div><label>Behance URL</label><input id="socialBehance" type="url" placeholder="https://behance.net/..."></div>
+          <div><label>LinkedIn URL</label><input id="socialLinkedin" type="url" placeholder="https://linkedin.com/in/..."></div>
+          <div><label>Facebook URL</label><input id="socialFacebook" type="url" placeholder="https://facebook.com/..."></div>
+        </div>
+      </div>
+      <div class="cms-group">
+        <h3>Giao diện — Visual settings</h3>
+        <div class="cms-grid">
+          <div><label>Màu chủ đạo</label><div class="color-field"><input id="themePrimary" type="color" value="#1F2A44"><div class="color-swatch"><span id="themePrimaryValue">#1F2A44</span><span class="color-chip" id="themePrimaryChip"></span></div></div></div>
+          <div><label>Màu nhấn</label><div class="color-field"><input id="themeAccent" type="color" value="#C49A6C"><div class="color-swatch"><span id="themeAccentValue">#C49A6C</span><span class="color-chip" id="themeAccentChip"></span></div></div></div>
+          <div><label>Màu nền</label><div class="color-field"><input id="themeBackground" type="color" value="#F6F4EF"><div class="color-swatch"><span id="themeBackgroundValue">#F6F4EF</span><span class="color-chip" id="themeBackgroundChip"></span></div></div></div>
+          <div><label>Màu chữ</label><div class="color-field"><input id="themeText" type="color" value="#292923"><div class="color-swatch"><span id="themeTextValue">#292923</span><span class="color-chip" id="themeTextChip"></span></div></div></div>
+          <div><label>Font chữ</label><select id="themeFont"><option value="Inter">Inter</option><option value="DM Sans">DM Sans</option><option value="Manrope">Manrope</option><option value="Plus Jakarta Sans">Plus Jakarta Sans</option><option value="Helvetica Neue">Helvetica Neue</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Playfair Display">Playfair Display</option><option value="Cormorant Garamond">Cormorant Garamond</option></select></div>
+          <div><label>Độ đậm font (Weight)</label><select id="themeFontWeight"><option value="300">Light · 300</option><option value="400" selected>Regular · 400</option><option value="500">Medium · 500</option><option value="600">Semibold · 600</option><option value="700">Bold · 700</option><option value="800">Extra Bold · 800</option></select></div>
+          <div><label>Kiểu font (Style)</label><select id="themeFontStyle"><option value="normal">Normal</option><option value="italic">Italic</option></select></div>
+        </div>
+        <p class="cms-note">Màu sẽ hiển thị trực tiếp bằng ô màu và mã HEX. Font, độ đậm và kiểu chữ được áp dụng đồng bộ cho nội dung website.</p>
+      </div>
+      <div class="cms-group">
+        <h3>SEO — Thông tin tìm kiếm</h3>
+        <label>Tiêu đề website (Meta title)</label><input id="seoTitle" placeholder="Duong Pham — Graphic Designer">
+        <label>Mô tả website (Meta description)</label><textarea id="seoDescription" placeholder="Portfolio of selected graphic design, editorial and brand identity projects."></textarea>
+        <label>Ảnh chia sẻ mạng xã hội (OG image URL)</label><input id="seoImage" type="url" placeholder="https://...">
+      </div>
+      <div class="actions"><button class="btn" type="submit" id="saveCmsButton">Lưu nội dung & cài đặt</button></div>
+      <div id="cmsMessage" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <section class="panel tab-panel" id="projectEditorPanel" data-panel="projects" hidden>
     <h2 id="formTitle">Thêm dự án mới</h2>
     <form id="projectForm">
       <input type="hidden" id="projectId">
@@ -128,13 +247,21 @@ input[type=checkbox]{width:auto}
       <textarea id="description" placeholder="Mô tả ngắn về ý tưởng và dự án..."></textarea>
 
       <h2 style="margin:26px 0 8px">Typography riêng cho dự án</h2>
-      <p class="type-note">Tên dự án là kiểu chữ chủ đạo. Bạn có thể chọn font, độ đậm và kiểu chữ riêng cho từng thành phần bên dưới. Để mặc định sẽ kế thừa font chung của website.</p>
+      <p class="type-note">Tên dự án là kiểu chữ chủ đạo. Bạn có thể chọn font, độ đậm (variation/weight) và kiểu chữ riêng cho từng thành phần. Để mặc định sẽ kế thừa font chung của website.</p>
       <div id="typographyControls" class="type-controls"></div>
 
       <label>Ảnh bìa dự án</label>
       <input id="coverFile" type="file" accept="image/*">
+      <small class="upload-note">KÍCH THƯỚC ĐỀ XUẤT: <strong>1600 × 1200 px (tỷ lệ 4:3)</strong> · Ưu tiên JPG/WebP · Dung lượng khoảng <strong>200–450 KB</strong>. Ảnh bìa là ảnh đại diện trên trang chủ. Không bắt buộc đúng tuyệt đối kích thước này; tránh làm méo ảnh.</small>
+      <div id="coverFileInfo" class="file-check" aria-live="polite"></div>
       <img id="imagePreview" class="preview" alt="Xem trước ảnh bìa">
-      <small>Ảnh sẽ được tải lên bucket portfolio-images.</small>
+
+      <label>Ảnh thư viện dự án (có thể chọn nhiều ảnh)</label>
+      <input id="galleryFiles" type="file" accept="image/*" multiple>
+      <small class="upload-note">KÍCH THƯỚC ĐỀ XUẤT: cạnh dài khoảng <strong>1800 px</strong>, giữ nguyên tỷ lệ ảnh gốc · Ưu tiên JPG/WebP · khoảng <strong>250–600 KB/ảnh</strong>. Có thể dùng ảnh ngang, dọc hoặc vuông trong cùng dự án. PNG phù hợp khi cần nền trong suốt.</small>
+      <div id="galleryFileInfo" class="file-check" aria-live="polite"></div>
+      <small>Chọn nhiều ảnh cùng lúc. Ảnh sẽ được thêm vào thư viện của dự án khi bạn lưu.</small>
+      <div id="galleryPreview" class="gallery-preview"></div>
 
       <label>
         <input id="published" type="checkbox" checked>
@@ -149,8 +276,9 @@ input[type=checkbox]{width:auto}
     </form>
   </section>
 
-  <section class="panel">
-    <h2>Danh sách dự án</h2>
+  <section class="panel tab-panel" id="projectListPanel" data-panel="projects" hidden>
+    <h2 id="projectListTitle">Danh sách dự án</h2>
+    <p class="tab-help" id="projectListHelp">Danh sách chỉ hiển thị dự án thuộc tab đang chọn.</p>
     <div id="projectList" class="muted">Đang tải dự án...</div>
   </section>
 </section>
@@ -166,6 +294,11 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const $ = id => document.getElementById(id);
 let currentImageUrl = '';
+let currentGalleryImages = [];
+let activeTab = 'hero';
+let cachedProjects = [];
+let currentHeroImageUrl = '';
+
 const fontChoices = ['Kế thừa website','Inter','DM Sans','Manrope','Plus Jakarta Sans','Playfair Display','Cormorant Garamond','Georgia','Arial'];
 const typographyFields = [
   ['title','Tên project'],['summary','Mô tả dự án'],['discipline','Loại thiết kế / Discipline'],['year','Năm'],['role','Vai trò / Role'],['labels','Nhãn thông tin']
@@ -187,6 +320,43 @@ function collectTypography() {
 }
 renderTypographyControls();
 
+
+const categoryTabs = {
+  editorial: {label:'Editorial', title:'Dự án Editorial'},
+  identity: {label:'Brand Identity', title:'Dự án Brand Identity'},
+  digital: {label:'Digital & Social', title:'Dự án Digital & Social'},
+  print: {label:'Print & Infographic', title:'Dự án Print & Infographic'}
+};
+
+function setActiveTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.admin-tab').forEach(button => {
+    const selected = button.dataset.tab === tab;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-selected', String(selected));
+  });
+  $('heroPanel').hidden = tab !== 'hero';
+  $('cmsPanel').hidden = tab !== 'cms';
+  $('projectEditorPanel').hidden = tab === 'hero';
+  $('projectListPanel').hidden = tab === 'hero';
+  if (categoryTabs[tab]) {
+    $('projectEditorPanel').hidden = false;
+    $('projectListPanel').hidden = false;
+    $('category').value = tab;
+    $('projectListTitle').textContent = categoryTabs[tab].title;
+    $('projectListHelp').textContent = 'Đang xem riêng các dự án thuộc nhóm ' + categoryTabs[tab].label + '. Dự án đã có vẫn được giữ nguyên.';
+    $('formTitle').textContent = 'Thêm dự án — ' + categoryTabs[tab].label;
+    renderProjectList();
+  } else {
+    $('projectEditorPanel').hidden = true;
+    $('projectListPanel').hidden = true;
+  }
+}
+
+document.querySelectorAll('.admin-tab').forEach(button => {
+  button.addEventListener('click', () => setActiveTab(button.dataset.tab));
+});
+
 function message(text, error=false) {
   $('message').textContent = text;
   $('message').style.color = error ? '#b13e35' : '#777d52';
@@ -207,6 +377,8 @@ async function checkAdmin(session) {
     return false;
   }
   showAdmin(true);
+  await loadHeroSettings();
+  await loadCmsSettings();
   await loadProjects();
   return true;
 }
@@ -237,6 +409,23 @@ $('logout').addEventListener('click', async () => {
   $('password').value = '';
 });
 
+let currentAvatarUrl = '';
+$('avatarFile').addEventListener('change', () => {
+  const file = $('avatarFile').files[0];
+  if (!file) return;
+  $('avatarPreview').src = URL.createObjectURL(file);
+  $('avatarPreview').style.display = 'block';
+});
+
+function refreshColorSwatches() {
+  ['themePrimary','themeAccent','themeBackground','themeText'].forEach(id => {
+    const value = $(id).value.toUpperCase();
+    $(id + 'Value').textContent = value;
+    $(id + 'Chip').style.backgroundColor = value;
+  });
+}
+['themePrimary','themeAccent','themeBackground','themeText'].forEach(id => $(id).addEventListener('input', refreshColorSwatches));
+
 db.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
     await checkAdmin(session);
@@ -258,11 +447,16 @@ async function loadProjects() {
     return;
   }
 
+  cachedProjects = data || [];
+  renderProjectList();
+}
+
+function renderProjectList() {
+  const data = cachedProjects.filter(project => project.category === activeTab);
   if (!data.length) {
-    $('projectList').textContent = 'Chưa có dự án nào. Hãy thêm dự án đầu tiên.';
+    $('projectList').textContent = 'Chưa có dự án trong mục này. Bạn có thể thêm dự án mới ở biểu mẫu phía trên.';
     return;
   }
-
   $('projectList').innerHTML = '';
 
   data.forEach(project => {
@@ -309,6 +503,113 @@ async function loadProjects() {
   });
 }
 
+async function loadHeroSettings() {
+  const {data,error} = await db.from('site_settings').select('*').eq('id','homepage').maybeSingle();
+  if (error) {
+    $('heroMessage').textContent = 'Chưa đọc được cài đặt trang chủ. Hãy tạo bảng site_settings bằng câu lệnh SQL được cung cấp.';
+    $('heroMessage').style.color = '#a45a24';
+    return;
+  }
+  if (!data) return;
+  $('heroEyebrow').value = data.hero_eyebrow || '';
+  $('heroHeadline').value = data.hero_headline || '';
+  $('heroIntro').value = data.hero_intro || '';
+  $('heroMetaTitle').value = data.hero_meta_title || '';
+  $('heroMetaLines').value = data.hero_meta_lines || '';
+  currentHeroImageUrl = data.hero_image || '';
+  if (currentHeroImageUrl) {
+    $('heroImagePreview').src = currentHeroImageUrl;
+    $('heroImagePreview').style.display = 'block';
+  }
+}
+
+$('heroImageFile').addEventListener('change', async () => {
+  const file = $('heroImageFile').files[0];
+  $('heroImageInfo').innerHTML = '';
+  if (!file) return;
+  const preview = $('heroImagePreview');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+  await showImageFileInfo([file], 'heroImageInfo', 'gallery');
+});
+
+$('heroForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  $('saveHeroButton').disabled = true;
+  $('heroMessage').textContent = 'Đang lưu nội dung trang chủ...';
+  $('heroMessage').style.color = 'var(--olive)';
+  try {
+    const file = $('heroImageFile').files[0];
+    let imageUrl = currentHeroImageUrl;
+    if (file) {
+      const extension = file.name.split('.').pop().toLowerCase();
+      const path = 'hero/' + crypto.randomUUID() + '.' + extension;
+      const {error:uploadError} = await db.storage.from(BUCKET).upload(path,file,{cacheControl:'3600',upsert:false});
+      if (uploadError) throw uploadError;
+      imageUrl = db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    }
+    const settings = {
+      id:'homepage', hero_image:imageUrl,
+      hero_eyebrow:$('heroEyebrow').value.trim(),
+      hero_headline:$('heroHeadline').value.trim(),
+      hero_intro:$('heroIntro').value.trim(),
+      hero_meta_title:$('heroMetaTitle').value.trim(),
+      hero_meta_lines:$('heroMetaLines').value.trim(),
+      updated_at:new Date().toISOString()
+    };
+    const {error} = await db.from('site_settings').upsert(settings,{onConflict:'id'});
+    if (error) throw error;
+    currentHeroImageUrl = imageUrl;
+    $('heroImageFile').value = '';
+    $('heroImageInfo').innerHTML = '';
+    $('heroMessage').textContent = 'Đã lưu nội dung Hero. Sau khi kết nối trang chủ với bảng cài đặt, nội dung sẽ hiển thị trên website.';
+  } catch (error) {
+    $('heroMessage').textContent = 'Không thể lưu: ' + error.message;
+    $('heroMessage').style.color = '#b13e35';
+  } finally {
+    $('saveHeroButton').disabled = false;
+  }
+});
+
+const cmsFields = ['aboutHeading','aboutEyebrow','aboutBody','aboutSkills','contactHeading','contactCta','contactEmail','contactLocation','socialInstagram','socialBehance','socialLinkedin','socialFacebook','themePrimary','themeAccent','themeBackground','themeText','themeFont','themeFontWeight','themeFontStyle','seoTitle','seoDescription','seoImage'];
+async function loadCmsSettings() {
+  const {data,error} = await db.from('site_settings').select('*').eq('id','homepage').maybeSingle();
+  if (error) { $('cmsMessage').textContent = 'Không thể tải cài đặt: ' + error.message; return; }
+  if (!data) return;
+  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactLocation:'contact_location',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',themeFontWeight:'theme_font_weight',themeFontStyle:'theme_font_style',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
+  cmsFields.forEach(id => { const value = data[columns[id]]; if (value !== null && value !== undefined && $(id)) $(id).value = value; });
+  currentAvatarUrl = data.avatar_image || '';
+  if (currentAvatarUrl) { $('avatarPreview').src = currentAvatarUrl; $('avatarPreview').style.display = 'block'; }
+  refreshColorSwatches();
+}
+$('cmsForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  $('saveCmsButton').disabled = true;
+  $('cmsMessage').textContent = 'Đang lưu...';
+  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactLocation:'contact_location',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',themeFontWeight:'theme_font_weight',themeFontStyle:'theme_font_style',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
+  const settings = {id:'homepage',updated_at:new Date().toISOString()};
+  cmsFields.forEach(id => { settings[columns[id]] = $(id).value.trim(); });
+  try {
+    const avatarFile = $('avatarFile').files[0];
+    if (avatarFile) {
+      const extension = avatarFile.name.split('.').pop().toLowerCase();
+      const path = 'avatar/' + crypto.randomUUID() + '.' + extension;
+      const {error:uploadError} = await db.storage.from(BUCKET).upload(path,avatarFile,{cacheControl:'3600',upsert:false});
+      if (uploadError) throw uploadError;
+      currentAvatarUrl = db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    }
+    settings.avatar_image = currentAvatarUrl;
+    const {error} = await db.from('site_settings').upsert(settings,{onConflict:'id'});
+    if (error) throw error;
+    $('cmsMessage').textContent = 'Đã lưu nội dung và cài đặt vào Supabase.';
+    $('cmsMessage').style.color = 'var(--olive)';
+    $('avatarFile').value = '';
+  } catch (error) {
+    $('cmsMessage').textContent = 'Không thể lưu: ' + error.message;
+    $('cmsMessage').style.color = '#b13e35';
+  } finally { $('saveCmsButton').disabled = false; }
+});
+
 async function uploadCover(file) {
   const extension = file.name.split('.').pop().toLowerCase();
   const path = 'covers/' + crypto.randomUUID() + '.' + extension;
@@ -324,12 +625,150 @@ async function uploadCover(file) {
   return data.publicUrl;
 }
 
-$('coverFile').addEventListener('change', () => {
+async function uploadGalleryImage(file) {
+  const extension = file.name.split('.').pop().toLowerCase();
+  const path = 'gallery/' + crypto.randomUUID() + '.' + extension;
+
+  const {error} = await db.storage.from(BUCKET).upload(path,file,{
+    cacheControl:'3600',
+    upsert:false
+  });
+
+  if (error) throw error;
+
+  const {data} = db.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+function renderGalleryPreview() {
+  const container = $('galleryPreview');
+  container.innerHTML = '';
+
+  currentGalleryImages.forEach((url, index) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'Ảnh thư viện ' + (index + 1);
+
+    const label = document.createElement('small');
+    label.textContent = 'Ảnh ' + (index + 1);
+
+    const up = document.createElement('button');
+    up.type = 'button';
+    up.textContent = '↑';
+    up.title = 'Di chuyển lên';
+    up.disabled = index === 0;
+    up.addEventListener('click', () => {
+      [currentGalleryImages[index - 1], currentGalleryImages[index]] =
+        [currentGalleryImages[index], currentGalleryImages[index - 1]];
+      renderGalleryPreview();
+    });
+
+    const down = document.createElement('button');
+    down.type = 'button';
+    down.textContent = '↓';
+    down.title = 'Di chuyển xuống';
+    down.disabled = index === currentGalleryImages.length - 1;
+    down.addEventListener('click', () => {
+      [currentGalleryImages[index + 1], currentGalleryImages[index]] =
+        [currentGalleryImages[index], currentGalleryImages[index + 1]];
+      renderGalleryPreview();
+    });
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'remove-gallery';
+    remove.textContent = 'Xóa';
+    remove.addEventListener('click', () => {
+      currentGalleryImages.splice(index, 1);
+      renderGalleryPreview();
+    });
+
+    item.append(img, label, up, down, remove);
+    container.append(item);
+  });
+
+  const pendingFiles = [...$('galleryFiles').files];
+  pendingFiles.forEach((file, index) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    img.alt = file.name;
+
+    const label = document.createElement('small');
+    label.textContent = 'Ảnh mới: ' + file.name;
+
+    item.append(img, label);
+    container.append(item);
+  });
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+async function showImageFileInfo(files, targetId, mode) {
+  const target = $(targetId);
+  target.innerHTML = '';
+  for (const file of files) {
+    const line = document.createElement('div');
+    line.textContent = 'Đang đọc thông tin: ' + file.name;
+    target.appendChild(line);
+    try {
+      const image = await createImageBitmap(file);
+      const width = image.width;
+      const height = image.height;
+      image.close();
+      const ratio = width / height;
+      const details = document.createElement('div');
+      const sizeText = formatFileSize(file.size);
+      const isLarge = file.size > 1024 * 1024;
+      let recommendation = '';
+      if (mode === 'cover') {
+        const ratioIsClose = Math.abs(ratio - (4 / 3)) < 0.04;
+        recommendation = ratioIsClose
+          ? 'Tỷ lệ gần 4:3, phù hợp ảnh bìa.'
+          : 'Ảnh không theo tỷ lệ 4:3; vẫn tải được, hãy kiểm tra cách ảnh hiển thị.';
+      } else {
+        const longEdge = Math.max(width, height);
+        recommendation = longEdge >= 1200 && longEdge <= 2200
+          ? 'Kích thước phù hợp cho gallery.'
+          : (longEdge < 1200
+            ? 'Ảnh có thể hơi nhỏ khi hiển thị lớn.'
+            : 'Ảnh lớn hơn mức đề xuất; cân nhắc giảm cạnh dài về khoảng 1800–2000 px.');
+      }
+      details.className = isLarge ? 'file-warn' : 'file-good';
+      details.textContent = file.name + ' — ' + width + ' × ' + height + ' px · ' + sizeText + '. ' +
+        recommendation + (isLarge ? ' Dung lượng trên 1 MB; nên nén ảnh để website tải nhanh hơn.' : '');
+      line.replaceWith(details);
+    } catch (error) {
+      line.className = 'file-warn';
+      line.textContent = file.name + ' — không đọc được kích thước ảnh. Hãy dùng JPG, PNG hoặc WebP.';
+    }
+  }
+}
+
+$('coverFile').addEventListener('change', async () => {
   const file = $('coverFile').files[0];
-  if (!file) return;
+  $('coverFileInfo').innerHTML = '';
+  if (!file) {
+    $('imagePreview').style.display = 'none';
+    return;
+  }
   const preview = $('imagePreview');
   preview.src = URL.createObjectURL(file);
   preview.style.display = 'block';
+  await showImageFileInfo([file], 'coverFileInfo', 'cover');
+});
+
+$('galleryFiles').addEventListener('change', async () => {
+  renderGalleryPreview();
+  await showImageFileInfo([...$('galleryFiles').files], 'galleryFileInfo', 'gallery');
 });
 
 $('projectForm').addEventListener('submit', async e => {
@@ -340,9 +779,16 @@ $('projectForm').addEventListener('submit', async e => {
   try {
     const id = $('projectId').value;
     const file = $('coverFile').files[0];
+    const galleryFiles = [...$('galleryFiles').files];
     let cover = currentImageUrl;
 
     if (file) cover = await uploadCover(file);
+
+    const uploadedGalleryImages = [];
+    for (const galleryFile of galleryFiles) {
+      uploadedGalleryImages.push(await uploadGalleryImage(galleryFile));
+    }
+    const galleryImages = [...currentGalleryImages, ...uploadedGalleryImages];
 
     const record = {
       title: $('title').value.trim(),
@@ -352,6 +798,7 @@ $('projectForm').addEventListener('submit', async e => {
       description: $('description').value.trim(),
       typography: collectTypography(),
       cover_image: cover,
+      gallery_images: galleryImages,
       sort_order: Number($('sortOrder').value) || 0,
       is_published: $('published').checked,
       updated_at: new Date().toISOString()
@@ -388,7 +835,14 @@ function editProject(project) {
   $('published').checked = !!project.is_published;
 
   currentImageUrl = project.cover_image || '';
+  currentGalleryImages = Array.isArray(project.gallery_images)
+    ? project.gallery_images.filter(item => typeof item === 'string' && item)
+    : [];
   $('coverFile').value = '';
+  $('galleryFiles').value = '';
+  $('coverFileInfo').innerHTML = '';
+  $('galleryFileInfo').innerHTML = '';
+  renderGalleryPreview();
 
   const preview = $('imagePreview');
   if (currentImageUrl) {
@@ -437,17 +891,26 @@ function resetForm() {
   $('sortOrder').value = 0;
   $('published').checked = true;
   renderTypographyControls();
+  if (activeTab !== 'hero') $('category').value = activeTab;
   $('formTitle').textContent = 'Thêm dự án mới';
   $('saveButton').textContent = 'Lưu dự án';
   $('imagePreview').style.display = 'none';
   $('coverFile').value = '';
+  $('galleryFiles').value = '';
+  $('coverFileInfo').innerHTML = '';
+  $('galleryFileInfo').innerHTML = '';
   currentImageUrl = '';
+  currentGalleryImages = [];
+  renderGalleryPreview();
 }
 
 $('cancelEdit').addEventListener('click', () => {
   resetForm();
   message('');
+  $('category').value = activeTab;
 });
+
+setActiveTab('hero');
 
 (async () => {
   const {data} = await db.auth.getSession();
