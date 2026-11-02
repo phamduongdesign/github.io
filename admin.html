@@ -54,9 +54,14 @@ input[type=checkbox]{width:auto}
 .tab-help{margin:-8px 0 18px;color:var(--muted);font-size:12px;line-height:1.6}
 .tab-panel[hidden]{display:none!important}
 .field-help{display:block;color:var(--muted);font-size:11px;line-height:1.55;margin-top:6px}
+.cms-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px}
+.cms-group{border-top:1px solid var(--line);padding-top:18px;margin-top:24px}
+.cms-group h3{font-size:14px;margin:0 0 8px}
+.cms-note{background:#f5f4ef;padding:12px 14px;font-size:12px;line-height:1.65;color:#62645b;margin:14px 0}
 @media(max-width:650px){
  .wrap{padding:20px 14px}
  .row{grid-template-columns:1fr}
+ .cms-grid{grid-template-columns:1fr}
  .project{grid-template-columns:75px 1fr}
  .project img{width:75px;height:75px}
  .project-actions{grid-column:2}
@@ -102,6 +107,7 @@ input[type=checkbox]{width:auto}
     <button type="button" class="admin-tab" data-tab="identity">03 · Brand Identity</button>
     <button type="button" class="admin-tab" data-tab="digital">04 · Digital & Social</button>
     <button type="button" class="admin-tab" data-tab="print">05 · Print & Infographic</button>
+    <button type="button" class="admin-tab" data-tab="cms">06 · Nội dung & Cài đặt</button>
   </nav>
 
   <section class="panel tab-panel" id="heroPanel" data-panel="hero">
@@ -130,6 +136,54 @@ input[type=checkbox]{width:auto}
       <small class="field-help">Vị trí: các dòng thông tin nhỏ bên phải phần giới thiệu.</small>
       <div class="actions"><button class="btn" type="submit" id="saveHeroButton">Lưu nội dung trang chủ</button></div>
       <div id="heroMessage" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <section class="panel tab-panel" id="cmsPanel" data-panel="cms" hidden>
+    <h2>Nội dung & Cài đặt website</h2>
+    <p class="tab-help">Quản lý phần giới thiệu, liên hệ, giao diện và thông tin SEO. Sau khi lưu, các trường sẽ được đồng bộ vào Supabase; cần cập nhật trang chủ để hiển thị các nội dung này.</p>
+    <form id="cmsForm">
+      <div class="cms-group">
+        <h3>About — Giới thiệu bản thân</h3>
+        <div class="cms-grid">
+          <div><label>Tiêu đề About</label><input id="aboutHeading" placeholder="Thoughtful design. Clear stories."></div>
+          <div><label>Dòng giới thiệu nhỏ</label><input id="aboutEyebrow" placeholder="A little about me"></div>
+        </div>
+        <label>Nội dung giới thiệu</label><textarea id="aboutBody" placeholder="Giới thiệu về kinh nghiệm, tư duy và định hướng thiết kế..."></textarea>
+        <label>Kỹ năng / dịch vụ (mỗi dòng một mục)</label><textarea id="aboutSkills" placeholder="Editorial design&#10;Brand identity&#10;Digital content"></textarea>
+      </div>
+      <div class="cms-group">
+        <h3>Contact — Liên hệ</h3>
+        <div class="cms-grid">
+          <div><label>Tiêu đề liên hệ</label><input id="contactHeading" placeholder="Have a good idea? Let’s make it real."></div>
+          <div><label>Nút kêu gọi hành động</label><input id="contactCta" placeholder="Start a conversation"></div>
+          <div><label>Email liên hệ</label><input id="contactEmail" type="email" placeholder="your@email.com"></div>
+          <div><label>Địa điểm / dòng chân trang</label><input id="contactLocation" placeholder="Ho Chi Minh City · Vietnam"></div>
+          <div><label>Instagram URL</label><input id="socialInstagram" type="url" placeholder="https://instagram.com/..."></div>
+          <div><label>Behance URL</label><input id="socialBehance" type="url" placeholder="https://behance.net/..."></div>
+          <div><label>LinkedIn URL</label><input id="socialLinkedin" type="url" placeholder="https://linkedin.com/in/..."></div>
+          <div><label>Facebook URL</label><input id="socialFacebook" type="url" placeholder="https://facebook.com/..."></div>
+        </div>
+      </div>
+      <div class="cms-group">
+        <h3>Giao diện — Visual settings</h3>
+        <div class="cms-grid">
+          <div><label>Màu chủ đạo</label><input id="themePrimary" type="color" value="#1F2A44"></div>
+          <div><label>Màu nhấn</label><input id="themeAccent" type="color" value="#C49A6C"></div>
+          <div><label>Màu nền</label><input id="themeBackground" type="color" value="#F6F4EF"></div>
+          <div><label>Màu chữ</label><input id="themeText" type="color" value="#292923"></div>
+          <div><label>Font chữ</label><select id="themeFont"><option value="Inter">Inter</option><option value="Helvetica Neue">Helvetica Neue</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option></select></div>
+        </div>
+        <p class="cms-note">Các tùy chỉnh giao diện được lưu riêng. Trang chủ cần được cập nhật phần đọc cấu hình giao diện để áp dụng các giá trị này.</p>
+      </div>
+      <div class="cms-group">
+        <h3>SEO — Thông tin tìm kiếm</h3>
+        <label>Tiêu đề website (Meta title)</label><input id="seoTitle" placeholder="Duong Pham — Graphic Designer">
+        <label>Mô tả website (Meta description)</label><textarea id="seoDescription" placeholder="Portfolio of selected graphic design, editorial and brand identity projects."></textarea>
+        <label>Ảnh chia sẻ mạng xã hội (OG image URL)</label><input id="seoImage" type="url" placeholder="https://...">
+      </div>
+      <div class="actions"><button class="btn" type="submit" id="saveCmsButton">Lưu nội dung & cài đặt</button></div>
+      <div id="cmsMessage" aria-live="polite"></div>
     </form>
   </section>
 
@@ -235,14 +289,20 @@ function setActiveTab(tab) {
     button.setAttribute('aria-selected', String(selected));
   });
   $('heroPanel').hidden = tab !== 'hero';
+  $('cmsPanel').hidden = tab !== 'cms';
   $('projectEditorPanel').hidden = tab === 'hero';
   $('projectListPanel').hidden = tab === 'hero';
-  if (tab !== 'hero') {
+  if (categoryTabs[tab]) {
+    $('projectEditorPanel').hidden = false;
+    $('projectListPanel').hidden = false;
     $('category').value = tab;
     $('projectListTitle').textContent = categoryTabs[tab].title;
     $('projectListHelp').textContent = 'Đang xem riêng các dự án thuộc nhóm ' + categoryTabs[tab].label + '. Dự án đã có vẫn được giữ nguyên.';
     $('formTitle').textContent = 'Thêm dự án — ' + categoryTabs[tab].label;
     renderProjectList();
+  } else {
+    $('projectEditorPanel').hidden = true;
+    $('projectListPanel').hidden = true;
   }
 }
 
@@ -271,6 +331,7 @@ async function checkAdmin(session) {
   }
   showAdmin(true);
   await loadHeroSettings();
+  await loadCmsSettings();
   await loadProjects();
   return true;
 }
@@ -444,6 +505,32 @@ $('heroForm').addEventListener('submit', async event => {
   } finally {
     $('saveHeroButton').disabled = false;
   }
+});
+
+const cmsFields = ['aboutHeading','aboutEyebrow','aboutBody','aboutSkills','contactHeading','contactCta','contactEmail','contactLocation','socialInstagram','socialBehance','socialLinkedin','socialFacebook','themePrimary','themeAccent','themeBackground','themeText','themeFont','seoTitle','seoDescription','seoImage'];
+async function loadCmsSettings() {
+  const {data,error} = await db.from('site_settings').select('*').eq('id','homepage').maybeSingle();
+  if (error) { $('cmsMessage').textContent = 'Không thể tải cài đặt: ' + error.message; return; }
+  if (!data) return;
+  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactLocation:'contact_location',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
+  cmsFields.forEach(id => { const value = data[columns[id]]; if (value !== null && value !== undefined && $(id)) $(id).value = value; });
+}
+$('cmsForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  $('saveCmsButton').disabled = true;
+  $('cmsMessage').textContent = 'Đang lưu...';
+  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactLocation:'contact_location',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
+  const settings = {id:'homepage',updated_at:new Date().toISOString()};
+  cmsFields.forEach(id => { settings[columns[id]] = $(id).value.trim(); });
+  try {
+    const {error} = await db.from('site_settings').upsert(settings,{onConflict:'id'});
+    if (error) throw error;
+    $('cmsMessage').textContent = 'Đã lưu nội dung và cài đặt vào Supabase.';
+    $('cmsMessage').style.color = 'var(--olive)';
+  } catch (error) {
+    $('cmsMessage').textContent = 'Không thể lưu: ' + error.message;
+    $('cmsMessage').style.color = '#b13e35';
+  } finally { $('saveCmsButton').disabled = false; }
 });
 
 async function uploadCover(file) {
