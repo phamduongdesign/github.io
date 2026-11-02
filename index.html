@@ -56,8 +56,8 @@ button { cursor: pointer; }
 .hero-image img { display:block; width:100%; height:100%; object-fit:cover; object-position:center 48%; }
 .eyebrow { display:flex; align-items:center; gap:12px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#77766f; }
 .eyebrow:before { content:""; width:28px; height:1px; background:currentColor; }
-h1 { max-width:1000px; margin:26px 0 24px; font-family:var(--site-font-heading); font-size:clamp(48px, 8.2vw, 112px); font-weight:500; line-height:.96; letter-spacing:-.085em; white-space:pre-line; }
-h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
+h1 { max-width:1000px; margin:26px 0 24px; font-family:var(--site-font-heading); font-size:clamp(48px, 8.2vw, 112px); font-weight:500; line-height:.96; letter-spacing:-.045em; white-space:pre-line; }
+h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.04em; }
 .hero-bottom { display:flex; align-items:flex-end; justify-content:space-between; gap:28px; }
 .hero-copy { max-width:420px; color:#74736c; font-size:14px; line-height:1.75; }
 .hero-meta { text-align:right; font-size:11px; line-height:1.9; color:#77766f; }
@@ -74,10 +74,10 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
 .project:hover .project-name, .project:focus-visible .project-name { color:var(--site-accent); }
 .project:hover .project-type, .project:hover .project-year, .project:focus-visible .project-type, .project:focus-visible .project-year { color:#4f4b45; }
 .project[hidden] { display:none; }
-.art { aspect-ratio: 16 / 9; width:100%; max-height: 520px; border-radius:calc(8px * var(--site-radius-scale)); overflow:hidden; position:relative; background:#e5e0d5; isolation:isolate; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
+.art { aspect-ratio: 16 / 9; width:100%; max-height: 520px; border-radius:calc(8px * var(--site-radius-scale)); overflow:hidden; position:relative; background:#e5e0d5; isolation:isolate; line-height:0; font-size:0; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
 .project:hover .art { transform:translateY(-4px); }
 .art svg { display:block; width:100%; height:100%; }
-.art img { display:block; width:100%; height:100%; object-fit:cover; }
+.art img { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; object-position:center; }
 .art.wide, .art.tall { aspect-ratio:16 / 9; }
 .project-info { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding-top:13px; }
 .project-name { font-size:16px; font-weight:600; letter-spacing:-.025em; }
@@ -89,7 +89,7 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
 .project:hover .view-link span, .project:focus-visible .view-link span { background:var(--site-hover-bg); color:var(--site-hover-text); border-color:var(--site-hover-border); }
 .project:hover .view-link span { transform:translate(2px,-2px); }
 .about { display:grid; grid-template-columns:1fr 1fr; gap:50px; border-top:1px solid rgba(41,41,35,.18); padding:34px 0 95px; }
-.about h2 { font-size:clamp(28px,4vw,48px); font-weight:500; line-height:1.05; letter-spacing:-.06em; margin:0; max-width:500px; }
+.about h2 { font-size:clamp(28px,4vw,48px); font-weight:500; line-height:1.05; letter-spacing:-.035em; margin:0; max-width:500px; }
 .about #about-eyebrow { margin-bottom:18px; }
 .about-text { padding-top:38px; }
 #about-heading, #contact-heading { white-space:pre-line; }
@@ -99,7 +99,7 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
 .skill:hover { background:var(--site-hover-bg); color:var(--site-hover-text); border-color:var(--site-hover-border); }
 .contact { background:var(--site-primary); color:var(--site-on-primary); padding:55px 0 30px; }
 .contact-top { display:flex; justify-content:space-between; align-items:flex-start; gap:30px; }
-.contact h2 { margin:0; font-size:clamp(38px,6.5vw,82px); line-height:.98; font-weight:500; letter-spacing:-.075em; }
+.contact h2 { margin:0; font-size:clamp(38px,6.5vw,82px); line-height:.98; font-weight:500; letter-spacing:-.04em; }
 .contact h2 em { font-family:Georgia,serif; font-weight:400; }
 .contact-action { margin-top:8px; border:1px solid rgba(248,246,240,.55); border-radius:999px; padding:13px 17px; display:inline-flex; align-items:center; gap:20px; font-size:11px; white-space:nowrap; transition:background .2s ease,color .2s ease,border-color .2s ease; }
 .contact-action:hover { background:var(--site-hover-bg); color:var(--site-hover-text); border-color:var(--site-hover-border); }
@@ -124,11 +124,11 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.08em; }
 .detail-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; border-top:1px solid rgba(41,41,35,.18); border-bottom:1px solid rgba(41,41,35,.18); padding:18px 0; margin-bottom:22px; text-align:left; }
 .detail-meta small { display:block; color:#77766f; font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; }
 .detail-meta strong { font-size:12px; font-weight:550; }
-.detail-hero-art { border-radius:calc(8px * var(--site-radius-scale)); overflow:hidden; background:#e5e0d5; }
+.detail-hero-art { position:relative; display:block; width:100%; border-radius:calc(8px * var(--site-radius-scale)); overflow:hidden; background:transparent !important; line-height:0; font-size:0; }\n.detail-hero-art img { position:static !important; inset:auto !important; display:block !important; width:100% !important; height:auto !important; max-width:100% !important; max-height:none !important; margin:0 !important; padding:0 !important; border:0 !important; object-fit:contain !important; vertical-align:top; }
 .detail-hero-art { margin-bottom:38px; }
 .detail-hero-art svg { display:block; width:100%; height:auto; }
 .detail-story { display:none; }
-.detail-story h2 { font-size:clamp(24px,3vw,38px); font-weight:500; letter-spacing:-.055em; margin:0; }
+.detail-story h2 { font-size:clamp(24px,3vw,38px); font-weight:500; letter-spacing:-.03em; margin:0; }
 .detail-story p { margin:0; color:#74736c; font-size:14px; line-height:1.9; max-width:700px; }
 .detail-mockups { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:16px; }
 .detail-mockup { aspect-ratio:1 / 1; min-height:0; border-radius:0; background:#e8e3d9; padding:0; display:block; overflow:hidden; }
@@ -270,7 +270,9 @@ filters.forEach(button => button.addEventListener('click', () => {
   const category = button.dataset.filter;
   let visible = 0;
   projects.forEach(project => {
-    const show = category === 'All' || project.dataset.category === category;
+    const raw = String(project.dataset.category || '').toLowerCase();
+    const aliases = { Editorial:['editorial','e-magazine','magazine'], Identity:['identity','logo','brand'], Digital:['digital','web','social'], Print:['print','book','cover'] };
+    const show = category === 'All' || (aliases[category] || [category.toLowerCase()]).some(term => raw.includes(term));
     project.hidden = !show;
     if (show) visible++;
   });
@@ -323,6 +325,15 @@ projects.forEach(project => {
   project.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openProject(project); } });
 });
 document.getElementById('detail-back').addEventListener('click', event => { event.preventDefault(); history.pushState({}, '', '#work'); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); });
+document.addEventListener('click', event => {
+  // The click on a project card opens the detail page; it is not an outside click.
+  if (event.target.closest('.project')) return;
+  if (!detailPage.classList.contains('active')) return;
+  if (detailPage.contains(event.target)) return;
+  history.pushState({}, '', '#work');
+  showHome();
+  document.getElementById('work').scrollIntoView({behavior:'smooth'});
+});
 document.querySelectorAll('.detail-back[href="#work"]').forEach(link => link.addEventListener('click', event => { if (link.id === 'detail-back') return; event.preventDefault(); history.pushState({}, '', '#work'); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); }));
 document.querySelectorAll('[data-home-link]').forEach(link => link.addEventListener('click', () => { showHome(); }));
 document.getElementById('detail-next').addEventListener('click', () => openProject(projects[(activeProjectIndex + 1) % projects.length]));
