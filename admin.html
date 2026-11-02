@@ -247,7 +247,7 @@ input[type=checkbox]{width:auto}
       <textarea id="description" placeholder="Mô tả ngắn về ý tưởng và dự án..."></textarea>
 
       <h2 style="margin:26px 0 8px">Typography riêng cho dự án</h2>
-      <p class="type-note">Tên dự án là kiểu chữ chủ đạo. Bạn có thể chọn font, độ đậm (variation/weight) và kiểu chữ riêng cho từng thành phần. Để mặc định sẽ kế thừa font chung của website.</p>
+      <p class="type-note">Chỉ tên project được chọn Font family. Các phần mô tả, loại thiết kế, năm, vai trò và nhãn sẽ dùng cùng font với tên project; bạn chỉ cần chọn Variation / Weight riêng cho từng phần.</p>
       <div id="typographyControls" class="type-controls"></div>
 
       <label>Ảnh bìa dự án</label>
@@ -306,7 +306,9 @@ const typographyFields = [
 function renderTypographyControls(settings={}) {
   $('typographyControls').innerHTML = typographyFields.map(([key,label]) => {
     const value = settings[key] || {};
-    return `<div class="type-control" data-type-key="${key}"><strong>${label}</strong><div class="row"><div><label>Font family</label><select data-type-prop="family">${fontChoices.map(font => `<option value="${font==='Kế thừa website'?'':font}" ${((value.family||'')===(font==='Kế thừa website'?'':font))?'selected':''}>${font}</option>`).join('')}</select></div><div><label>Variation / Weight</label><select data-type-prop="weight">${[['','Kế thừa'],['300','Light'],['400','Regular'],['500','Medium'],['600','SemiBold'],['700','Bold'],['800','ExtraBold']].map(([v,l])=>`<option value="${v}" ${(String(value.weight||'')===v)?'selected':''}>${l}</option>`).join('')}</select></div></div><label>Style</label><select data-type-prop="style"><option value="">Kế thừa</option><option value="normal" ${value.style==='normal'?'selected':''}>Normal</option><option value="italic" ${value.style==='italic'?'selected':''}>Italic</option></select></div>`;
+    const familyControl = key === 'title' ? `<div><label>Font family</label><select data-type-prop="family">${fontChoices.map(font => `<option value="${font==='Kế thừa website'?'':font}" ${((value.family||'')===(font==='Kế thừa website'?'':font))?'selected':''}>${font}</option>`).join('')}</select></div>` : '';
+    const weightControl = `<div><label>Variation / Weight</label><select data-type-prop="weight">${[['','Kế thừa'],['300','Light'],['400','Regular'],['500','Medium'],['600','SemiBold'],['700','Bold'],['800','ExtraBold']].map(([v,l])=>`<option value="${v}" ${(String(value.weight||'')===v)?'selected':''}>${l}</option>`).join('')}</select></div>`;
+    return `<div class="type-control" data-type-key="${key}"><strong>${label}</strong><div class="row">${familyControl}${weightControl}</div></div>`;
   }).join('');
 }
 function collectTypography() {
@@ -919,4 +921,3 @@ setActiveTab('hero');
 </script>
 </body>
 </html>
-
