@@ -178,6 +178,8 @@ input[type=checkbox]{width:auto}
           <div><label>Tiêu đề liên hệ</label><input id="contactHeading" placeholder="Have a good idea? Let’s make it real."></div>
           <div><label>Nút kêu gọi hành động</label><input id="contactCta" placeholder="Start a conversation"></div>
           <div><label>Email liên hệ</label><input id="contactEmail" type="email" placeholder="your@email.com"></div>
+          <div><label>Số điện thoại hiển thị ở chân trang</label><input id="contactPhone" type="text" value="(+84) 77 3520 799" placeholder="(+84) 77 3520 799"></div>
+          <div><label>Zalo URL</label><input id="socialZalo" type="url" value="https://zalo.me/0773520799" placeholder="https://zalo.me/your-phone"></div>
           <div><label>Địa điểm / dòng chân trang</label><input id="contactLocation" placeholder="Ho Chi Minh City · Vietnam"></div>
           <div><label>Instagram URL</label><input id="socialInstagram" type="url" placeholder="https://instagram.com/..."></div>
           <div><label>Behance URL</label><input id="socialBehance" type="url" placeholder="https://behance.net/..."></div>
@@ -575,12 +577,12 @@ $('heroForm').addEventListener('submit', async event => {
   }
 });
 
-const cmsFields = ['aboutHeading','aboutEyebrow','aboutBody','aboutSkills','contactHeading','contactCta','contactEmail','contactLocation','socialInstagram','socialBehance','socialLinkedin','socialFacebook','themePrimary','themeAccent','themeBackground','themeText','themeFont','themeFontWeight','themeFontStyle','seoTitle','seoDescription','seoImage'];
+const cmsFields = ['aboutHeading','aboutEyebrow','aboutBody','aboutSkills','contactHeading','contactCta','contactEmail','contactPhone','contactLocation','socialZalo','socialInstagram','socialBehance','socialLinkedin','socialFacebook','themePrimary','themeAccent','themeBackground','themeText','themeFont','themeFontWeight','themeFontStyle','seoTitle','seoDescription','seoImage'];
 async function loadCmsSettings() {
   const {data,error} = await db.from('site_settings').select('*').eq('id','homepage').maybeSingle();
   if (error) { $('cmsMessage').textContent = 'Không thể tải cài đặt: ' + error.message; return; }
   if (!data) return;
-  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactLocation:'contact_location',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',themeFontWeight:'theme_font_weight',themeFontStyle:'theme_font_style',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
+  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactPhone:'contact_phone',contactLocation:'contact_location',socialZalo:'social_zalo',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',themeFontWeight:'theme_font_weight',themeFontStyle:'theme_font_style',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
   cmsFields.forEach(id => { const value = data[columns[id]]; if (value !== null && value !== undefined && $(id)) $(id).value = value; });
   currentAvatarUrl = data.avatar_image || '';
   if (currentAvatarUrl) { $('avatarPreview').src = currentAvatarUrl; $('avatarPreview').style.display = 'block'; }
@@ -590,7 +592,7 @@ $('cmsForm').addEventListener('submit', async event => {
   event.preventDefault();
   $('saveCmsButton').disabled = true;
   $('cmsMessage').textContent = 'Đang lưu...';
-  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactLocation:'contact_location',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',themeFontWeight:'theme_font_weight',themeFontStyle:'theme_font_style',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
+  const columns = {aboutHeading:'about_heading',aboutEyebrow:'about_eyebrow',aboutBody:'about_body',aboutSkills:'about_skills',contactHeading:'contact_heading',contactCta:'contact_cta',contactEmail:'contact_email',contactPhone:'contact_phone',contactLocation:'contact_location',socialZalo:'social_zalo',socialInstagram:'social_instagram',socialBehance:'social_behance',socialLinkedin:'social_linkedin',socialFacebook:'social_facebook',themePrimary:'theme_primary',themeAccent:'theme_accent',themeBackground:'theme_background',themeText:'theme_text',themeFont:'theme_font',themeFontWeight:'theme_font_weight',themeFontStyle:'theme_font_style',seoTitle:'seo_title',seoDescription:'seo_description',seoImage:'seo_image'};
   const settings = {id:'homepage',updated_at:new Date().toISOString()};
   cmsFields.forEach(id => { settings[columns[id]] = $(id).value.trim(); });
   try {
