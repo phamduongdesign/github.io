@@ -168,7 +168,18 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.04em; }
   </header>
   <main>
     <section class="hero wrap" id="home-hero">
-        <div class="hero-image"><img id="hero-image" src="https://images.unsplash.com/photo-1428908728789-d2de25dbd4e2?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=85&w=2400" alt="Portfolio hero image" fetchpriority="high"></div>
+        <div class="hero-image"><img id="hero-image" alt="Portfolio hero image" fetchpriority="high"></div>
+        <script>
+          // Show the last successfully loaded CMS Hero image immediately on repeat visits.
+          try {
+            const cachedHeroImage = localStorage.getItem('phamduong_hero_image');
+            if (cachedHeroImage) {
+              const cachedHeroElement = document.getElementById('hero-image');
+              cachedHeroElement.src = cachedHeroImage;
+              cachedHeroElement.classList.add('is-ready');
+            }
+          } catch (error) {}
+        </script>
         <div class="hero-typewriter" aria-label="Design disciplines"><span class="hero-typewriter-line"><span id="hero-typewriter-text">Layout</span><span class="hero-typewriter-cursor" aria-hidden="true"></span></span></div>
       <div class="eyebrow" id="hero-eyebrow">Independent graphic designer · Vietnam</div>
       <h1 id="hero-headline">Ideas made
@@ -239,15 +250,23 @@ async function loadHomepageSettings() {
   const fields = 'hero_image, hero_eyebrow, hero_headline, hero_intro, hero_meta_title, hero_meta_lines, about_heading, about_eyebrow, about_body, about_skills, contact_heading, contact_cta, contact_email, contact_location, contact_phone, social_zalo, social_instagram, social_behance, social_linkedin, social_facebook, theme_primary, theme_accent, theme_background, theme_text, theme_font, theme_font_weight, theme_font_style, avatar_image, seo_title, seo_description, seo_image';
   const { data, error } = await supabaseClient.from('site_settings').select(fields).eq('id', 'homepage').maybeSingle();
   const heroImg = document.getElementById('hero-image');
-  const revealHeroFallback = () => heroImg.classList.add('is-ready');
-  if (error || !data) { revealHeroFallback(); return; }
-  if (data.hero_image) {
-    const preloadHero = new Image();
-    preloadHero.onload = () => { heroImg.src = data.hero_image; heroImg.classList.add('is-ready'); };
-    preloadHero.onerror = revealHeroFallback;
-    preloadHero.src = data.hero_image;
-  } else {
-    revealHeroFallback();
+  // Do not reveal a hard-coded/obsolete fallback. Keep the cached CMS image if present.
+  if (!error && data && data.hero_image) {
+    const latestHeroUrl = data.hero_image.trim();
+    if (latestHeroUrl && heroImg.src !== latestHeroUrl) {
+      const preloadHero = new Image();
+      preloadHero.onload = () => {
+        heroImg.src = latestHeroUrl;
+        heroImg.classList.add('is-ready');
+        try { localStorage.setItem('phamduong_hero_image', latestHeroUrl); } catch (error) {}
+      };
+      // If a cached image is already visible, leave it in place if the new URL fails.
+      preloadHero.onerror = () => {};
+      preloadHero.src = latestHeroUrl;
+    } else if (latestHeroUrl) {
+      heroImg.classList.add('is-ready');
+      try { localStorage.setItem('phamduong_hero_image', latestHeroUrl); } catch (error) {}
+    }
   }
   if (data.avatar_image) { const avatar = document.getElementById('brand-avatar'); avatar.textContent = ''; const image = document.createElement('img'); image.src = data.avatar_image; image.alt = 'Avatar'; avatar.appendChild(image); }
   if (data.hero_eyebrow) document.getElementById('hero-eyebrow').textContent = data.hero_eyebrow;
