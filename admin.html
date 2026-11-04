@@ -100,7 +100,21 @@ input[type=checkbox]{width:auto}
       <button class="btn" type="submit">Đăng nhập</button>
     </div>
   </form>
+  <div class="actions" style="margin-top:6px"><button type="button" class="btn secondary" id="forgotPassword">Quên mật khẩu? Gửi link đặt lại về email</button></div>
   <div id="loginMessage"></div>
+</section>
+
+<section id="recoveryPanel" class="panel login" style="display:none">
+  <h1>Đặt mật khẩu mới</h1>
+  <p class="muted">Nhập mật khẩu mới cho tài khoản quản trị.</p>
+  <form id="recoveryForm">
+    <label>Mật khẩu mới</label>
+    <input id="recoveryNew" type="password" required minlength="8" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự">
+    <label>Nhập lại mật khẩu mới</label>
+    <input id="recoveryConfirm" type="password" required minlength="8" autocomplete="new-password">
+    <div class="actions"><button class="btn" type="submit" id="recoverySave">Lưu mật khẩu mới</button></div>
+  </form>
+  <div id="recoveryMessage"></div>
 </section>
 
 <section id="admin">
@@ -121,7 +135,24 @@ input[type=checkbox]{width:auto}
     <button type="button" class="admin-tab" data-tab="digital">04 · Digital & Social</button>
     <button type="button" class="admin-tab" data-tab="print">05 · Print & Infographic</button>
     <button type="button" class="admin-tab" data-tab="cms">06 · Nội dung & Cài đặt</button>
+    <button type="button" class="admin-tab" data-tab="account">07 · Tài khoản</button>
   </nav>
+
+  <section class="panel tab-panel" id="accountPanel" data-panel="account" hidden>
+    <h2>Tài khoản & Mật khẩu</h2>
+    <p class="tab-help">Đổi mật khẩu đăng nhập trang quản trị. Nếu quên mật khẩu, bấm “Quên mật khẩu?” ở màn hình đăng nhập để nhận link đặt lại qua email quản trị.</p>
+    <form id="accountForm">
+      <label>Mật khẩu hiện tại</label>
+      <input id="accountCurrent" type="password" required autocomplete="current-password">
+      <label>Mật khẩu mới</label>
+      <input id="accountNew" type="password" required minlength="8" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự">
+      <small class="field-help">Nên dùng mật khẩu dài, gồm chữ hoa, chữ thường và số.</small>
+      <label>Nhập lại mật khẩu mới</label>
+      <input id="accountConfirm" type="password" required minlength="8" autocomplete="new-password">
+      <div class="actions"><button class="btn" type="submit" id="accountSave">Đổi mật khẩu</button></div>
+      <div id="accountMessage" aria-live="polite"></div>
+    </form>
+  </section>
 
   <section class="panel tab-panel" id="heroPanel" data-panel="hero">
     <h2>Trang chủ & Hero</h2>
@@ -147,6 +178,29 @@ input[type=checkbox]{width:auto}
       <label>Các lĩnh vực / địa điểm</label>
       <textarea id="heroMetaLines" placeholder="Editorial · Identity · Digital&#10;Ho Chi Minh City, VN"></textarea>
       <small class="field-help">Vị trí: các dòng thông tin nhỏ bên phải phần giới thiệu.</small>
+      <div class="cms-group" style="margin-top:30px">
+        <h3>Chữ chạy trên ảnh Hero</h3>
+        <small class="field-help">Dòng chữ lớn tự gõ – xóa nằm giữa ảnh Hero ở đầu trang chủ.</small>
+        <label>Nội dung chữ chạy</label>
+        <textarea id="heroTypeWords" placeholder="Layout&#10;Brand identity&#10;eMagazine&#10;Digital&#10;Print"></textarea>
+        <small class="field-help">Mỗi dòng là một từ/cụm từ, chữ sẽ lần lượt gõ và xóa theo thứ tự (tối đa 12 dòng). Để trống nếu muốn giữ nội dung mặc định.</small>
+        <label>Màu chữ</label>
+        <div class="color-field"><input id="heroTypeColor" type="color" value="#FFFFFF"><div class="color-swatch"><span id="heroTypeColorValue">#FFFFFF</span><span class="color-chip" id="heroTypeColorChip"></span></div></div>
+        <label>Căn lề chữ</label>
+        <select id="heroTypeAlign"><option value="left">Căn trái</option><option value="center" selected>Căn giữa</option><option value="right">Căn phải</option></select>
+        <small class="field-help">Vị trí của dòng chữ chạy trên ảnh Hero: sát lề trái, ở giữa hoặc sát lề phải.</small>
+        <label>Font chữ</label>
+        <select id="heroTypeFont"><option value="">Mặc định (DM Mono)</option><option value="Inter">Inter</option><option value="DM Sans">DM Sans</option><option value="Manrope">Manrope</option><option value="Plus Jakarta Sans">Plus Jakarta Sans</option><option value="Playfair Display">Playfair Display</option><option value="Cormorant Garamond">Cormorant Garamond</option><option value="Georgia">Georgia</option><option value="Arial">Arial</option></select>
+        <label>Thêm font mới — nhập tên Google Font</label>
+        <input id="heroTypeGoogleFont" placeholder="Ví dụ: Bebas Neue, Space Grotesk, Anton...">
+        <small class="field-help">Nhập đúng tên font trên fonts.google.com. Nếu nhập, font này sẽ được dùng thay cho font ở ô chọn phía trên.</small>
+        <label>Thêm font mới — tải file font của bạn</label>
+        <input id="heroTypeFontFile" type="file" accept=".woff2,.woff,.ttf,.otf">
+        <small class="field-help">Hỗ trợ .woff2, .woff, .ttf, .otf. Cách thêm font nào bạn thao tác sau cùng sẽ được dùng khi bấm Lưu.</small>
+        <small class="field-help" id="heroTypeFontInfo"></small>
+        <label>Xem trước</label>
+        <div id="heroTypePreview" style="background:#1f2a44;color:#fff;padding:34px 20px;text-align:center;font:400 44px/1.1 'DM Mono',monospace;letter-spacing:-.045em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">Layout</div>
+      </div>
       <div class="actions"><button class="btn" type="submit" id="saveHeroButton">Lưu nội dung trang chủ</button></div>
       <div id="heroMessage" aria-live="polite"></div>
     </form>
@@ -293,6 +347,7 @@ const SUPABASE_KEY = 'sb_publishable_hLiulz_jL9N3Is6Bbvcfrg_nhMg39_-';
 const ADMIN_EMAIL = 'phamnguyentrungduong041192@gmail.com';
 const BUCKET = 'portfolio-images';
 
+let recoveryMode = /[#&?]type=recovery(&|$)/.test(location.hash + location.search);
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const $ = id => document.getElementById(id);
@@ -302,6 +357,8 @@ let pendingGalleryColumns = [];
 let activeTab = 'hero';
 let cachedProjects = [];
 let currentHeroImageUrl = '';
+let heroTypeCurrent = {};
+let heroTypeSource = null;
 
 const fontChoices = ['Kế thừa website','Inter','DM Sans','Manrope','Plus Jakarta Sans','Playfair Display','Cormorant Garamond','Georgia','Arial'];
 const typographyFields = [
@@ -378,6 +435,7 @@ function showAdmin(show) {
 }
 
 async function checkAdmin(session) {
+  if (recoveryMode) { showRecovery(); return false; }
   if (!session || session.user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
     showAdmin(false);
     return false;
@@ -433,6 +491,7 @@ function refreshColorSwatches() {
 ['themePrimary','themeAccent','themeBackground','themeText'].forEach(id => $(id).addEventListener('input', refreshColorSwatches));
 
 db.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'PASSWORD_RECOVERY') { recoveryMode = true; showRecovery(); return; }
   if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
     await checkAdmin(session);
   }
@@ -522,6 +581,7 @@ async function loadHeroSettings() {
   $('heroIntro').value = data.hero_intro || '';
   $('heroMetaTitle').value = data.hero_meta_title || '';
   $('heroMetaLines').value = data.hero_meta_lines || '';
+  fillHeroTypewriter(data.hero_typewriter);
   currentHeroImageUrl = data.hero_image || '';
   if (currentHeroImageUrl) {
     $('heroImagePreview').src = currentHeroImageUrl;
@@ -566,9 +626,11 @@ $('heroForm').addEventListener('submit', async event => {
     const {error} = await db.from('site_settings').upsert(settings,{onConflict:'id'});
     if (error) throw error;
     currentHeroImageUrl = imageUrl;
+    const heroTypeWarning = await saveHeroTypewriter();
     $('heroImageFile').value = '';
     $('heroImageInfo').innerHTML = '';
     $('heroMessage').textContent = 'Đã lưu nội dung Hero. Sau khi kết nối trang chủ với bảng cài đặt, nội dung sẽ hiển thị trên website.';
+    if (heroTypeWarning) { $('heroMessage').textContent = heroTypeWarning; $('heroMessage').style.color = '#a45a24'; }
   } catch (error) {
     $('heroMessage').textContent = 'Không thể lưu: ' + error.message;
     $('heroMessage').style.color = '#b13e35';
@@ -576,6 +638,114 @@ $('heroForm').addEventListener('submit', async event => {
     $('saveHeroButton').disabled = false;
   }
 });
+
+// ===== Chữ chạy trên ảnh Hero =====
+const cleanFontName = value => String(value || '').replace(/[^A-Za-z0-9 \-_.]/g, '').trim();
+const heroTypeLoadedFonts = new Set();
+function ensureGoogleFont(name) {
+  if (!name || heroTypeLoadedFonts.has('g:' + name)) return;
+  heroTypeLoadedFonts.add('g:' + name);
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
+  document.head.appendChild(link);
+}
+async function refreshHeroTypePreview() {
+  const preview = $('heroTypePreview');
+  const color = $('heroTypeColor').value.toUpperCase();
+  $('heroTypeColorValue').textContent = color;
+  $('heroTypeColorChip').style.backgroundColor = color;
+  preview.style.color = color;
+  preview.style.textAlign = $('heroTypeAlign').value || 'center';
+  const firstWord = $('heroTypeWords').value.split('\n').map(item => item.trim()).filter(Boolean)[0];
+  preview.textContent = firstWord || 'Layout';
+  let family = '';
+  try {
+    const file = $('heroTypeFontFile').files[0];
+    const google = cleanFontName($('heroTypeGoogleFont').value);
+    if (heroTypeSource === 'upload' && file) {
+      const face = new FontFace('HeroPreviewUpload', await file.arrayBuffer());
+      await face.load(); document.fonts.add(face); family = "'HeroPreviewUpload'";
+    } else if (heroTypeSource === 'google' && google) {
+      ensureGoogleFont(google); family = "'" + google + "'";
+    } else if (heroTypeSource === 'select' && $('heroTypeFont').value) {
+      family = "'" + $('heroTypeFont').value + "'";
+    } else if (heroTypeSource === null) {
+      if (heroTypeCurrent.font_url && heroTypeCurrent.font_name) {
+        const key = 'u:' + heroTypeCurrent.font_url;
+        if (!heroTypeLoadedFonts.has(key)) {
+          heroTypeLoadedFonts.add(key);
+          const face = new FontFace(cleanFontName(heroTypeCurrent.font_name), 'url("' + heroTypeCurrent.font_url + '")');
+          await face.load(); document.fonts.add(face);
+        }
+        family = "'" + cleanFontName(heroTypeCurrent.font_name) + "'";
+      } else if (heroTypeCurrent.google_font) { ensureGoogleFont(heroTypeCurrent.google_font); family = "'" + heroTypeCurrent.google_font + "'"; }
+      else if (heroTypeCurrent.font) family = "'" + heroTypeCurrent.font + "'";
+    }
+  } catch (error) { family = ''; }
+  preview.style.fontFamily = family ? family + ", 'DM Mono', monospace" : "'DM Mono', monospace";
+}
+function refreshHeroTypeInfo() {
+  const cfg = heroTypeCurrent || {};
+  let text = 'Đang dùng: font mặc định (DM Mono).';
+  if (cfg.font_url && cfg.font_name) text = 'Đang dùng: font bạn đã tải lên (' + cfg.font_name + ').';
+  else if (cfg.google_font) text = 'Đang dùng: Google Font "' + cfg.google_font + '".';
+  else if (cfg.font) text = 'Đang dùng: ' + cfg.font + '.';
+  $('heroTypeFontInfo').textContent = text;
+}
+function fillHeroTypewriter(cfg) {
+  heroTypeCurrent = (cfg && typeof cfg === 'object') ? cfg : {};
+  heroTypeSource = null;
+  $('heroTypeWords').value = Array.isArray(heroTypeCurrent.words) ? heroTypeCurrent.words.join('\n') : '';
+  $('heroTypeColor').value = /^#[0-9a-f]{6}$/i.test(heroTypeCurrent.color || '') ? heroTypeCurrent.color : '#FFFFFF';
+  $('heroTypeAlign').value = ['left','center','right'].includes(heroTypeCurrent.align) ? heroTypeCurrent.align : 'center';
+  $('heroTypeFont').value = heroTypeCurrent.font || '';
+  $('heroTypeGoogleFont').value = heroTypeCurrent.google_font || '';
+  refreshHeroTypeInfo();
+  refreshHeroTypePreview();
+}
+async function saveHeroTypewriter() {
+  try {
+    const cfg = {
+      words: $('heroTypeWords').value.split('\n').map(item => item.trim()).filter(Boolean).slice(0, 12),
+      color: $('heroTypeColor').value,
+      align: $('heroTypeAlign').value,
+      font: '', google_font: '', font_url: '', font_name: ''
+    };
+    const file = $('heroTypeFontFile').files[0];
+    const google = cleanFontName($('heroTypeGoogleFont').value);
+    if (heroTypeSource === 'upload' && file) {
+      const extension = file.name.split('.').pop().toLowerCase();
+      if (!['woff2', 'woff', 'ttf', 'otf'].includes(extension)) throw new Error('File font phải là .woff2, .woff, .ttf hoặc .otf');
+      const path = 'fonts/' + crypto.randomUUID() + '.' + extension;
+      const {error:uploadError} = await db.storage.from(BUCKET).upload(path, file, {cacheControl:'3600', upsert:false});
+      if (uploadError) throw uploadError;
+      cfg.font_url = db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      cfg.font_name = cleanFontName(file.name.replace(/\.[^.]+$/, '')) || 'Hero Custom Font';
+    } else if (heroTypeSource === 'google' && google) {
+      cfg.google_font = google;
+    } else if (heroTypeSource === 'select') {
+      cfg.font = $('heroTypeFont').value;
+    } else {
+      cfg.font = heroTypeCurrent.font || ''; cfg.google_font = heroTypeCurrent.google_font || '';
+      cfg.font_url = heroTypeCurrent.font_url || ''; cfg.font_name = heroTypeCurrent.font_name || '';
+    }
+    const {error} = await db.from('site_settings').update({hero_typewriter:cfg}).eq('id', 'homepage');
+    if (error) throw error;
+    heroTypeCurrent = cfg; heroTypeSource = null;
+    $('heroTypeFontFile').value = '';
+    refreshHeroTypeInfo();
+    return '';
+  } catch (error) {
+    return 'Đã lưu phần Hero, nhưng chưa lưu được chữ chạy: ' + error.message + ' — hãy kiểm tra đã chạy câu SQL thêm cột hero_typewriter trong Supabase chưa.';
+  }
+}
+$('heroTypeWords').addEventListener('input', refreshHeroTypePreview);
+$('heroTypeColor').addEventListener('input', refreshHeroTypePreview);
+$('heroTypeAlign').addEventListener('change', refreshHeroTypePreview);
+$('heroTypeFont').addEventListener('change', () => { heroTypeSource = 'select'; $('heroTypeGoogleFont').value = ''; $('heroTypeFontFile').value = ''; refreshHeroTypePreview(); });
+$('heroTypeGoogleFont').addEventListener('input', () => { heroTypeSource = cleanFontName($('heroTypeGoogleFont').value) ? 'google' : 'select'; if (heroTypeSource === 'google') $('heroTypeFontFile').value = ''; refreshHeroTypePreview(); });
+$('heroTypeFontFile').addEventListener('change', () => { if ($('heroTypeFontFile').files[0]) { heroTypeSource = 'upload'; $('heroTypeGoogleFont').value = ''; } refreshHeroTypePreview(); });
 
 const cmsFields = ['aboutHeading','aboutEyebrow','aboutBody','aboutSkills','contactHeading','contactCta','contactEmail','contactPhone','contactLocation','socialZalo','socialInstagram','socialBehance','socialLinkedin','socialFacebook','themePrimary','themeAccent','themeBackground','themeText','themeFont','themeFontWeight','themeFontStyle','seoTitle','seoDescription','seoImage'];
 async function loadCmsSettings() {
@@ -927,6 +1097,99 @@ $('cancelEdit').addEventListener('click', () => {
   resetForm();
   message('');
   $('category').value = activeTab;
+});
+
+// ===== Mật khẩu: quên mật khẩu, đặt lại, đổi mật khẩu =====
+function showRecovery() {
+  $('login').style.display = 'none';
+  $('admin').style.display = 'none';
+  $('recoveryPanel').style.display = 'block';
+}
+function passwordProblem(newPassword, confirmPassword) {
+  if (newPassword.length < 8) return 'Mật khẩu mới cần có ít nhất 8 ký tự.';
+  if (newPassword !== confirmPassword) return 'Hai ô mật khẩu mới chưa giống nhau.';
+  return '';
+}
+function passwordErrorText(error) {
+  const text = String((error && error.message) || '');
+  if (/reauth|recent login|nonce/i.test(text) || (error && error.code === 'reauthentication_needed')) return 'Cần đăng nhập lại để đổi mật khẩu: hãy bấm Đăng xuất, đăng nhập lại rồi thử lần nữa.';
+  if (/different from the old/i.test(text)) return 'Mật khẩu mới phải khác mật khẩu cũ.';
+  if (/at least|weak|pwned|easy to guess/i.test(text)) return 'Mật khẩu chưa đủ mạnh. Hãy dùng mật khẩu dài hơn, gồm chữ hoa, chữ thường và số.';
+  return 'Không đổi được mật khẩu: ' + text;
+}
+function setPasswordMessage(id, text, isError) {
+  $(id).textContent = text;
+  $(id).style.color = isError ? '#b13e35' : 'var(--olive)';
+}
+
+// Quên mật khẩu: luôn gửi link về email quản trị
+$('forgotPassword').addEventListener('click', async () => {
+  const button = $('forgotPassword');
+  button.disabled = true;
+  loginMessage('Đang gửi email đặt lại mật khẩu...');
+  const {error} = await db.auth.resetPasswordForEmail(ADMIN_EMAIL, {redirectTo: location.origin + location.pathname});
+  button.disabled = false;
+  if (error) { loginMessage('Không gửi được email: ' + error.message); return; }
+  loginMessage('Đã gửi link đặt lại mật khẩu tới ' + ADMIN_EMAIL.replace(/^(.).*(@.*)$/, '$1***$2') + '. Hãy mở email (kiểm tra cả mục Spam) và bấm vào link.');
+});
+
+// Link trong email đã hết hạn / không hợp lệ
+if (/error_code=/.test(location.hash)) {
+  history.replaceState(null, '', location.pathname);
+  loginMessage('Link đặt lại mật khẩu đã hết hạn hoặc không hợp lệ. Hãy bấm “Quên mật khẩu?” để gửi link mới.');
+}
+
+// Đặt mật khẩu mới sau khi bấm link trong email
+$('recoveryForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  const problem = passwordProblem($('recoveryNew').value, $('recoveryConfirm').value);
+  if (problem) { setPasswordMessage('recoveryMessage', problem, true); return; }
+  $('recoverySave').disabled = true;
+  try {
+    const {data:{session}} = await db.auth.getSession();
+    if (!session || (session.user.email || '').toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      recoveryMode = false;
+      history.replaceState(null, '', location.pathname);
+      $('recoveryPanel').style.display = 'none';
+      $('login').style.display = 'block';
+      loginMessage('Link đã hết hạn hoặc không hợp lệ. Hãy bấm “Quên mật khẩu?” để gửi link mới.');
+      return;
+    }
+    const {error} = await db.auth.updateUser({password: $('recoveryNew').value});
+    if (error) { setPasswordMessage('recoveryMessage', passwordErrorText(error), true); return; }
+    recoveryMode = false;
+    history.replaceState(null, '', location.pathname);
+    $('recoveryNew').value = ''; $('recoveryConfirm').value = '';
+    $('recoveryPanel').style.display = 'none';
+    const {data} = await db.auth.getSession();
+    await checkAdmin(data.session);
+  } finally { $('recoverySave').disabled = false; }
+});
+
+// Đổi mật khẩu khi đang đăng nhập
+document.querySelectorAll('.admin-tab').forEach(button => {
+  button.addEventListener('click', () => { $('accountPanel').hidden = button.dataset.tab !== 'account'; });
+});
+$('accountForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  const current = $('accountCurrent').value, next = $('accountNew').value;
+  const problem = passwordProblem(next, $('accountConfirm').value) || (next === current ? 'Mật khẩu mới phải khác mật khẩu hiện tại.' : '');
+  if (problem) { setPasswordMessage('accountMessage', problem, true); return; }
+  $('accountSave').disabled = true;
+  setPasswordMessage('accountMessage', 'Đang kiểm tra mật khẩu hiện tại...', false);
+  try {
+    // Kiểm tra mật khẩu hiện tại bằng một phiên tạm, không ảnh hưởng phiên đang đăng nhập
+    const verifier = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{persistSession:false, autoRefreshToken:false, detectSessionInUrl:false}});
+    const {error:checkError} = await verifier.auth.signInWithPassword({email: ADMIN_EMAIL, password: current});
+    if (checkError) { setPasswordMessage('accountMessage', 'Mật khẩu hiện tại chưa đúng.', true); return; }
+    await verifier.auth.signOut({scope:'local'});
+    const {error} = await db.auth.updateUser({password: next});
+    if (error) { setPasswordMessage('accountMessage', passwordErrorText(error), true); return; }
+    $('accountForm').reset();
+    setPasswordMessage('accountMessage', 'Đã đổi mật khẩu thành công. Lần đăng nhập sau hãy dùng mật khẩu mới.', false);
+  } catch (error) {
+    setPasswordMessage('accountMessage', passwordErrorText(error), true);
+  } finally { $('accountSave').disabled = false; }
 });
 
 setActiveTab('hero');
