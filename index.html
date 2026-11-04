@@ -319,6 +319,12 @@ loadHomepageSettings();
   const target = document.getElementById('hero-typewriter-text');
   if (!target) return;
   const words = ['Layout', 'Brand identity', 'eMagazine', 'Digital', 'Print'];
+  let resetWords = null;
+  window.__setHeroTypewriterWords = list => {
+    if (!Array.isArray(list) || !list.length) return;
+    words.splice(0, words.length, ...list);
+    if (resetWords) resetWords(); else target.textContent = words[0];
+  };
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     target.textContent = words[0];
     return;
@@ -326,6 +332,7 @@ loadHomepageSettings();
   let wordIndex = 0;
   let charIndex = words[0].length;
   let deleting = false;
+  resetWords = () => { wordIndex = 0; charIndex = words[0].length; deleting = false; target.textContent = words[0]; };
   const type = () => {
     const word = words[wordIndex];
     target.textContent = word.slice(0, charIndex);
@@ -346,6 +353,58 @@ loadHomepageSettings();
     deleting = true;
     type();
   }, 900);
+})();
+// Chữ chạy trên ảnh Hero: nội dung, màu và font lấy từ Admin (cột hero_typewriter)
+(() => {
+  const CACHE_KEY = 'phamduong_hero_typewriter';
+  const clean = value => String(value || '').replace(/[^A-Za-z0-9 \-_.]/g, '').trim();
+  // Căn trái = thẳng trục Tiêu đề chính Hero; căn phải = thẳng trục Thông tin chuyên môn (cùng mép khung nội dung)
+  let currentAlign = 'center';
+  const place = () => {
+    const box = document.querySelector('.hero-typewriter'), hero = document.getElementById('home-hero');
+    if (!box || !hero) return;
+    const b = box.getBoundingClientRect(), h = hero.getBoundingClientRect();
+    if (!b.width || !h.width) return;
+    box.style.paddingLeft = currentAlign === 'left' ? Math.max(0, Math.round(h.left - b.left)) + 'px' : '';
+    box.style.paddingRight = currentAlign === 'right' ? Math.max(0, Math.round(b.right - h.right)) + 'px' : '';
+  };
+  window.addEventListener('resize', place);
+  window.addEventListener('load', place);
+  if (window.ResizeObserver && document.getElementById('home-hero')) new ResizeObserver(place).observe(document.getElementById('home-hero'));
+  const apply = cfg => {
+    const line = document.querySelector('.hero-typewriter-line');
+    if (!line || !cfg || typeof cfg !== 'object') return;
+    if (Array.isArray(cfg.words)) {
+      const list = cfg.words.map(word => String(word).trim()).filter(Boolean).slice(0, 12);
+      if (list.length && window.__setHeroTypewriterWords) window.__setHeroTypewriterWords(list);
+    }
+    if (/^#[0-9a-f]{3,8}$/i.test(cfg.color || '')) line.style.color = cfg.color;
+    const alignMap = { left:'flex-start', center:'center', right:'flex-end' };
+    if (alignMap[cfg.align]) { line.parentElement.style.justifyContent = alignMap[cfg.align]; line.style.textAlign = cfg.align; currentAlign = cfg.align; place(); }
+    const fallback = ', "DM Mono", monospace';
+    if (cfg.font_url && cfg.font_name && /^https:\/\//.test(cfg.font_url)) {
+      const name = clean(cfg.font_name);
+      if (name) new FontFace(name, 'url("' + cfg.font_url + '")').load().then(face => { document.fonts.add(face); line.style.fontFamily = "'" + name + "'" + fallback; }).catch(() => {});
+    } else if (clean(cfg.google_font)) {
+      const name = clean(cfg.google_font);
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
+      document.head.appendChild(link);
+      line.style.fontFamily = "'" + name + "'" + fallback;
+    } else if (clean(cfg.font)) {
+      line.style.fontFamily = "'" + clean(cfg.font) + "'" + fallback;
+    }
+  };
+  let cached = null;
+  try { cached = localStorage.getItem(CACHE_KEY); if (cached) apply(JSON.parse(cached)); } catch (error) {}
+  supabaseClient.from('site_settings').select('hero_typewriter').eq('id', 'homepage').maybeSingle().then(({ data, error }) => {
+    if (error || !data || !data.hero_typewriter) return;
+    const fresh = JSON.stringify(data.hero_typewriter);
+    if (fresh === cached) return;
+    apply(data.hero_typewriter);
+    try { localStorage.setItem(CACHE_KEY, fresh); } catch (error) {}
+  }).catch(() => {});
 })();
 const filters = document.querySelectorAll('.filter');
 // Luôn mở trang ở đầu (Hero), trừ khi link trỏ thẳng tới một dự án (#project-N)
