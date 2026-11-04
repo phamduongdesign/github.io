@@ -201,6 +201,22 @@ input[type=checkbox]{width:auto}
         <label>Xem trước</label>
         <div id="heroTypePreview" style="background:#1f2a44;color:#fff;padding:34px 20px;text-align:center;font:400 44px/1.1 'DM Mono',monospace;letter-spacing:-.045em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">Layout</div>
       </div>
+      <div class="cms-group" style="margin-top:30px">
+        <h3>Dòng trạng thái góc phải trên cùng trang chủ</h3>
+        <small class="field-help">Dòng chữ kèm đèn nhỏ cạnh menu ở đầu trang chủ, ví dụ “Available for work”.</small>
+        <style>.av-dot{position:relative;flex:0 0 6px;width:6px;height:6px}.av-dot::before{content:"";position:absolute;inset:-9px;border-radius:50%;background:radial-gradient(circle,rgba(46,224,111,.5) 0%,rgba(46,224,111,.18) 40%,rgba(46,224,111,0) 70%);animation:av-glow 2.4s ease-in-out infinite}.av-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:#2ee06f;box-shadow:0 0 4px 1px rgba(46,224,111,.95),0 0 0 0 rgba(46,224,111,.55);animation:av-pulse 2.4s ease-out infinite}.av-dot.off::before{display:none}.av-dot.off::after{background:#b8b7ae;box-shadow:none;animation:none}@keyframes av-glow{0%,100%{transform:scale(.8);opacity:.65}50%{transform:scale(1.1);opacity:1}}@keyframes av-pulse{0%{box-shadow:0 0 4px 1px rgba(46,224,111,.95),0 0 0 0 rgba(46,224,111,.55)}70%,100%{box-shadow:0 0 4px 1px rgba(46,224,111,.95),0 0 0 6px rgba(46,224,111,0)}}</style>
+        <label>Chữ hiển thị</label>
+        <input id="availText" maxlength="60" placeholder="Available for work">
+        <small class="field-help">Để trống nếu muốn ẩn cả dòng này (cả chữ lẫn đèn).</small>
+        <label>Đèn</label>
+        <select id="availLight"><option value="on">Bật — xanh sáng, nhấp nháy</option><option value="off">Tắt — chấm xám đứng yên</option><option value="hidden">Ẩn đèn — chỉ hiện chữ</option></select>
+        <div class="actions" style="margin-top:12px;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn secondary" id="availPresetOpen">Đặt: đang nhận việc</button>
+          <button type="button" class="btn secondary" id="availPresetBusy">Đặt: kín lịch</button>
+        </div>
+        <label>Xem trước</label>
+        <div style="background:#f6f4ef;padding:22px 20px;display:flex;justify-content:flex-end;border:1px solid var(--line)"><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#68685f;white-space:nowrap;padding-left:12px"><span class="av-dot" id="availPreviewDot"></span><span id="availPreviewText">Available for work</span></div></div>
+      </div>
       <div class="actions"><button class="btn" type="submit" id="saveHeroButton">Lưu nội dung trang chủ</button></div>
       <div id="heroMessage" aria-live="polite"></div>
     </form>
@@ -582,6 +598,7 @@ async function loadHeroSettings() {
   $('heroMetaTitle').value = data.hero_meta_title || '';
   $('heroMetaLines').value = data.hero_meta_lines || '';
   fillHeroTypewriter(data.hero_typewriter);
+  fillAvailability(data.availability);
   currentHeroImageUrl = data.hero_image || '';
   if (currentHeroImageUrl) {
     $('heroImagePreview').src = currentHeroImageUrl;
@@ -627,10 +644,12 @@ $('heroForm').addEventListener('submit', async event => {
     if (error) throw error;
     currentHeroImageUrl = imageUrl;
     const heroTypeWarning = await saveHeroTypewriter();
+    const availWarning = await saveAvailability();
     $('heroImageFile').value = '';
     $('heroImageInfo').innerHTML = '';
     $('heroMessage').textContent = 'Đã lưu nội dung Hero. Sau khi kết nối trang chủ với bảng cài đặt, nội dung sẽ hiển thị trên website.';
-    if (heroTypeWarning) { $('heroMessage').textContent = heroTypeWarning; $('heroMessage').style.color = '#a45a24'; }
+    const heroWarnings = [heroTypeWarning, availWarning].filter(Boolean).join(' | ');
+    if (heroWarnings) { $('heroMessage').textContent = heroWarnings; $('heroMessage').style.color = '#a45a24'; }
   } catch (error) {
     $('heroMessage').textContent = 'Không thể lưu: ' + error.message;
     $('heroMessage').style.color = '#b13e35';
@@ -746,6 +765,36 @@ $('heroTypeAlign').addEventListener('change', refreshHeroTypePreview);
 $('heroTypeFont').addEventListener('change', () => { heroTypeSource = 'select'; $('heroTypeGoogleFont').value = ''; $('heroTypeFontFile').value = ''; refreshHeroTypePreview(); });
 $('heroTypeGoogleFont').addEventListener('input', () => { heroTypeSource = cleanFontName($('heroTypeGoogleFont').value) ? 'google' : 'select'; if (heroTypeSource === 'google') $('heroTypeFontFile').value = ''; refreshHeroTypePreview(); });
 $('heroTypeFontFile').addEventListener('change', () => { if ($('heroTypeFontFile').files[0]) { heroTypeSource = 'upload'; $('heroTypeGoogleFont').value = ''; } refreshHeroTypePreview(); });
+
+// ===== Dòng trạng thái "Available for work" =====
+let availCurrent = {};
+function refreshAvailPreview() {
+  const light = $('availLight').value, text = $('availText').value.trim();
+  $('availPreviewDot').className = 'av-dot' + (light === 'off' ? ' off' : '');
+  $('availPreviewDot').style.display = light === 'hidden' ? 'none' : '';
+  $('availPreviewText').textContent = text || '(Để trống — dòng này sẽ được ẩn)';
+}
+function fillAvailability(cfg) {
+  availCurrent = (cfg && typeof cfg === 'object') ? cfg : {};
+  $('availText').value = typeof availCurrent.text === 'string' ? availCurrent.text : 'Available for work';
+  $('availLight').value = ['on', 'off', 'hidden'].includes(availCurrent.light) ? availCurrent.light : 'on';
+  refreshAvailPreview();
+}
+async function saveAvailability() {
+  try {
+    const cfg = { text: $('availText').value.trim().slice(0, 60), light: $('availLight').value };
+    const {error} = await db.from('site_settings').update({availability:cfg}).eq('id', 'homepage');
+    if (error) throw error;
+    availCurrent = cfg;
+    return '';
+  } catch (error) {
+    return 'Đã lưu phần Hero, nhưng chưa lưu được dòng trạng thái: ' + error.message + ' — hãy kiểm tra đã chạy câu SQL thêm cột availability trong Supabase chưa.';
+  }
+}
+$('availText').addEventListener('input', refreshAvailPreview);
+$('availLight').addEventListener('change', refreshAvailPreview);
+$('availPresetOpen').addEventListener('click', () => { $('availText').value = 'Available for work'; $('availLight').value = 'on'; refreshAvailPreview(); });
+$('availPresetBusy').addEventListener('click', () => { $('availText').value = 'Fully booked'; $('availLight').value = 'off'; refreshAvailPreview(); });
 
 const cmsFields = ['aboutHeading','aboutEyebrow','aboutBody','aboutSkills','contactHeading','contactCta','contactEmail','contactPhone','contactLocation','socialZalo','socialInstagram','socialBehance','socialLinkedin','socialFacebook','themePrimary','themeAccent','themeBackground','themeText','themeFont','themeFontWeight','themeFontStyle','seoTitle','seoDescription','seoImage'];
 async function loadCmsSettings() {
