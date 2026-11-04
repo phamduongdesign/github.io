@@ -70,7 +70,7 @@ button { cursor: pointer; }
 @supports (color: color-mix(in srgb, red 50%, blue)) { .hero-typewriter-line { text-shadow:-3.5px 0 rgba(255,32,80,.8), 3.5px 0 rgba(0,210,255,.8), 0 0 10px color-mix(in srgb, currentColor 55%, transparent), 0 0 22px color-mix(in srgb, currentColor 28%, transparent); } }
 .hero-typewriter-line.tv-glitch { animation:hero-tv-flicker 1s steps(1,end) infinite, hero-tv-glitch .35s steps(1,end) 1; }
 @keyframes hero-tv-flicker { 0% { opacity:1; } 14% { opacity:.72; } 20% { opacity:1; } 47% { opacity:.78; } 53% { opacity:1; } 76% { opacity:.7; } 82% { opacity:1; } 100% { opacity:1; } }
-@keyframes hero-tv-glitch { 0% { transform:translate(-6px,0) skewX(-8deg); } 25% { transform:translate(5px,1px) skewX(5deg); } 50% { transform:translate(-3px,0) skewX(-3deg); } 75% { transform:translate(2px,0) skewX(2deg); } 100% { transform:none; } }
+@keyframes hero-tv-glitch { 0% { transform:translate3d(-6px,0,0) skewX(-8deg); } 25% { transform:translate3d(5px,1px,0) skewX(5deg); } 50% { transform:translate3d(-3px,0,0) skewX(-3deg); } 75% { transform:translate3d(2px,0,0) skewX(2deg); } 100% { transform:translate3d(0,0,0); } }
 @media (max-width:620px) { .hero-typewriter .hero-typewriter-line { width:calc(100% + 44px); max-width:calc(100% + 44px); filter:blur(.3px); text-shadow:-2px 0 rgba(255,32,80,.8), 2px 0 rgba(0,210,255,.8), 0 0 8px rgba(255,255,255,.4), 0 0 16px rgba(255,255,255,.2); } }
 @media (max-width:620px) { @supports (color: color-mix(in srgb, red 50%, blue)) { .hero-typewriter .hero-typewriter-line { text-shadow:-2px 0 rgba(255,32,80,.8), 2px 0 rgba(0,210,255,.8), 0 0 8px color-mix(in srgb, currentColor 55%, transparent), 0 0 16px color-mix(in srgb, currentColor 28%, transparent); } } }
 @media (prefers-reduced-motion:reduce) { .hero-typewriter-line, .hero-typewriter-line.tv-glitch { animation:none; } }
@@ -183,6 +183,11 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.04em; }
 .lightbox-frame::after, .art::after, .hero-image::after, .detail-hero-art::after, .detail-mockup::after { content:""; position:absolute; inset:0; z-index:3; }
 img { -webkit-user-drag:none; user-drag:none; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
 @media print { .art, .hero-image, .detail-hero-art, .detail-mockups, .lightbox { display:none !important; } }
+
+/* Chống giật trang khi chữ Hero glitch: cô lập hiệu ứng thành layer riêng, không ảnh hưởng bố cục/cuộn của cả trang */
+.hero-typewriter { contain:layout paint; }
+.hero-typewriter-line { will-change:transform, opacity; -webkit-backface-visibility:hidden; backface-visibility:hidden; }
+@media (max-width:620px) { .hero-typewriter .hero-typewriter-line { width:100%; max-width:100%; margin:-14px 0; padding:14px 0; } }
 </style>
 </head>
 <body>
@@ -346,23 +351,84 @@ loadHomepageSettings();
   const tvLine = target.closest('.hero-typewriter-line');
   const words = ['Layout', 'Brand identity', 'eMagazine', 'Digital', 'Print'];
   let resetWords = null;
+  // Bản điện thoại: từ dài hơn 9 ký tự được ngắt dòng cố định theo TỪ ĐẦY ĐỦ (không nhảy bố cục khi gõ),
+  // con trỏ đi theo ký tự cuối: từ trên xuống dưới, từ trái qua phải.
+  const MAX_LINE = 9;
+  const mobileMQ = window.matchMedia ? window.matchMedia('(max-width: 620px)') : null;
+  const cursorEl = tvLine ? tvLine.querySelector('.hero-typewriter-cursor') : null;
+  const spacer = document.createElement('span');
+  spacer.setAttribute('aria-hidden', 'true');
+  spacer.style.visibility = 'hidden';
+  if (cursorEl && cursorEl.parentNode) cursorEl.parentNode.insertBefore(spacer, cursorEl.nextSibling);
+  const layoutCache = new Map();
+  const splitLines = word => {
+    if (layoutCache.has(word)) return layoutCache.get(word);
+    const pieces = [];
+    const re = /\S+/g;
+    let m;
+    while ((m = re.exec(word))) {
+      const len = m[0].length;
+      if (len <= MAX_LINE) pieces.push({ start:m.index, end:m.index + len, solo:false });
+      else {
+        const size = Math.ceil(len / Math.ceil(len / MAX_LINE));
+        for (let k = 0; k < len; k += size) pieces.push({ start:m.index + k, end:m.index + Math.min(k + size, len), solo:true });
+      }
+    }
+    const lines = [];
+    pieces.forEach(piece => {
+      const last = lines[lines.length - 1];
+      if (last && !piece.solo && !last.solo && piece.end - last.start <= MAX_LINE) last.end = piece.end;
+      else lines.push({ start:piece.start, end:piece.end, solo:piece.solo });
+    });
+    if (!lines.length) lines.push({ start:0, end:word.length, solo:false });
+    layoutCache.set(word, lines);
+    return lines;
+  };
+  let lastWord = words[0], lastCount = words[0].length;
+  const render = (word, count) => {
+    lastWord = word; lastCount = count;
+    target.textContent = '';
+    spacer.textContent = '';
+    if (!mobileMQ || !mobileMQ.matches || word.length <= MAX_LINE) {
+      target.textContent = word.slice(0, count);
+      return;
+    }
+    const lines = splitLines(word);
+    let started = 0;
+    lines.forEach((line, index) => {
+      if (index > 0 && count <= line.start) return;
+      if (index > 0) target.appendChild(document.createElement('br'));
+      target.appendChild(document.createTextNode(word.slice(line.start, Math.min(count, line.end))));
+      started++;
+    });
+    // Giữ sẵn chiều cao của các dòng chưa gõ để khối chữ không bị xê dịch lên xuống
+    for (let k = started; k < lines.length; k++) {
+      spacer.appendChild(document.createElement('br'));
+      spacer.appendChild(document.createTextNode('\u200b'));
+    }
+  };
+  if (mobileMQ) {
+    const onChange = () => render(lastWord, lastCount);
+    if (mobileMQ.addEventListener) mobileMQ.addEventListener('change', onChange); else if (mobileMQ.addListener) mobileMQ.addListener(onChange);
+  }
   window.__setHeroTypewriterWords = list => {
     if (!Array.isArray(list) || !list.length) return;
     words.splice(0, words.length, ...list);
-    if (resetWords) resetWords(); else target.textContent = words[0];
+    if (resetWords) resetWords(); else render(words[0], words[0].length);
   };
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    target.textContent = words[0];
+    render(words[0], words[0].length);
     return;
   }
+  render(words[0], words[0].length);
   let wordIndex = 0;
   let charIndex = words[0].length;
   let deleting = false;
-  resetWords = () => { wordIndex = 0; charIndex = words[0].length; deleting = false; target.textContent = words[0]; };
+  resetWords = () => { wordIndex = 0; charIndex = words[0].length; deleting = false; render(words[0], words[0].length); };
   const type = () => {
     const word = words[wordIndex];
     if (tvLine) tvLine.classList.remove('tv-glitch');
-    target.textContent = word.slice(0, charIndex);
+    render(word, charIndex);
     let delay = deleting ? 48 : 105;
     if (!deleting && charIndex === word.length) {
       delay = 1350;
