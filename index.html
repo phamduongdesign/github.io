@@ -137,7 +137,8 @@ h1 em { font-family:Georgia,serif; font-weight:400; letter-spacing:-.04em; }
 .detail-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; border-top:1px solid rgba(41,41,35,.18); border-bottom:1px solid rgba(41,41,35,.18); padding:18px 0; margin-bottom:22px; text-align:left; }
 .detail-meta small { display:block; color:#77766f; font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; }
 .detail-meta strong { font-size:12px; font-weight:550; }
-.detail-hero-art { position:relative; display:block; width:100%; border-radius:calc(8px * var(--site-radius-scale)); overflow:hidden; background:transparent !important; line-height:0; font-size:0; }\n.detail-hero-art img { position:static !important; inset:auto !important; display:block !important; width:100% !important; height:auto !important; max-width:100% !important; max-height:none !important; margin:0 !important; padding:0 !important; border:0 !important; object-fit:contain !important; vertical-align:top; }
+.detail-hero-art { position:relative; display:block; width:100%; border-radius:calc(8px * var(--site-radius-scale)); overflow:hidden; background:transparent !important; line-height:0; font-size:0; }
+.detail-hero-art img { position:static !important; inset:auto !important; display:block !important; width:100% !important; height:auto !important; max-width:100% !important; max-height:none !important; margin:0 !important; padding:0 !important; border:0 !important; object-fit:contain !important; vertical-align:top; }
 .detail-hero-art { margin-bottom:38px; }
 .detail-hero-art svg { display:block; width:100%; height:auto; }
 .detail-story { display:none; }
@@ -347,6 +348,13 @@ loadHomepageSettings();
   }, 900);
 })();
 const filters = document.querySelectorAll('.filter');
+// Luôn mở trang ở đầu (Hero), trừ khi link trỏ thẳng tới một dự án (#project-N)
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+if (!/^#project-\d+$/.test(location.hash)) {
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  window.scrollTo(0, 0);
+  window.addEventListener('load', () => { if (!/^#project-\d+$/.test(location.hash)) window.scrollTo(0, 0); });
+}
 let projects = [...document.querySelectorAll('.project')];
 const count = document.getElementById('project-count');
 const homeSections = [...document.querySelectorAll('#home-hero, #work, #about, .contact')];
@@ -411,17 +419,17 @@ projects.forEach(project => {
   project.addEventListener('click', () => openProject(project));
   project.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openProject(project); } });
 });
-document.getElementById('detail-back').addEventListener('click', event => { event.preventDefault(); history.pushState({}, '', '#work'); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); });
+document.getElementById('detail-back').addEventListener('click', event => { event.preventDefault(); history.pushState({}, '', location.pathname + location.search); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); });
 document.addEventListener('click', event => {
   // The click on a project card opens the detail page; it is not an outside click.
   if (event.target.closest('.project')) return;
   if (!detailPage.classList.contains('active')) return;
   if (detailPage.contains(event.target)) return;
-  history.pushState({}, '', '#work');
+  history.pushState({}, '', location.pathname + location.search);
   showHome();
   document.getElementById('work').scrollIntoView({behavior:'smooth'});
 });
-document.querySelectorAll('.detail-back[href="#work"]').forEach(link => link.addEventListener('click', event => { if (link.id === 'detail-back') return; event.preventDefault(); history.pushState({}, '', '#work'); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); }));
+document.querySelectorAll('.detail-back[href="#work"]').forEach(link => link.addEventListener('click', event => { if (link.id === 'detail-back') return; event.preventDefault(); history.pushState({}, '', location.pathname + location.search); showHome(); document.getElementById('work').scrollIntoView({behavior:'smooth'}); }));
 document.querySelectorAll('[data-home-link]').forEach(link => link.addEventListener('click', () => { showHome(); }));
 document.getElementById('detail-next').addEventListener('click', () => openProject(projects[(activeProjectIndex + 1) % projects.length]));
 window.addEventListener('popstate', () => { const match = location.hash.match(/^#project-(\d+)$/); if (match && projects[Number(match[1]) - 1]) openProject(projects[Number(match[1]) - 1], false); else showHome(); });
