@@ -65,6 +65,15 @@ button { cursor: pointer; }
 .hero-typewriter-line { display:inline-flex; align-items:baseline; justify-content:center; max-width:100%; color:#fff; font-family:"DM Mono",monospace; font-size:clamp(72px,15vw,192px); font-weight:400; line-height:1.1; letter-spacing:-.045em; text-align:center; white-space:nowrap; }
 .hero-typewriter-cursor { display:inline-block; width:.065em; height:.9em; margin-left:.12em; background:currentColor; transform:translateY(.08em); animation:hero-cursor-blink .85s steps(1,end) infinite; }
 @keyframes hero-cursor-blink { 50% { opacity:0; } }
+/* Hiệu ứng TV màn hình cũ cho chữ chạy trên ảnh Hero: sọc ngang mảnh, lệch màu viền, loe sáng, nhấp nháy khi đang chạy, giật sau khi gõ xong */
+.hero-typewriter-line { padding:14px 22px; margin:-14px -22px; -webkit-mask-image:repeating-linear-gradient(to bottom,#000 0,#000 2px,transparent 2px,transparent 3px); mask-image:repeating-linear-gradient(to bottom,#000 0,#000 2px,transparent 2px,transparent 3px); filter:blur(.35px); text-shadow:-3.5px 0 rgba(255,32,80,.8), 3.5px 0 rgba(0,210,255,.8), 0 0 10px rgba(255,255,255,.4), 0 0 22px rgba(255,255,255,.2); animation:hero-tv-flicker 1s steps(1,end) infinite; }
+@supports (color: color-mix(in srgb, red 50%, blue)) { .hero-typewriter-line { text-shadow:-3.5px 0 rgba(255,32,80,.8), 3.5px 0 rgba(0,210,255,.8), 0 0 10px color-mix(in srgb, currentColor 55%, transparent), 0 0 22px color-mix(in srgb, currentColor 28%, transparent); } }
+.hero-typewriter-line.tv-glitch { animation:hero-tv-flicker 1s steps(1,end) infinite, hero-tv-glitch .35s steps(1,end) 1; }
+@keyframes hero-tv-flicker { 0% { opacity:1; } 14% { opacity:.72; } 20% { opacity:1; } 47% { opacity:.78; } 53% { opacity:1; } 76% { opacity:.7; } 82% { opacity:1; } 100% { opacity:1; } }
+@keyframes hero-tv-glitch { 0% { transform:translate(-6px,0) skewX(-8deg); } 25% { transform:translate(5px,1px) skewX(5deg); } 50% { transform:translate(-3px,0) skewX(-3deg); } 75% { transform:translate(2px,0) skewX(2deg); } 100% { transform:none; } }
+@media (max-width:620px) { .hero-typewriter .hero-typewriter-line { width:calc(100% + 44px); max-width:calc(100% + 44px); filter:blur(.3px); text-shadow:-2px 0 rgba(255,32,80,.8), 2px 0 rgba(0,210,255,.8), 0 0 8px rgba(255,255,255,.4), 0 0 16px rgba(255,255,255,.2); } }
+@media (max-width:620px) { @supports (color: color-mix(in srgb, red 50%, blue)) { .hero-typewriter .hero-typewriter-line { text-shadow:-2px 0 rgba(255,32,80,.8), 2px 0 rgba(0,210,255,.8), 0 0 8px color-mix(in srgb, currentColor 55%, transparent), 0 0 16px color-mix(in srgb, currentColor 28%, transparent); } } }
+@media (prefers-reduced-motion:reduce) { .hero-typewriter-line, .hero-typewriter-line.tv-glitch { animation:none; } }
 .eyebrow { display:flex; align-items:center; gap:12px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#77766f; }
 .eyebrow:before { content:""; width:28px; height:1px; background:currentColor; }
 h1 { max-width:1000px; margin:26px 0 24px; font-family:var(--site-font-heading); font-size:clamp(48px, 8.2vw, 112px); font-weight:500; line-height:.96; letter-spacing:-.045em; white-space:pre-line; }
@@ -334,6 +343,7 @@ loadHomepageSettings();
 (() => {
   const target = document.getElementById('hero-typewriter-text');
   if (!target) return;
+  const tvLine = target.closest('.hero-typewriter-line');
   const words = ['Layout', 'Brand identity', 'eMagazine', 'Digital', 'Print'];
   let resetWords = null;
   window.__setHeroTypewriterWords = list => {
@@ -351,11 +361,13 @@ loadHomepageSettings();
   resetWords = () => { wordIndex = 0; charIndex = words[0].length; deleting = false; target.textContent = words[0]; };
   const type = () => {
     const word = words[wordIndex];
+    if (tvLine) tvLine.classList.remove('tv-glitch');
     target.textContent = word.slice(0, charIndex);
     let delay = deleting ? 48 : 105;
     if (!deleting && charIndex === word.length) {
       delay = 1350;
       deleting = true;
+      if (tvLine) window.setTimeout(() => tvLine.classList.add('tv-glitch'), 1000);
     } else if (deleting && charIndex === 0) {
       deleting = false;
       wordIndex = (wordIndex + 1) % words.length;
