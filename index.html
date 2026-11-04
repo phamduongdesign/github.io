@@ -50,7 +50,14 @@ button { cursor: pointer; }
 .nav a { transition:color .2s ease; }
 .nav a:hover, .nav a:focus-visible { color:var(--site-accent); }
 .availability { display:flex; align-items:center; gap:8px; font-size:11px; color:#68685f; white-space:nowrap; }
-.dot { width:6px; height:6px; border-radius:50%; background:#7c8c68; box-shadow:0 0 0 4px rgba(124,140,104,.12); }
+.dot { position:relative; flex:0 0 6px; width:6px; height:6px; }
+.dot::before { content:""; position:absolute; inset:-9px; border-radius:50%; background:radial-gradient(circle, rgba(46,224,111,.5) 0%, rgba(46,224,111,.18) 40%, rgba(46,224,111,0) 70%); animation:avail-glow 2.4s ease-in-out infinite; pointer-events:none; }
+.dot::after { content:""; position:absolute; inset:0; border-radius:50%; background:#2ee06f; box-shadow:0 0 4px 1px rgba(46,224,111,.95), 0 0 0 0 rgba(46,224,111,.55); animation:avail-pulse 2.4s ease-out infinite; }
+.dot.is-off::before { display:none; }
+.dot.is-off::after { background:#b8b7ae; box-shadow:none; animation:none; }
+@keyframes avail-glow { 0%,100% { transform:scale(.8); opacity:.65; } 50% { transform:scale(1.1); opacity:1; } }
+@keyframes avail-pulse { 0% { box-shadow:0 0 4px 1px rgba(46,224,111,.95), 0 0 0 0 rgba(46,224,111,.55); } 70%,100% { box-shadow:0 0 4px 1px rgba(46,224,111,.95), 0 0 0 6px rgba(46,224,111,0); } }
+@media (prefers-reduced-motion:reduce) { .dot::before, .dot::after { animation:none; } }
 .hero { padding: 0 0 70px; }
 .hero-image { position:relative; display:block; width:100vw; max-width:none; height:calc(100svh - 78px); min-height:420px; margin:0 0 42px calc(50% - 50vw); overflow:hidden; background:#dce5e9; }
 .hero-image img { display:block; width:100%; height:100%; object-fit:cover; object-position:center 48%; opacity:0; transition:opacity .2s ease; } .hero-image img.is-ready { opacity:1; }
@@ -174,7 +181,7 @@ img { -webkit-user-drag:none; user-drag:none; -webkit-user-select:none; user-sel
   <header class="topbar wrap">
     <a class="brand" href="#top" aria-label="Pham Duong home"><span class="brand-mark" id="brand-avatar">PD</span><span>PHAM DUONG®</span></a>
     <nav class="nav" aria-label="Main navigation"><a href="#work" data-home-link>Selected work</a><a href="#about" data-home-link>About</a><a href="#contact" data-home-link>Contact</a></nav>
-    <div class="availability"><span class="dot"></span> Available for selected projects</div>
+    <div class="availability"><span class="dot"></span><span id="availability-text">Available for work</span></div>
   </header>
   <main>
     <section class="hero wrap" id="home-hero">
@@ -412,6 +419,33 @@ loadHomepageSettings();
     const fresh = JSON.stringify(data.hero_typewriter);
     if (fresh === cached) return;
     apply(data.hero_typewriter);
+    try { localStorage.setItem(CACHE_KEY, fresh); } catch (error) {}
+  }).catch(() => {});
+})();
+// Dòng trạng thái góc phải trên cùng (Available for work): chữ và đèn lấy từ Admin (cột availability)
+(() => {
+  const CACHE_KEY = 'phamduong_availability';
+  const box = document.querySelector('.availability');
+  const label = document.getElementById('availability-text');
+  const dot = box && box.querySelector('.dot');
+  if (!box || !label || !dot) return;
+  const apply = cfg => {
+    if (!cfg || typeof cfg !== 'object') return;
+    if (typeof cfg.text === 'string') {
+      const text = cfg.text.trim();
+      box.style.display = text ? '' : 'none';
+      if (text) label.textContent = text;
+    }
+    dot.classList.toggle('is-off', cfg.light === 'off');
+    dot.style.display = cfg.light === 'hidden' ? 'none' : '';
+  };
+  let cached = null;
+  try { cached = localStorage.getItem(CACHE_KEY); if (cached) apply(JSON.parse(cached)); } catch (error) {}
+  supabaseClient.from('site_settings').select('availability').eq('id', 'homepage').maybeSingle().then(({ data, error }) => {
+    if (error || !data || !data.availability) return;
+    const fresh = JSON.stringify(data.availability);
+    if (fresh === cached) return;
+    apply(data.availability);
     try { localStorage.setItem(CACHE_KEY, fresh); } catch (error) {}
   }).catch(() => {});
 })();
