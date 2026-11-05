@@ -58,6 +58,11 @@ input[type=checkbox]{width:auto}
 .cms-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px}
 .cms-group{border-top:1px solid var(--line);padding-top:18px;margin-top:24px}
 .cms-group h3{font-size:14px;margin:0 0 8px}
+#heroForm>.cms-group:first-child{border-top:0;margin-top:0;padding-top:0}
+#heroForm .cms-group{margin-top:56px;padding-top:32px}
+#heroForm>.cms-group:first-child{margin-top:0}
+#heroForm .cms-group>h3{margin-bottom:10px}
+#heroForm .actions{margin-top:44px}
 .cms-note{background:#f5f4ef;padding:12px 14px;font-size:12px;line-height:1.65;color:#62645b;margin:14px 0}
 .color-field{display:grid;grid-template-columns:54px 1fr;gap:10px;align-items:center}
 .color-field input[type=color]{width:54px;height:42px;padding:4px;cursor:pointer}
@@ -158,27 +163,32 @@ input[type=checkbox]{width:auto}
     <h2>Trang chủ & Hero</h2>
     <p class="tab-help">Quản lý nội dung xuất hiện ở phần đầu trang chủ. Mỗi trường đều có chú thích vị trí hiển thị. Lưu ý: cần tạo bảng site_settings trong Supabase theo hướng dẫn sau khi cập nhật file.</p>
     <form id="heroForm">
-      <label>Ảnh Hero — ảnh ngang lớn đầu trang</label>
-      <input id="heroImageFile" type="file" accept="image/*">
-      <small class="upload-note">Đề xuất 2400 × 1000 px hoặc tỷ lệ 2.4:1 · JPG/WebP · khoảng 300–700 KB. Đây là ảnh banner lớn ngay dưới thanh menu.</small>
-      <div id="heroImageInfo" class="file-check" aria-live="polite"></div>
-      <img id="heroImagePreview" class="preview" alt="Xem trước ảnh Hero">
-      <label>Eyebrow — dòng chữ nhỏ phía trên tiêu đề</label>
-      <input id="heroEyebrow" placeholder="Independent graphic designer · Vietnam">
-      <small class="field-help">Vị trí: ngay trên tiêu đề lớn, ví dụ lĩnh vực chuyên môn hoặc địa điểm.</small>
-      <label>Tiêu đề chính Hero</label>
-      <textarea id="heroHeadline" placeholder="Ideas made visible, with intent."></textarea>
-      <small class="field-help">Vị trí: tiêu đề lớn nhất trên trang chủ. Có thể xuống dòng bằng cách xuống dòng trong ô này.</small>
-      <label>Mô tả ngắn Hero</label>
-      <textarea id="heroIntro" placeholder="Giới thiệu ngắn về định hướng thiết kế của bạn..."></textarea>
-      <small class="field-help">Vị trí: đoạn giới thiệu nằm dưới tiêu đề, phía bên trái.</small>
-      <label>Thông tin chuyên môn</label>
-      <input id="heroMetaTitle" placeholder="Graphic Design & Art Direction">
-      <small class="field-help">Vị trí: dòng chữ đậm bên phải phần giới thiệu.</small>
-      <label>Các lĩnh vực / địa điểm</label>
-      <textarea id="heroMetaLines" placeholder="Editorial · Identity · Digital&#10;Ho Chi Minh City, VN"></textarea>
-      <small class="field-help">Vị trí: các dòng thông tin nhỏ bên phải phần giới thiệu.</small>
-      <div class="cms-group" style="margin-top:30px">
+      <div class="cms-group">
+        <h3>Dòng trạng thái góc phải trên cùng trang chủ</h3>
+        <small class="field-help">Dòng chữ kèm đèn nhỏ cạnh menu ở đầu trang chủ, ví dụ “Available for work”.</small>
+        <style>.av-dot{position:relative;flex:0 0 6px;width:6px;height:6px}.av-dot::before{content:"";position:absolute;inset:-9px;border-radius:50%;background:radial-gradient(circle,rgba(46,224,111,.5) 0%,rgba(46,224,111,.18) 40%,rgba(46,224,111,0) 70%);animation:av-glow 2.4s ease-in-out infinite}.av-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:#2ee06f;box-shadow:0 0 4px 1px rgba(46,224,111,.95),0 0 0 0 rgba(46,224,111,.55);animation:av-pulse 2.4s ease-out infinite}.av-dot.off::before{display:none}.av-dot.off::after{background:#b8b7ae;box-shadow:none;animation:none}@keyframes av-glow{0%,100%{transform:scale(.8);opacity:.65}50%{transform:scale(1.1);opacity:1}}@keyframes av-pulse{0%{box-shadow:0 0 4px 1px rgba(46,224,111,.95),0 0 0 0 rgba(46,224,111,.55)}70%,100%{box-shadow:0 0 4px 1px rgba(46,224,111,.95),0 0 0 6px rgba(46,224,111,0)}}</style>
+        <label>Chữ hiển thị</label>
+        <input id="availText" maxlength="60" placeholder="Available for work">
+        <small class="field-help">Để trống nếu muốn ẩn cả dòng này (cả chữ lẫn đèn).</small>
+        <label>Đèn</label>
+        <select id="availLight"><option value="on">Bật — xanh sáng, nhấp nháy</option><option value="off">Tắt — chấm xám đứng yên</option><option value="hidden">Ẩn đèn — chỉ hiện chữ</option></select>
+        <div class="actions" style="margin-top:12px;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn secondary" id="availPresetOpen">Đặt: đang nhận việc</button>
+          <button type="button" class="btn secondary" id="availPresetBusy">Đặt: kín lịch</button>
+        </div>
+        <label>Xem trước</label>
+        <div style="background:#f6f4ef;padding:22px 20px;display:flex;justify-content:flex-end;border:1px solid var(--line)"><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#68685f;white-space:nowrap;padding-left:12px"><span class="av-dot" id="availPreviewDot"></span><span id="availPreviewText">Available for work</span></div></div>
+      </div>
+      <div class="cms-group">
+        <h3>Ảnh Hero</h3>
+        <small class="field-help">Ảnh banner lớn ngay dưới thanh menu. Chữ chạy trên ảnh nằm ngay bên dưới.</small>
+        <label>Ảnh Hero — ảnh ngang lớn đầu trang</label>
+        <input id="heroImageFile" type="file" accept="image/*">
+        <small class="upload-note">Đề xuất 2400 × 1000 px hoặc tỷ lệ 2.4:1 · JPG/WebP · khoảng 300–700 KB. Đây là ảnh banner lớn ngay dưới thanh menu.</small>
+        <div id="heroImageInfo" class="file-check" aria-live="polite"></div>
+        <img id="heroImagePreview" class="preview" alt="Xem trước ảnh Hero">
+      </div>
+      <div class="cms-group">
         <h3>Chữ chạy trên ảnh Hero</h3>
         <small class="field-help">Dòng chữ lớn tự gõ – xóa nằm giữa ảnh Hero ở đầu trang chủ.</small>
         <label>Nội dung chữ chạy</label>
@@ -201,21 +211,24 @@ input[type=checkbox]{width:auto}
         <label>Xem trước</label>
         <div id="heroTypePreview" style="background:#1f2a44;color:#fff;padding:34px 20px;text-align:center;font:400 44px/1.1 'DM Mono',monospace;letter-spacing:-.045em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">Layout</div>
       </div>
-      <div class="cms-group" style="margin-top:30px">
-        <h3>Dòng trạng thái góc phải trên cùng trang chủ</h3>
-        <small class="field-help">Dòng chữ kèm đèn nhỏ cạnh menu ở đầu trang chủ, ví dụ “Available for work”.</small>
-        <style>.av-dot{position:relative;flex:0 0 6px;width:6px;height:6px}.av-dot::before{content:"";position:absolute;inset:-9px;border-radius:50%;background:radial-gradient(circle,rgba(46,224,111,.5) 0%,rgba(46,224,111,.18) 40%,rgba(46,224,111,0) 70%);animation:av-glow 2.4s ease-in-out infinite}.av-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:#2ee06f;box-shadow:0 0 4px 1px rgba(46,224,111,.95),0 0 0 0 rgba(46,224,111,.55);animation:av-pulse 2.4s ease-out infinite}.av-dot.off::before{display:none}.av-dot.off::after{background:#b8b7ae;box-shadow:none;animation:none}@keyframes av-glow{0%,100%{transform:scale(.8);opacity:.65}50%{transform:scale(1.1);opacity:1}}@keyframes av-pulse{0%{box-shadow:0 0 4px 1px rgba(46,224,111,.95),0 0 0 0 rgba(46,224,111,.55)}70%,100%{box-shadow:0 0 4px 1px rgba(46,224,111,.95),0 0 0 6px rgba(46,224,111,0)}}</style>
-        <label>Chữ hiển thị</label>
-        <input id="availText" maxlength="60" placeholder="Available for work">
-        <small class="field-help">Để trống nếu muốn ẩn cả dòng này (cả chữ lẫn đèn).</small>
-        <label>Đèn</label>
-        <select id="availLight"><option value="on">Bật — xanh sáng, nhấp nháy</option><option value="off">Tắt — chấm xám đứng yên</option><option value="hidden">Ẩn đèn — chỉ hiện chữ</option></select>
-        <div class="actions" style="margin-top:12px;gap:8px;flex-wrap:wrap">
-          <button type="button" class="btn secondary" id="availPresetOpen">Đặt: đang nhận việc</button>
-          <button type="button" class="btn secondary" id="availPresetBusy">Đặt: kín lịch</button>
-        </div>
-        <label>Xem trước</label>
-        <div style="background:#f6f4ef;padding:22px 20px;display:flex;justify-content:flex-end;border:1px solid var(--line)"><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#68685f;white-space:nowrap;padding-left:12px"><span class="av-dot" id="availPreviewDot"></span><span id="availPreviewText">Available for work</span></div></div>
+      <div class="cms-group">
+        <h3>Tiêu đề & mô tả Hero</h3>
+        <small class="field-help">Các dòng chữ nằm dưới ảnh Hero, theo thứ tự hiển thị trên trang chủ.</small>
+        <label>Eyebrow — dòng chữ nhỏ phía trên tiêu đề</label>
+        <input id="heroEyebrow" placeholder="Independent graphic designer · Vietnam">
+        <small class="field-help">Vị trí: ngay trên tiêu đề lớn, ví dụ lĩnh vực chuyên môn hoặc địa điểm.</small>
+        <label>Tiêu đề chính Hero</label>
+        <textarea id="heroHeadline" placeholder="Ideas made visible, with intent."></textarea>
+        <small class="field-help">Vị trí: tiêu đề lớn nhất trên trang chủ. Có thể xuống dòng bằng cách xuống dòng trong ô này.</small>
+        <label>Mô tả ngắn Hero</label>
+        <textarea id="heroIntro" placeholder="Giới thiệu ngắn về định hướng thiết kế của bạn..."></textarea>
+        <small class="field-help">Vị trí: đoạn giới thiệu nằm dưới tiêu đề, phía bên trái.</small>
+        <label>Thông tin chuyên môn</label>
+        <input id="heroMetaTitle" placeholder="Graphic Design & Art Direction">
+        <small class="field-help">Vị trí: dòng chữ đậm bên phải phần giới thiệu.</small>
+        <label>Các lĩnh vực / địa điểm</label>
+        <textarea id="heroMetaLines" placeholder="Editorial · Identity · Digital&#10;Ho Chi Minh City, VN"></textarea>
+        <small class="field-help">Vị trí: các dòng thông tin nhỏ bên phải phần giới thiệu.</small>
       </div>
       <div class="actions"><button class="btn" type="submit" id="saveHeroButton">Lưu nội dung trang chủ</button></div>
       <div id="heroMessage" aria-live="polite"></div>
