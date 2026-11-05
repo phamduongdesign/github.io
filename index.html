@@ -215,6 +215,25 @@ img { -webkit-user-drag:none; user-drag:none; -webkit-user-select:none; user-sel
 .nav, .availability, .eyebrow, .filter, .view-link, .skill, .contact-action, .detail-back, .detail-meta small, .detail-next .eyebrow { font-weight:500; }
 .hero-copy, .hero-meta, .section-sub, .project-type, .project-year, .about-text, .footer, .modal-description, .detail-summary, .detail-story p { font-weight:400; }
 .hero-meta strong, .section-title, .contact-label, .footer-phone, .detail-meta strong { font-weight:500; }
+/* Liquid hover: các mục đóng khung tròn có chất lỏng loang ra từ điểm chuột chạm vào, rút về điểm chuột rời đi.
+   Màu loang = màu xanh của mục đang chọn (--site-primary). Riêng nút trên nền xanh (Contact, mạng xã hội) loang màu sáng để nhìn thấy được.
+   Mép loang được làm mờ nhẹ (feather) và dùng easing ease-in-out để chuyển động liền mạch. */
+@media (hover:hover) and (pointer:fine) {
+  .filter, .skill, .contact-action, .footer-social a, .modal-close { position:relative; overflow:hidden; isolation:isolate; --liq-bg:var(--site-primary); --liq-fg:var(--site-on-primary); transition:background .2s ease, color .3s ease .14s, border-color .45s ease .06s; }
+  .contact-action, .footer-social a { --liq-bg:var(--site-on-primary); --liq-fg:var(--site-primary); }
+  .filter::after, .skill::after, .contact-action::after, .footer-social a::after, .modal-close::after { content:""; position:absolute; z-index:-1; left:calc(var(--lx,50%) - var(--ld,400px) / 2); top:calc(var(--ly,50%) - var(--ld,400px) / 2); width:var(--ld,400px); height:var(--ld,400px); border-radius:50%; background:radial-gradient(circle closest-side, var(--liq-bg) 84%, transparent 100%); transform:scale(0) translateZ(0); backface-visibility:hidden; pointer-events:none; will-change:transform; transition:transform .7s cubic-bezier(.4,0,.2,1); }
+  .filter:hover::after, .skill:hover::after, .contact-action:hover::after, .footer-social a:hover::after, .modal-close:hover::after { transform:scale(1) translateZ(0); transition:transform .85s cubic-bezier(.4,0,.15,1); }
+  .filter:hover, .skill:hover, .contact-action:hover, .footer-social a:hover, .modal-close:hover { background:transparent; color:var(--liq-fg); border-color:var(--liq-bg); transition:background .2s ease, color .3s ease .22s, border-color .45s ease .12s; }
+  .filter.active:hover { background:var(--site-primary); color:var(--site-on-primary); }
+  /* Chế độ "bình mực": JS vẽ hình khối mực (clip-path) mỗi khung hình — có sóng gợn ở mép khi đổ, và bị kéo thành giọt nhọn về phía chuột khi hút.
+     [data-liq] = đang loang/rút, [data-liq="full"] = đã phủ kín. */
+  html.liq-js :is(.filter, .skill, .contact-action, .footer-social a, .modal-close)::after,
+  html.liq-js :is(.filter, .skill, .contact-action, .footer-social a, .modal-close):hover::after { left:0; top:0; width:100%; height:100%; border-radius:0; background:var(--liq-bg); transform:none; transition:none; will-change:auto; clip-path:circle(0px at 50% 50%); }
+  html.liq-js :is(.filter, .skill, .contact-action, .footer-social a, .modal-close)[data-liq]::after,
+  html.liq-js :is(.filter, .skill, .contact-action, .footer-social a, .modal-close)[data-liq]:hover::after { clip-path:polygon(var(--lp)); }
+  html.liq-js :is(.filter, .skill, .contact-action, .footer-social a, .modal-close)[data-liq="full"]::after,
+  html.liq-js :is(.filter, .skill, .contact-action, .footer-social a, .modal-close)[data-liq="full"]:hover::after { clip-path:none; }
+}
 </style>
 </head>
 <body>
@@ -978,6 +997,127 @@ document.addEventListener('contextmenu', event => {
 });
 document.addEventListener('dragstart', event => { if (event.target.tagName === 'IMG') event.preventDefault(); });
 loadHomepageProjects();
+</script>
+<script>
+/* Liquid hover kiểu "bình mực": con chuột là bình mực.
+   - ĐỔ: chuột vào mục nào, mực chảy ra từ đúng điểm chuột, bám theo chuột; mép mực gợn sóng nhẹ như nước vừa đổ vào bình.
+   - HÚT: chuột rời mục (ra ngoài hoặc sang mục khác), mực bị kéo thành giọt có đầu nhọn hướng về con chuột rồi bị hút sạch;
+     mục mới nhận mực đổ ra từ điểm chuột chạm vào.
+   Thời gian giữ nguyên như bản cũ: loang vào 0.85s, rút ra 0.7s. */
+(function () {
+  if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  const SELECTOR = '.filter, .skill, .contact-action, .footer-social a, .modal-close';
+  const FILL_MS = 850, DRAIN_MS = 700;      // tốc độ loang / rút (giữ nguyên)
+  const FOLLOW_IN = 100, FOLLOW_OUT = 140;  // độ trễ mực bám theo chuột (ms)
+  const REACH = 1.15;                       // bán kính phủ kín = REACH × đường chéo mục (như bản cũ)
+  const N = 64, TAU = Math.PI * 2;
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches; // tắt sóng/giọt nếu người dùng giảm chuyển động
+  const bezier = (x1, y1, x2, y2) => {
+    const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+    const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+    const sx = t => ((ax * t + bx) * t + cx) * t, sy = t => ((ay * t + by) * t + cy) * t;
+    const dx = t => (3 * ax * t + 2 * bx) * t + cx;
+    return x => {
+      if (x <= 0) return 0; if (x >= 1) return 1;
+      let t = x;
+      for (let i = 0; i < 6; i++) { const e = sx(t) - x; if (Math.abs(e) < 1e-4) return sy(t); const d = dx(t); if (Math.abs(d) < 1e-6) break; t -= e / d; }
+      let lo = 0, hi = 1; t = x;
+      for (let i = 0; i < 20; i++) { const e = sx(t); if (Math.abs(e - x) < 1e-4) break; if (e < x) lo = t; else hi = t; t = (lo + hi) / 2; }
+      return sy(t);
+    };
+  };
+  const ease = bezier(.4, 0, .17, 1);
+  const states = new Map();
+  const ptr = { x: 0, y: 0 };
+  let running = false, last = 0;
+
+  /* Hình khối mực: đường tròn bán kính r0 quanh (lx,ly), cộng
+     - giọt nhọn: kéo dài về hướng phi (phía con chuột), thu hẹp phía sau  -> hiệu ứng HÚT
+     - sóng gợn: hai sóng chạy dọc mép, biên độ A                           -> hiệu ứng SÓNG NƯỚC */
+  const buildPath = (lx, ly, r0, S, phi, A, t) => {
+    const pts = new Array(N);
+    const tip = 0.6 * r0;
+    for (let i = 0; i < N; i++) {
+      const th = i / N * TAU;
+      let r = r0;
+      if (S > 0) {
+        const c = Math.cos(th - phi);
+        r = r0 * (1 - 0.2 * S * Math.max(0, -c)) + tip * S * Math.pow(Math.max(0, c), 6);
+      }
+      if (A > 0) r += A * (0.7 * Math.sin(3 * th - t * 7) + 0.3 * Math.sin(5 * th + t * 5 + 1.3));
+      if (r < 0) r = 0;
+      pts[i] = (lx + r * Math.cos(th)).toFixed(1) + 'px ' + (ly + r * Math.sin(th)).toFixed(1) + 'px';
+    }
+    return pts.join(',');
+  };
+  const clear = el => { el.removeAttribute('data-liq'); el.style.removeProperty('--lp'); };
+
+  const tick = now => {
+    const dt = Math.max(1, Math.min(now - last, 50)); last = now;
+    let busy = false;
+    states.forEach((st, el) => {
+      if (!el.isConnected) { states.delete(el); return; }
+      const hovered = el.matches(':hover');
+      if (hovered && st.p >= 1) return;                       // đã phủ kín, chờ chuột rời đi
+      st.p = Math.min(1, Math.max(0, st.p + (hovered ? dt / FILL_MS : -dt / DRAIN_MS)));
+      if (hovered && st.p >= 1) { el.setAttribute('data-liq', 'full'); el.style.removeProperty('--lp'); return; }
+      if (!hovered && st.p <= 0) { clear(el); states.delete(el); return; }
+
+      const k = 1 - Math.exp(-dt / (hovered ? FOLLOW_IN : FOLLOW_OUT));
+      st.cx += (ptr.x - st.cx) * k;
+      st.cy += (ptr.y - st.cy) * k;
+
+      const e = ease(st.p);
+      const speed = Math.abs(e - st.e) / dt; st.e = e;        // tốc độ mép mực -> quyết định độ mạnh của sóng
+      const aT = calm ? 0 : Math.min(1, speed * 300);
+      st.a += (aT - st.a) * (1 - Math.exp(-dt / (aT > st.a ? 60 : 160)));
+
+      const rect = el.getBoundingClientRect();
+      const r0 = e * Math.hypot(rect.width, rect.height) * REACH;
+      const lx = st.cx - rect.left - el.clientLeft, ly = st.cy - rect.top - el.clientTop;
+      const S = (hovered || calm) ? 0 : Math.min(1, (1 - e) * 3);                // chỉ giọt nhọn khi đang hút
+      const phi = Math.atan2(ptr.y - st.cy, ptr.x - st.cx);                      // hướng về con chuột
+      const A = Math.min(0.02 * r0 + 1, 0.07 * Math.min(rect.width, rect.height), 6) * st.a;
+
+      el.style.setProperty('--lp', buildPath(lx, ly, r0, S, phi, A, now / 1000));
+      if (el.getAttribute('data-liq') !== '1') el.setAttribute('data-liq', '1');
+      busy = true;
+    });
+    if (busy) requestAnimationFrame(tick); else running = false;
+  };
+  const start = () => { if (running) return; running = true; last = performance.now(); requestAnimationFrame(tick); };
+  const find = event => (event.target && event.target.closest ? event.target.closest(SELECTOR) : null);
+
+  document.addEventListener('pointermove', event => {
+    if (event.pointerType === 'touch') return;
+    ptr.x = event.clientX; ptr.y = event.clientY;
+  }, { passive: true });
+
+  document.addEventListener('pointerover', event => {
+    const el = find(event);
+    if (!el || event.pointerType === 'touch') return;
+    if (event.relatedTarget && el.contains(event.relatedTarget)) return;
+    ptr.x = event.clientX; ptr.y = event.clientY;
+    let st = states.get(el);
+    if (!st) { st = { p: 0, e: 0, a: 0, cx: ptr.x, cy: ptr.y }; states.set(el, st); }
+    else if (st.p < 0.02) { st.cx = ptr.x; st.cy = ptr.y; }
+    if (!calm) st.a = Math.max(st.a, 0.6);                    // "cú đổ" ban đầu: sóng mạnh nhất lúc mực vừa chạm vào
+    start();
+  }, true);
+
+  document.addEventListener('pointerout', event => {
+    const el = find(event);
+    if (!el || event.pointerType === 'touch') return;
+    if (event.relatedTarget && el.contains(event.relatedTarget)) return;
+    ptr.x = event.clientX; ptr.y = event.clientY;
+    const st = states.get(el);
+    if (!st) return;
+    if (st.p > 0.98) { st.cx = ptr.x; st.cy = ptr.y; }        // đang phủ kín: mực bắt đầu bị hút từ điểm chuột rời đi
+    start();
+  }, true);
+
+  document.documentElement.classList.add('liq-js');
+})();
 </script>
 </body>
 </html>
