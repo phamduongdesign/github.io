@@ -216,6 +216,16 @@ input[type=checkbox]{width:auto}
         <label>Hiệu ứng chữ</label>
         <select id="heroTypeEffect"><option value="type">Gõ chữ + glitch (hiện tại)</option><option value="scramble">Scramble — giải mã ký tự</option><option value="rgb">Tách màu RGB</option><option value="flip">Lật 3D</option><option value="wave">Sóng độ đậm</option><option value="magnet">Chữ né con trỏ</option><option value="blur">Blur-in từng chữ</option><option value="mask">Mask reveal — trượt lên</option></select>
         <small class="field-help">Kiểu chuyển động của chữ trên ảnh Hero. “Sóng độ đậm” dùng font Inter nếu bạn chưa chọn font riêng (font riêng cần là variable font mới có hiệu ứng đậm–mảnh). “Chữ né con trỏ”: desktop theo chuột, điện thoại tự chạy một vệt sáng ảo. Hai kiểu này tốn máy hơn các kiểu còn lại.</small>
+        <label>Vùng chữ chạy (máy tính)</label>
+        <select id="heroTypeArea"><option value="frame">Trong khung màn hình trên ảnh Hero</option><option value="full">Toàn ảnh Hero</option></select>
+        <small class="field-help">“Trong khung màn hình”: trên máy tính, chữ chỉ chạy trong khung đã đánh dấu (màn hình máy tính cũ trong ảnh Hero hiện tại), bám theo ảnh khi đổi kích thước cửa sổ. Nếu bạn đổi ảnh Hero khác thì chọn “Toàn ảnh Hero”. Điện thoại luôn chạy toàn ảnh.</small>
+        <label>Khung chữ chạy trên ảnh Hero (máy tính)</label>
+        <small class="field-help">Kéo khung đỏ cho trùng với vùng bạn muốn chữ chạy (ví dụ màn hình máy tính trong ảnh). Kéo chấm đỏ ở góc dưới phải để đổi kích thước. Xong bấm Lưu nội dung trang chủ. Khung được lưu theo tỷ lệ của bức ảnh nên luôn đúng chỗ trên mọi kích thước cửa sổ.</small>
+        <div id="heroFramePicker" style="position:relative;width:100%;max-width:640px;line-height:0;touch-action:none;user-select:none;-webkit-user-select:none;border:1px solid var(--line);margin-top:6px;display:none">
+          <img id="heroFrameImg" alt="" style="display:block;width:100%;height:auto;pointer-events:none">
+          <div id="heroFrameRect" style="position:absolute;border:2px solid #e11d1d;box-sizing:border-box;cursor:move;background:rgba(225,29,29,.1)"><span id="heroFrameHandle" style="position:absolute;right:-8px;bottom:-8px;width:16px;height:16px;border-radius:50%;background:#e11d1d;cursor:nwse-resize"></span></div>
+        </div>
+        <div class="actions" style="margin-top:10px"><button type="button" class="btn secondary" id="heroFrameReset">Đặt lại khung mặc định</button></div>
         <label>Màu chữ</label>
         <div class="color-field"><input id="heroTypeColor" type="color" value="#FFFFFF"><div class="color-swatch"><span id="heroTypeColorValue">#FFFFFF</span><span class="color-chip" id="heroTypeColorChip"></span></div></div>
         <label>Căn lề chữ</label>
@@ -758,6 +768,9 @@ function fillHeroTypewriter(cfg) {
   $('heroTypeColor').value = /^#[0-9a-f]{6}$/i.test(heroTypeCurrent.color || '') ? heroTypeCurrent.color : '#FFFFFF';
   $('heroTypeAlign').value = ['left','center','right'].includes(heroTypeCurrent.align) ? heroTypeCurrent.align : 'center';
   $('heroTypeEffect').value = ['type','scramble','rgb','flip','wave','magnet','blur','mask'].includes(heroTypeCurrent.effect) ? heroTypeCurrent.effect : 'type';
+  $('heroTypeArea').value = ['frame','full'].includes(heroTypeCurrent.area) ? heroTypeCurrent.area : 'frame';
+  heroFrame = validFrame(heroTypeCurrent.frame) ? heroTypeCurrent.frame : null;
+  paintFrameRect();
   $('heroTypeFont').value = heroTypeCurrent.font || '';
   $('heroTypeGoogleFont').value = heroTypeCurrent.google_font || '';
   refreshHeroTypeInfo();
@@ -770,6 +783,8 @@ async function saveHeroTypewriter() {
       color: $('heroTypeColor').value,
       align: $('heroTypeAlign').value,
       effect: $('heroTypeEffect').value,
+      area: $('heroTypeArea').value,
+      frame: heroFrame ? { x:+heroFrame.x.toFixed(4), y:+heroFrame.y.toFixed(4), w:+heroFrame.w.toFixed(4), h:+heroFrame.h.toFixed(4) } : null,
       font: '', google_font: '', font_url: '', font_name: ''
     };
     const file = $('heroTypeFontFile').files[0];
@@ -992,6 +1007,51 @@ $('availText').addEventListener('input', refreshAvailPreview);
 $('availLight').addEventListener('change', refreshAvailPreview);
 $('availPresetOpen').addEventListener('click', () => { $('availText').value = 'Available for work'; $('availLight').value = 'on'; refreshAvailPreview(); });
 $('availPresetBusy').addEventListener('click', () => { $('availText').value = 'Fully booked'; $('availLight').value = 'off'; refreshAvailPreview(); });
+
+// ===== Khung chữ chạy trên ảnh Hero: kéo thả trên ảnh, lưu theo tỷ lệ của ảnh =====
+let heroFrame = null;
+function defaultHeroFrame() {
+  const img = $('heroFrameImg'), nw = img.naturalWidth || 1920, nh = img.naturalHeight || 1080;
+  const k = Math.max(1903 / nw, 673 / nh), rw = nw * k, rh = nh * k, ox = (1903 - rw) * .5, oy = (673 - rh) * .48;
+  return { x:(775 - ox) / rw, y:(243 - oy) / rh, w:365 / rw, h:265 / rh };
+}
+function validFrame(value) {
+  return !!value && ['x', 'y', 'w', 'h'].every(key => typeof value[key] === 'number' && isFinite(value[key])) && value.w > .02 && value.h > .02 && value.x >= 0 && value.y >= 0 && value.x + value.w <= 1.001 && value.y + value.h <= 1.001;
+}
+function paintFrameRect() {
+  const rect = heroFrame || defaultHeroFrame(), el = $('heroFrameRect');
+  el.style.left = (rect.x * 100) + '%'; el.style.top = (rect.y * 100) + '%';
+  el.style.width = (rect.w * 100) + '%'; el.style.height = (rect.h * 100) + '%';
+}
+function refreshFramePicker() {
+  const src = $('heroImagePreview').getAttribute('src') || '';
+  if (src && $('heroFrameImg').getAttribute('src') !== src) $('heroFrameImg').setAttribute('src', src);
+  $('heroFramePicker').style.display = src ? 'block' : 'none';
+  paintFrameRect();
+}
+$('heroImagePreview').addEventListener('load', refreshFramePicker);
+$('heroFrameImg').addEventListener('load', paintFrameRect);
+(() => {
+  const picker = $('heroFramePicker'), rect = $('heroFrameRect'), handle = $('heroFrameHandle');
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  let drag = null;
+  rect.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    rect.setPointerCapture(event.pointerId);
+    const box = picker.getBoundingClientRect();
+    drag = { mode: event.target === handle ? 'resize' : 'move', x: event.clientX, y: event.clientY, start: Object.assign({}, heroFrame || defaultHeroFrame()), w: box.width, h: box.height };
+  });
+  rect.addEventListener('pointermove', event => {
+    if (!drag) return;
+    const dx = (event.clientX - drag.x) / drag.w, dy = (event.clientY - drag.y) / drag.h, s = drag.start;
+    heroFrame = drag.mode === 'move'
+      ? { x: clamp(s.x + dx, 0, 1 - s.w), y: clamp(s.y + dy, 0, 1 - s.h), w: s.w, h: s.h }
+      : { x: s.x, y: s.y, w: clamp(s.w + dx, .03, 1 - s.x), h: clamp(s.h + dy, .03, 1 - s.y) };
+    paintFrameRect();
+  });
+  ['pointerup', 'pointercancel'].forEach(type => rect.addEventListener(type, () => { drag = null; }));
+  $('heroFrameReset').addEventListener('click', () => { heroFrame = null; paintFrameRect(); });
+})();
 
 const cmsFields = ['aboutHeading','aboutEyebrow','aboutBody','aboutSkills','contactHeading','contactCta','contactEmail','contactPhone','contactLocation','socialZalo','socialInstagram','socialBehance','socialLinkedin','socialFacebook','themePrimary','themeAccent','themeBackground','themeText','themeFont','themeFontWeight','themeFontStyle','seoTitle','seoDescription','seoImage'];
 async function loadCmsSettings() {
