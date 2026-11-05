@@ -62,7 +62,7 @@ button { cursor: pointer; }
 .hero-image { position:relative; display:block; width:100vw; max-width:none; height:calc(100svh - 78px); min-height:420px; margin:0 0 56px calc(50% - 50vw); overflow:hidden; background:#dce5e9; }
 .hero-image img { display:block; width:100%; height:100%; object-fit:cover; object-position:center 48%; opacity:0; transition:opacity .2s ease; } .hero-image img.is-ready { opacity:1; }
 .hero-typewriter { position:absolute; inset:0; z-index:1; display:flex; align-items:center; justify-content:center; padding:24px; pointer-events:none; }
-.hero-typewriter-line { display:inline-flex; align-items:baseline; justify-content:center; max-width:100%; color:#fff; font-family:"DM Mono",monospace; font-size:clamp(72px,15vw,192px); font-weight:400; line-height:1.1; letter-spacing:-.045em; text-align:center; white-space:nowrap; }
+.hero-typewriter-line { display:block; max-width:100%; color:#fff; font-family:"DM Mono",monospace; font-size:clamp(72px,15vw,192px); font-weight:400; line-height:1.1; letter-spacing:-.045em; text-align:center; white-space:nowrap; }
 .hero-typewriter-cursor { display:inline-block; width:.065em; height:.9em; margin-left:.12em; background:currentColor; transform:translateY(.08em); animation:hero-cursor-blink .85s steps(1,end) infinite; }
 @keyframes hero-cursor-blink { 50% { opacity:0; } }
 /* Hiệu ứng TV màn hình cũ cho chữ chạy trên ảnh Hero: sọc ngang mảnh, lệch màu viền, loe sáng, nhấp nháy khi đang chạy, giật sau khi gõ xong */
@@ -211,6 +211,10 @@ img { -webkit-user-drag:none; user-drag:none; -webkit-user-select:none; user-sel
 .hero-typewriter-line.hx-wavefont { font-family:"Inter",sans-serif; letter-spacing:-.03em; }
 @media (max-width:620px) { .hx-b { filter:blur(8px); } }
 @media (prefers-reduced-motion:reduce) { .hx-rgb { animation:none; } }
+/* Độ đậm chữ mô tả: Regular / Medium, không dùng bold (không phụ thuộc độ đậm chung của trang) */
+.nav, .availability, .eyebrow, .filter, .view-link, .skill, .contact-action, .detail-back, .detail-meta small, .detail-next .eyebrow { font-weight:500; }
+.hero-copy, .hero-meta, .section-sub, .project-type, .project-year, .about-text, .footer, .modal-description, .detail-summary, .detail-story p { font-weight:400; }
+.hero-meta strong, .section-title, .contact-label, .footer-phone, .detail-meta strong { font-weight:500; }
 </style>
 </head>
 <body>
@@ -377,6 +381,7 @@ loadHomepageSettings();
   // con trỏ đi theo ký tự cuối: từ trên xuống dưới, từ trái qua phải.
   const MAX_LINE = 9;
   const mobileMQ = window.matchMedia ? window.matchMedia('(max-width: 620px)') : null;
+  const wrapOn = () => !!((mobileMQ && mobileMQ.matches) || (window.__heroFrameOn && window.__heroFrameOn()));
   const cursorEl = tvLine ? tvLine.querySelector('.hero-typewriter-cursor') : null;
   const spacer = document.createElement('span');
   spacer.setAttribute('aria-hidden', 'true');
@@ -411,7 +416,7 @@ loadHomepageSettings();
     lastWord = word; lastCount = count;
     target.textContent = '';
     spacer.textContent = '';
-    if (!mobileMQ || !mobileMQ.matches || word.length <= MAX_LINE) {
+    if (!wrapOn() || word.length <= MAX_LINE) {
       target.textContent = word.slice(0, count);
       return;
     }
@@ -441,7 +446,7 @@ loadHomepageSettings();
   const area = tvLine && tvLine.parentElement;
   if (area && 'IntersectionObserver' in window) new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; }).observe(area);
   const nextWord = () => words[wordPos++ % words.length];
-  const linesOf = word => (mobileMQ && mobileMQ.matches && word.length > MAX_LINE) ? splitLines(word).map(line => word.slice(line.start, line.end)) : [word];
+  const linesOf = word => (wrapOn() && word.length > MAX_LINE) ? splitLines(word).map(line => word.slice(line.start, line.end)) : [word];
   const mk = (ch, cls) => { const el = document.createElement('span'); el.className = cls; el.textContent = ch === ' ' ? '\u00a0' : ch; return el; };
   const build = (word, make) => {
     const wrap = document.createElement('span');
@@ -637,8 +642,93 @@ loadHomepageSettings();
     effect = next;
     schedule();
   };
+  window.__getHeroTypewriterLines = () => words.map(linesOf);
+  window.__heroTypewriterRefresh = schedule;
   render(words[0], words[0].length);
   start();
+})();
+// Khung chữ chạy (máy tính): chữ chỉ chạy trong khung đã đánh dấu trên ảnh Hero (màn hình CRT) và bám theo ảnh khi đổi kích thước cửa sổ
+(() => {
+  const hero = document.querySelector('.hero-image');
+  const img = document.getElementById('hero-image');
+  const box = document.querySelector('.hero-typewriter');
+  const line = document.querySelector('.hero-typewriter-line');
+  if (!hero || !img || !box || !line) return;
+  // Khung chữ chạy tính theo TỶ LỆ của chính bức ảnh Hero (x, y, rộng, cao từ 0 đến 1) nên luôn bám đúng vị trí dù cửa sổ rộng hay hẹp.
+  // Đặt khung trong Admin → Chữ chạy trên ảnh Hero → Khung chữ chạy. Khi chưa đặt, dùng khung mặc định (màn hình máy tính trong ảnh Hero hiện tại).
+  let frameRect = null;
+  const defaultFrame = (nw, nh, px, py) => {
+    const k = Math.max(1903 / nw, 673 / nh), rw = nw * k, rh = nh * k, ox = (1903 - rw) * px, oy = (673 - rh) * py;
+    return { x:(775 - ox) / rw, y:(243 - oy) / rh, w:365 / rw, h:265 / rh };
+  };
+  const mobileMQ = window.matchMedia ? window.matchMedia('(max-width: 620px)') : null;
+  let area = 'frame', active = false, canvas = null;
+  const isMobile = () => !!(mobileMQ && mobileMQ.matches);
+  const cover = (cw, ch, nw, nh, px, py) => { const k = Math.max(cw / nw, ch / nh), rw = nw * k, rh = nh * k; return { ox:(cw - rw) * px, oy:(ch - rh) * py, rw, rh }; };
+  const imagePosition = () => {
+    const parts = (getComputedStyle(img).objectPosition || '50% 50%').split(/\s+/);
+    const num = (value, fallback) => /%$/.test(value || '') ? parseFloat(value) / 100 : fallback;
+    return [num(parts[0], .5), num(parts[1], .5)];
+  };
+  const fit = (W, H) => {
+    const lines = window.__getHeroTypewriterLines ? window.__getHeroTypewriterLines() : [['Layout']];
+    const cs = getComputedStyle(line);
+    canvas = canvas || document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.font = (cs.fontWeight || '400') + ' 100px ' + cs.fontFamily;
+    let em = 1, rows = 1;
+    lines.forEach(parts => {
+      rows = Math.max(rows, parts.length);
+      parts.forEach(text => { em = Math.max(em, (ctx.measureText(text).width - 4.5 * text.length) / 100); });
+    });
+    const availW = Math.min(W * .84, W - 44);
+    return Math.max(14, Math.min(availW / (em + .2), H * .78 / (rows * 1.1), 140));
+  };
+  const turnOff = () => {
+    if (!active) return;
+    active = false;
+    ['inset', 'left', 'top', 'width', 'height', 'padding'].forEach(prop => { box.style[prop] = ''; });
+    line.style.fontSize = '';
+    if (window.__heroPlace) window.__heroPlace();
+    if (window.__heroTypewriterRefresh) window.__heroTypewriterRefresh();
+  };
+  const layout = () => {
+    const wants = area === 'frame' && !isMobile();
+    if (wants && !(img.naturalWidth > 0)) return; // chờ ảnh Hero tải xong
+    if (!wants) { turnOff(); box.style.visibility = ''; return; }
+    const cw = hero.clientWidth, ch = hero.clientHeight, nw = img.naturalWidth, nh = img.naturalHeight;
+    if (!cw || !ch) return;
+    const [px, py] = imagePosition();
+    const b = cover(cw, ch, nw, nh, px, py);
+    const f = frameRect || defaultFrame(nw, nh, px, py);
+    const X = b.ox + f.x * b.rw, Y = b.oy + f.y * b.rh, W = f.w * b.rw, H = f.h * b.rh;
+    const wasActive = active;
+    active = true;
+    box.style.inset = 'auto';
+    box.style.left = X.toFixed(1) + 'px';
+    box.style.top = Y.toFixed(1) + 'px';
+    box.style.width = W.toFixed(1) + 'px';
+    box.style.height = H.toFixed(1) + 'px';
+    box.style.padding = '0';
+    line.style.fontSize = fit(W, H).toFixed(1) + 'px';
+    box.style.visibility = '';
+    if (!wasActive && window.__heroTypewriterRefresh) window.__heroTypewriterRefresh();
+  };
+  window.__heroFrameOn = () => active;
+  window.__heroFrameLayout = layout;
+  window.__setHeroFrameRect = value => {
+    const ok = value && ['x', 'y', 'w', 'h'].every(key => typeof value[key] === 'number' && isFinite(value[key])) && value.w > .02 && value.h > .02 && value.x >= 0 && value.y >= 0 && value.x + value.w <= 1.001 && value.y + value.h <= 1.001;
+    frameRect = ok ? { x:value.x, y:value.y, w:value.w, h:value.h } : null;
+    layout();
+  };
+  window.__setHeroTypewriterArea = value => { area = value === 'full' ? 'full' : 'frame'; layout(); };
+  if (!isMobile()) { box.style.visibility = 'hidden'; window.setTimeout(() => { box.style.visibility = ''; }, 3000); }
+  img.addEventListener('load', layout);
+  window.addEventListener('resize', layout);
+  if (window.ResizeObserver) new ResizeObserver(layout).observe(hero);
+  if (mobileMQ) { if (mobileMQ.addEventListener) mobileMQ.addEventListener('change', layout); else if (mobileMQ.addListener) mobileMQ.addListener(layout); }
+  if (document.fonts) { if (document.fonts.ready) document.fonts.ready.then(layout); if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', layout); }
+  layout();
 })();
 // Chữ chạy trên ảnh Hero: nội dung, màu và font lấy từ Admin (cột hero_typewriter)
 (() => {
@@ -649,11 +739,13 @@ loadHomepageSettings();
   const place = () => {
     const box = document.querySelector('.hero-typewriter'), hero = document.getElementById('home-hero');
     if (!box || !hero) return;
+    if (window.__heroFrameOn && window.__heroFrameOn()) return;
     const b = box.getBoundingClientRect(), h = hero.getBoundingClientRect();
     if (!b.width || !h.width) return;
     box.style.paddingLeft = currentAlign === 'left' ? Math.max(0, Math.round(h.left - b.left)) + 'px' : '';
     box.style.paddingRight = currentAlign === 'right' ? Math.max(0, Math.round(b.right - h.right)) + 'px' : '';
   };
+  window.__heroPlace = place;
   window.addEventListener('resize', place);
   window.addEventListener('load', place);
   if (window.ResizeObserver && document.getElementById('home-hero')) new ResizeObserver(place).observe(document.getElementById('home-hero'));
@@ -668,6 +760,8 @@ loadHomepageSettings();
     if (/^#[0-9a-f]{3,8}$/i.test(cfg.color || '')) line.style.color = cfg.color;
     const alignMap = { left:'flex-start', center:'center', right:'flex-end' };
     if (alignMap[cfg.align]) { line.parentElement.style.justifyContent = alignMap[cfg.align]; line.style.textAlign = cfg.align; currentAlign = cfg.align; place(); }
+    if ((cfg.area === 'frame' || cfg.area === 'full') && window.__setHeroTypewriterArea) window.__setHeroTypewriterArea(cfg.area);
+    if (window.__setHeroFrameRect) window.__setHeroFrameRect(cfg.frame);
     const fallback = ', "DM Mono", monospace';
     if (cfg.font_url && cfg.font_name && /^https:\/\//.test(cfg.font_url)) {
       const name = clean(cfg.font_name);
@@ -682,6 +776,7 @@ loadHomepageSettings();
     } else if (clean(cfg.font)) {
       line.style.fontFamily = "'" + clean(cfg.font) + "'" + fallback;
     }
+    if (window.__heroFrameLayout) window.__heroFrameLayout();
   };
   let cached = null;
   try { cached = localStorage.getItem(CACHE_KEY); if (cached) apply(JSON.parse(cached)); } catch (error) {}
