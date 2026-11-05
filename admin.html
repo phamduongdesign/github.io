@@ -194,6 +194,9 @@ input[type=checkbox]{width:auto}
         <label>Nội dung chữ chạy</label>
         <textarea id="heroTypeWords" placeholder="Layout&#10;Brand identity&#10;eMagazine&#10;Digital&#10;Print"></textarea>
         <small class="field-help">Mỗi dòng là một từ/cụm từ, chữ sẽ lần lượt gõ và xóa theo thứ tự (tối đa 12 dòng). Để trống nếu muốn giữ nội dung mặc định.</small>
+        <label>Hiệu ứng chữ</label>
+        <select id="heroTypeEffect"><option value="type">Gõ chữ + glitch (hiện tại)</option><option value="scramble">Scramble — giải mã ký tự</option><option value="rgb">Tách màu RGB</option><option value="flip">Lật 3D</option><option value="wave">Sóng độ đậm</option><option value="magnet">Chữ né con trỏ</option><option value="blur">Blur-in từng chữ</option><option value="mask">Mask reveal — trượt lên</option></select>
+        <small class="field-help">Kiểu chuyển động của chữ trên ảnh Hero. “Sóng độ đậm” dùng font Inter nếu bạn chưa chọn font riêng (font riêng cần là variable font mới có hiệu ứng đậm–mảnh). “Chữ né con trỏ”: desktop theo chuột, điện thoại tự chạy một vệt sáng ảo. Hai kiểu này tốn máy hơn các kiểu còn lại.</small>
         <label>Màu chữ</label>
         <div class="color-field"><input id="heroTypeColor" type="color" value="#FFFFFF"><div class="color-swatch"><span id="heroTypeColorValue">#FFFFFF</span><span class="color-chip" id="heroTypeColorChip"></span></div></div>
         <label>Căn lề chữ</label>
@@ -731,6 +734,7 @@ function fillHeroTypewriter(cfg) {
   $('heroTypeWords').value = Array.isArray(heroTypeCurrent.words) ? heroTypeCurrent.words.join('\n') : '';
   $('heroTypeColor').value = /^#[0-9a-f]{6}$/i.test(heroTypeCurrent.color || '') ? heroTypeCurrent.color : '#FFFFFF';
   $('heroTypeAlign').value = ['left','center','right'].includes(heroTypeCurrent.align) ? heroTypeCurrent.align : 'center';
+  $('heroTypeEffect').value = ['type','scramble','rgb','flip','wave','magnet','blur','mask'].includes(heroTypeCurrent.effect) ? heroTypeCurrent.effect : 'type';
   $('heroTypeFont').value = heroTypeCurrent.font || '';
   $('heroTypeGoogleFont').value = heroTypeCurrent.google_font || '';
   refreshHeroTypeInfo();
@@ -742,6 +746,7 @@ async function saveHeroTypewriter() {
       words: $('heroTypeWords').value.split('\n').map(item => item.trim()).filter(Boolean).slice(0, 12),
       color: $('heroTypeColor').value,
       align: $('heroTypeAlign').value,
+      effect: $('heroTypeEffect').value,
       font: '', google_font: '', font_url: '', font_name: ''
     };
     const file = $('heroTypeFontFile').files[0];
