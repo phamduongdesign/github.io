@@ -76,6 +76,25 @@ input[type=checkbox]{width:auto}
 .type-control label{margin:8px 0 5px;font-size:11px}
 .type-control select{padding:9px;font-size:12px}
 .type-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:10px}
+#heroTypePreview .hp-host{display:inline-block;max-width:100%}
+#heroTypePreview .hp-c{display:inline-block;will-change:transform}
+#heroTypePreview .hp-sc{position:relative;display:inline-block}
+#heroTypePreview .hp-sc i{visibility:hidden;font-style:normal}
+#heroTypePreview .hp-sc b{position:absolute;left:0;top:0;width:100%;text-align:center;font-weight:inherit}
+#heroTypePreview .hp-sc.ok i{visibility:visible}#heroTypePreview .hp-sc.ok b{display:none}
+#heroTypePreview .hp-f3{display:inline-block;transform-origin:50% 100%;transform:rotateX(-90deg);opacity:0;transition:transform .75s cubic-bezier(.2,.8,.2,1),opacity .4s}
+#heroTypePreview .hp-f3.in{transform:none;opacity:1}#heroTypePreview .hp-f3.out{transform:rotateX(90deg);opacity:0}
+#heroTypePreview .hp-b{display:inline-block;opacity:0;filter:blur(12px);transform:translate3d(0,.25em,0) scale(.9);transition:opacity .6s,filter .6s,transform .6s cubic-bezier(.2,.8,.2,1)}
+#heroTypePreview .hp-b.in{opacity:1;filter:blur(0);transform:none}#heroTypePreview .hp-b.out{opacity:0;filter:blur(8px);transform:translate3d(0,-.2em,0)}
+#heroTypePreview .hp-clip{display:block;overflow:hidden;padding:.08em .1em}
+#heroTypePreview .hp-mv{display:block;transform:translate3d(0,110%,0);transition:transform .75s cubic-bezier(.2,.8,.2,1)}
+#heroTypePreview .hp-mv.in{transform:none}#heroTypePreview .hp-mv.out{transform:translate3d(0,-110%,0);transition-duration:.5s}
+#heroTypePreview .hp-cur{display:inline-block;width:.065em;height:.9em;margin-left:.12em;background:currentColor;vertical-align:-.08em;animation:hp-blink .85s steps(1,end) infinite}
+@keyframes hp-blink{50%{opacity:0}}
+#heroTypePreview .hp-gl{animation:hp-gl .35s steps(1,end) 1;text-shadow:-3px 0 rgba(255,32,80,.8),3px 0 rgba(0,210,255,.8)}
+@keyframes hp-gl{0%{transform:translate3d(-6px,0,0) skewX(-8deg)}25%{transform:translate3d(5px,1px,0) skewX(5deg)}50%{transform:translate3d(-3px,0,0) skewX(-3deg)}75%{transform:translate3d(2px,0,0) skewX(2deg)}}
+#heroTypePreview .hp-rgb{animation:hp-rgb 1.3s steps(1,end) 1}
+@keyframes hp-rgb{0%{text-shadow:-12px 0 rgba(255,40,90,.9),12px 0 rgba(40,200,255,.9);transform:translate3d(-8px,0,0) skewX(-10deg)}20%{text-shadow:10px 0 rgba(255,40,90,.9),-10px 0 rgba(40,200,255,.9);transform:translate3d(6px,0,0) skewX(6deg)}45%{text-shadow:-5px 0 rgba(255,40,90,.8),5px 0 rgba(40,200,255,.8);transform:translate3d(-3px,0,0)}70%{text-shadow:2px 0 rgba(255,40,90,.7),-2px 0 rgba(40,200,255,.7);transform:translate3d(2px,0,0)}}
 @media(max-width:650px){
  .wrap{padding:20px 14px}
  .row{grid-template-columns:1fr}
@@ -212,7 +231,8 @@ input[type=checkbox]{width:auto}
         <small class="field-help">Hỗ trợ .woff2, .woff, .ttf, .otf. Cách thêm font nào bạn thao tác sau cùng sẽ được dùng khi bấm Lưu.</small>
         <small class="field-help" id="heroTypeFontInfo"></small>
         <label>Xem trước</label>
-        <div id="heroTypePreview" style="background:#1f2a44;color:#fff;padding:34px 20px;text-align:center;font:400 44px/1.1 'DM Mono',monospace;letter-spacing:-.045em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">Layout</div>
+        <div id="heroTypePreview" style="background:#1f2a44;color:#fff;padding:34px 20px;min-height:150px;display:flex;align-items:center;justify-content:center;text-align:center;font:400 44px/1.1 'DM Mono',monospace;letter-spacing:-.045em;overflow:hidden;white-space:nowrap">Layout</div>
+        <div class="actions" style="margin-top:10px"><button type="button" class="btn secondary" id="heroTypeReplay">Phát lại hiệu ứng</button></div>
       </div>
       <div class="cms-group">
         <h3>Tiêu đề & mô tả Hero</h3>
@@ -693,7 +713,9 @@ async function refreshHeroTypePreview() {
   preview.style.color = color;
   preview.style.textAlign = $('heroTypeAlign').value || 'center';
   const firstWord = $('heroTypeWords').value.split('\n').map(item => item.trim()).filter(Boolean)[0];
-  preview.textContent = firstWord || 'Layout';
+  const effectNow = $('heroTypeEffect').value;
+  preview.style.justifyContent = ({left:'flex-start', center:'center', right:'flex-end'})[$('heroTypeAlign').value] || 'center';
+  hpSync();
   let family = '';
   try {
     const file = $('heroTypeFontFile').files[0];
@@ -718,7 +740,8 @@ async function refreshHeroTypePreview() {
       else if (heroTypeCurrent.font) family = "'" + heroTypeCurrent.font + "'";
     }
   } catch (error) { family = ''; }
-  preview.style.fontFamily = family ? family + ", 'DM Mono', monospace" : "'DM Mono', monospace";
+  if (effectNow === 'wave' && !family) { hpEnsureInter(); preview.style.fontFamily = "'Inter', sans-serif"; preview.style.letterSpacing = '-.03em'; }
+  else { preview.style.fontFamily = family ? family + ", 'DM Mono', monospace" : "'DM Mono', monospace"; preview.style.letterSpacing = '-.045em'; }
 }
 function refreshHeroTypeInfo() {
   const cfg = heroTypeCurrent || {};
@@ -777,6 +800,162 @@ async function saveHeroTypewriter() {
     return 'Đã lưu phần Hero, nhưng chưa lưu được chữ chạy: ' + error.message + ' — hãy kiểm tra đã chạy câu SQL thêm cột hero_typewriter trong Supabase chưa.';
   }
 }
+// ===== Xem trước hiệu ứng chữ Hero (chạy ngay trong khung "Xem trước") =====
+const HP = { id: 0, sig: '', inter: false, ptr: { x: 0, y: 0, t: 0 } };
+function hpEnsureInter() {
+  if (HP.inter) return;
+  HP.inter = true;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap';
+  document.head.appendChild(link);
+}
+function hpWords() {
+  const list = $('heroTypeWords').value.split('\n').map(item => item.trim()).filter(Boolean).slice(0, 12);
+  return list.length ? list : ['Layout', 'Brand identity', 'eMagazine', 'Digital', 'Print'];
+}
+function hpSync() {
+  const sig = $('heroTypeEffect').value + '|' + hpWords().join('\n');
+  if (sig === HP.sig && $('heroTypePreview').querySelector('.hp-host')) return;
+  hpStart();
+}
+function hpStart() {
+  const box = $('heroTypePreview');
+  const effect = $('heroTypeEffect').value, words = hpWords(), id = ++HP.id;
+  HP.sig = effect + '|' + words.join('\n');
+  const alive = () => id === HP.id;
+  const wait = async ms => {
+    await new Promise(resolve => setTimeout(resolve, ms));
+    while (alive() && $('heroPanel').hidden) await new Promise(resolve => setTimeout(resolve, 400));
+  };
+  let pos = 0;
+  const next = () => words[pos++ % words.length];
+  const host = document.createElement('span');
+  host.className = 'hp-host';
+  box.textContent = '';
+  box.appendChild(host);
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { host.textContent = words[0]; return; }
+  const mk = (ch, cls) => { const el = document.createElement('span'); el.className = cls; el.textContent = ch === ' ' ? '\u00a0' : ch; return el; };
+  const build = (word, make) => {
+    host.className = 'hp-host';
+    host.textContent = '';
+    return Array.from(word).map(ch => { const el = make(ch); host.appendChild(el); return el; });
+  };
+  const frames = ms => (fn) => new Promise(resolve => {
+    const t0 = performance.now();
+    const step = now => {
+      if (!alive() || now - t0 > ms) return resolve();
+      if (!$('heroPanel').hidden) fn(now - t0);
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+  const G = '#%/\\<>+=*01ABXZ', rand = () => G[Math.floor(Math.random() * G.length)];
+  const fx = {
+    async type() {
+      let wi = 0, ci = words[0].length, del = false;
+      const text = document.createElement('span'), cur = document.createElement('i');
+      cur.className = 'hp-cur';
+      host.textContent = ''; host.append(text, cur);
+      text.textContent = words[0];
+      await wait(900);
+      del = true;
+      while (alive()) {
+        const word = words[wi % words.length];
+        host.classList.remove('hp-gl');
+        text.textContent = word.slice(0, ci);
+        let delay = del ? 48 : 105;
+        if (!del && ci === word.length) { delay = 1350; del = true; setTimeout(() => { if (alive()) host.classList.add('hp-gl'); }, 1000); }
+        else if (del && ci === 0) { del = false; wi = (wi + 1) % words.length; delay = 320; }
+        else ci += del ? -1 : 1;
+        await wait(delay);
+      }
+    },
+    async scramble() {
+      while (alive()) {
+        const chars = build(next(), ch => {
+          const el = document.createElement('span'); el.className = 'hp-sc';
+          const real = document.createElement('i'); real.textContent = ch === ' ' ? '\u00a0' : ch; el.appendChild(real);
+          if (ch === ' ') el.classList.add('ok'); else { const fake = document.createElement('b'); fake.textContent = rand(); el.appendChild(fake); }
+          return el;
+        });
+        for (let f = 0; f <= chars.length * 3 && alive(); f++) {
+          chars.forEach((el, k) => { if (el.classList.contains('ok')) return; if (k < f / 3) el.classList.add('ok'); else el.lastChild.textContent = rand(); });
+          await wait(38);
+        }
+        await wait(1400);
+      }
+    },
+    async rgb() {
+      while (alive()) { build(next(), ch => mk(ch, 'hp-c')); host.classList.add('hp-rgb'); await wait(2700); }
+    },
+    async flip() {
+      while (alive()) {
+        const chars = build(next(), ch => mk(ch, 'hp-f3'));
+        host.style.perspective = '700px';
+        void host.offsetWidth;
+        chars.forEach((el, k) => { el.style.transitionDelay = (k * 55) + 'ms'; el.classList.add('in'); });
+        await wait(1800 + chars.length * 55);
+        if (!alive()) return;
+        chars.forEach((el, k) => { el.style.transitionDelay = (k * 25) + 'ms'; el.classList.remove('in'); el.classList.add('out'); });
+        await wait(900);
+      }
+    },
+    async wave() {
+      while (alive()) {
+        const chars = build(next(), ch => mk(ch, 'hp-c'));
+        await frames(3400)(t => chars.forEach((el, k) => { el.style.fontWeight = String(Math.round((200 + 700 * (.5 + .5 * Math.sin(t / 260 - k * .55))) / 10) * 10); }));
+      }
+    },
+    async magnet() {
+      while (alive()) {
+        const chars = build(next(), ch => mk(ch, 'hp-c'));
+        const hr = host.getBoundingClientRect();
+        const fs = parseFloat(getComputedStyle(box).fontSize) || 44;
+        const base = chars.map(el => { const b = el.getBoundingClientRect(); return { x: b.left - hr.left + b.width / 2, y: b.top - hr.top + b.height / 2 }; });
+        await frames(4200)(t => {
+          const r = host.getBoundingClientRect(), br = box.getBoundingClientRect();
+          const inside = performance.now() - HP.ptr.t < 2500 && HP.ptr.x >= br.left && HP.ptr.x <= br.right && HP.ptr.y >= br.top && HP.ptr.y <= br.bottom;
+          const x = inside ? HP.ptr.x - r.left : r.width / 2 + Math.sin(t / 650) * r.width * .32;
+          const y = inside ? HP.ptr.y - r.top : r.height / 2 + Math.cos(t / 850) * r.height * .2;
+          chars.forEach((el, k) => {
+            const dx = base[k].x - x, dy = base[k].y - y, d = Math.hypot(dx, dy) + 1, s = Math.max(0, 1 - d / (fs * 1.9));
+            el.style.transform = 'translate3d(' + (dx / d * s * fs * .48).toFixed(1) + 'px,' + (dy / d * s * fs * .48).toFixed(1) + 'px,0) scale(' + (1 + s * .4).toFixed(3) + ')';
+          });
+        });
+      }
+    },
+    async blur() {
+      while (alive()) {
+        const chars = build(next(), ch => mk(ch, 'hp-b'));
+        void host.offsetWidth;
+        chars.forEach((el, k) => { el.style.transitionDelay = (k * 45) + 'ms'; el.classList.add('in'); });
+        await wait(1700 + chars.length * 45);
+        if (!alive()) return;
+        chars.forEach((el, k) => { el.style.transitionDelay = (k * 15) + 'ms'; el.classList.remove('in'); el.classList.add('out'); });
+        await wait(700);
+      }
+    },
+    async mask() {
+      while (alive()) {
+        host.className = 'hp-host'; host.textContent = '';
+        const clip = document.createElement('span'), mv = document.createElement('span');
+        clip.className = 'hp-clip'; mv.className = 'hp-mv'; mv.textContent = next();
+        clip.appendChild(mv); host.appendChild(clip);
+        void host.offsetWidth;
+        mv.classList.add('in');
+        await wait(1900);
+        if (!alive()) return;
+        mv.classList.remove('in'); mv.classList.add('out');
+        await wait(650);
+      }
+    }
+  };
+  (fx[effect] || fx.type)();
+}
+$('heroTypePreview').addEventListener('pointermove', event => { if (event.pointerType === 'mouse') { HP.ptr.x = event.clientX; HP.ptr.y = event.clientY; HP.ptr.t = performance.now(); } });
+$('heroTypeEffect').addEventListener('change', refreshHeroTypePreview);
+$('heroTypeReplay').addEventListener('click', hpStart);
 $('heroTypeWords').addEventListener('input', refreshHeroTypePreview);
 $('heroTypeColor').addEventListener('input', refreshHeroTypePreview);
 $('heroTypeAlign').addEventListener('change', refreshHeroTypePreview);
