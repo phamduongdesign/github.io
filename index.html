@@ -188,6 +188,25 @@ img { -webkit-user-drag:none; user-drag:none; -webkit-user-select:none; user-sel
 .hero-typewriter { contain:layout paint; }
 .hero-typewriter-line { will-change:transform, opacity; -webkit-backface-visibility:hidden; backface-visibility:hidden; }
 @media (max-width:620px) { .hero-typewriter .hero-typewriter-line { width:100%; max-width:100%; margin:-14px 0; padding:14px 0; } }
+/* Hiệu ứng chữ Hero (chọn trong Admin). Chỉ dùng transform/opacity để nhẹ trên điện thoại */
+.hx-w { display:inline-block; max-width:100%; }
+.hx-c { display:inline-block; will-change:transform; }
+.hx-sc { position:relative; display:inline-block; }
+.hx-sc i { visibility:hidden; font-style:normal; }
+.hx-sc b { position:absolute; left:0; top:0; width:100%; text-align:center; font-weight:inherit; }
+.hx-sc.ok i { visibility:visible; } .hx-sc.ok b { display:none; }
+.hx-f3 { display:inline-block; transform-origin:50% 100%; transform:rotateX(-90deg); opacity:0; transition:transform .75s cubic-bezier(.2,.8,.2,1), opacity .4s ease; }
+.hx-f3.in { transform:none; opacity:1; } .hx-f3.out { transform:rotateX(90deg); opacity:0; }
+.hx-b { display:inline-block; opacity:0; filter:blur(14px); transform:translate3d(0,.25em,0) scale(.9); transition:opacity .6s ease, filter .6s ease, transform .6s cubic-bezier(.2,.8,.2,1); }
+.hx-b.in { opacity:1; filter:blur(0); transform:none; } .hx-b.out { opacity:0; filter:blur(10px); transform:translate3d(0,-.2em,0); }
+.hx-clip { display:block; overflow:hidden; padding:.08em .1em; }
+.hx-mv { display:block; transform:translate3d(0,110%,0); transition:transform .75s cubic-bezier(.2,.8,.2,1); }
+.hx-mv.in { transform:none; } .hx-mv.out { transform:translate3d(0,-110%,0); transition-duration:.5s; }
+.hx-rgb { animation:hx-rgb 1.3s steps(1,end) 1; }
+@keyframes hx-rgb { 0% { text-shadow:-14px 0 rgba(255,40,90,.9), 14px 0 rgba(40,200,255,.9); transform:translate3d(-10px,0,0) skewX(-10deg); } 20% { text-shadow:12px 0 rgba(255,40,90,.9), -12px 0 rgba(40,200,255,.9); transform:translate3d(8px,0,0) skewX(6deg); } 45% { text-shadow:-6px 0 rgba(255,40,90,.8), 6px 0 rgba(40,200,255,.8); transform:translate3d(-4px,0,0); } 70% { text-shadow:3px 0 rgba(255,40,90,.7), -3px 0 rgba(40,200,255,.7); transform:translate3d(2px,0,0); } }
+.hero-typewriter-line.hx-wavefont { font-family:"Inter",sans-serif; letter-spacing:-.03em; }
+@media (max-width:620px) { .hx-b { filter:blur(8px); } }
+@media (prefers-reduced-motion:reduce) { .hx-rgb { animation:none; } }
 </style>
 </head>
 <body>
@@ -350,7 +369,6 @@ loadHomepageSettings();
   if (!target) return;
   const tvLine = target.closest('.hero-typewriter-line');
   const words = ['Layout', 'Brand identity', 'eMagazine', 'Digital', 'Print'];
-  let resetWords = null;
   // Bản điện thoại: từ dài hơn 9 ký tự được ngắt dòng cố định theo TỪ ĐẦY ĐỦ (không nhảy bố cục khi gõ),
   // con trỏ đi theo ký tự cuối: từ trên xuống dưới, từ trái qua phải.
   const MAX_LINE = 9;
@@ -408,45 +426,215 @@ loadHomepageSettings();
     }
   };
   if (mobileMQ) {
-    const onChange = () => render(lastWord, lastCount);
+    const onChange = () => { if (started) schedule(); else render(lastWord, lastCount); };
     if (mobileMQ.addEventListener) mobileMQ.addEventListener('change', onChange); else if (mobileMQ.addListener) mobileMQ.addListener(onChange);
   }
+  // ===== Hiệu ứng chữ Hero: chọn trong Admin → Chữ chạy trên ảnh Hero → Hiệu ứng =====
+  const FX_NAMES = ['type', 'scramble', 'rgb', 'flip', 'wave', 'magnet', 'blur', 'mask'];
+  let effect = 'type', runId = 0, heroVisible = true, pending = false, started = false, wordPos = 0;
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const area = tvLine && tvLine.parentElement;
+  if (area && 'IntersectionObserver' in window) new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; }).observe(area);
+  const nextWord = () => words[wordPos++ % words.length];
+  const linesOf = word => (mobileMQ && mobileMQ.matches && word.length > MAX_LINE) ? splitLines(word).map(line => word.slice(line.start, line.end)) : [word];
+  const mk = (ch, cls) => { const el = document.createElement('span'); el.className = cls; el.textContent = ch === ' ' ? '\u00a0' : ch; return el; };
+  const build = (word, make) => {
+    const wrap = document.createElement('span');
+    wrap.className = 'hx-w';
+    const chars = [];
+    linesOf(word).forEach((text, index) => {
+      if (index) wrap.appendChild(document.createElement('br'));
+      Array.from(text).forEach(ch => { const el = make(ch); wrap.appendChild(el); chars.push(el); });
+    });
+    target.textContent = '';
+    target.appendChild(wrap);
+    return { wrap, chars };
+  };
+  const frames = (id, ms, fn) => new Promise(resolve => {
+    const t0 = performance.now();
+    const step = now => {
+      if (id !== runId || now - t0 > ms) return resolve();
+      if (heroVisible) fn(now - t0);
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+  const ptr = { x: 0, y: 0, t: 0 };
+  document.addEventListener('pointermove', event => { if (event.pointerType === 'mouse') { ptr.x = event.clientX; ptr.y = event.clientY; ptr.t = performance.now(); } }, { passive: true });
+  let interLoaded = false;
+  const ensureInter = () => {
+    if (interLoaded) return;
+    interLoaded = true;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap';
+    document.head.appendChild(link);
+  };
+  const fx = {
+    async type(id) {
+      let wordIndex = 0, charIndex = words[0].length, deleting = false;
+      render(words[0], charIndex);
+      await sleep(900);
+      deleting = true;
+      while (id === runId) {
+        const word = words[wordIndex % words.length];
+        if (tvLine) tvLine.classList.remove('tv-glitch');
+        render(word, charIndex);
+        let delay = deleting ? 48 : 105;
+        if (!deleting && charIndex === word.length) {
+          delay = 1350;
+          deleting = true;
+          if (tvLine) window.setTimeout(() => { if (id === runId) tvLine.classList.add('tv-glitch'); }, 1000);
+        } else if (deleting && charIndex === 0) {
+          deleting = false;
+          wordIndex = (wordIndex + 1) % words.length;
+          delay = 320;
+        } else {
+          charIndex += deleting ? -1 : 1;
+        }
+        await sleep(delay);
+      }
+    },
+    async scramble(id) {
+      const G = '#%/\\<>+=*01ABXZ';
+      const rand = () => G[Math.floor(Math.random() * G.length)];
+      while (id === runId) {
+        const { chars } = build(nextWord(), ch => {
+          const el = document.createElement('span');
+          el.className = 'hx-sc';
+          const real = document.createElement('i');
+          real.textContent = ch === ' ' ? '\u00a0' : ch;
+          el.appendChild(real);
+          if (ch !== ' ') { const fake = document.createElement('b'); fake.textContent = rand(); el.appendChild(fake); }
+          else el.classList.add('ok');
+          return el;
+        });
+        for (let f = 0; f <= chars.length * 3 && id === runId; f++) {
+          chars.forEach((el, k) => {
+            if (el.classList.contains('ok')) return;
+            if (k < f / 3) el.classList.add('ok'); else el.lastChild.textContent = rand();
+          });
+          await sleep(38);
+        }
+        await sleep(1400);
+      }
+    },
+    async rgb(id) {
+      while (id === runId) {
+        const { wrap } = build(nextWord(), ch => mk(ch, 'hx-c'));
+        wrap.classList.add('hx-rgb');
+        await sleep(2700);
+      }
+    },
+    async flip(id) {
+      while (id === runId) {
+        const { wrap, chars } = build(nextWord(), ch => mk(ch, 'hx-f3'));
+        wrap.style.perspective = '700px';
+        void wrap.offsetWidth;
+        chars.forEach((el, k) => { el.style.transitionDelay = (k * 55) + 'ms'; el.classList.add('in'); });
+        await sleep(1800 + chars.length * 55);
+        if (id !== runId) return;
+        chars.forEach((el, k) => { el.style.transitionDelay = (k * 25) + 'ms'; el.classList.remove('in'); el.classList.add('out'); });
+        await sleep(900);
+      }
+    },
+    async wave(id) {
+      ensureInter();
+      while (id === runId) {
+        const { chars } = build(nextWord(), ch => mk(ch, 'hx-c'));
+        await frames(id, 3400, t => {
+          chars.forEach((el, k) => { el.style.fontWeight = String(Math.round((200 + 700 * (.5 + .5 * Math.sin(t / 260 - k * .55))) / 10) * 10); });
+        });
+      }
+    },
+    async magnet(id) {
+      const fine = !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+      while (id === runId) {
+        const { chars } = build(nextWord(), ch => mk(ch, 'hx-c'));
+        const lr = tvLine.getBoundingClientRect();
+        const fs = parseFloat(getComputedStyle(tvLine).fontSize) || 80;
+        const base = chars.map(el => { const b = el.getBoundingClientRect(); return { x: b.left - lr.left + b.width / 2, y: b.top - lr.top + b.height / 2 }; });
+        await frames(id, 4200, t => {
+          const r = tvLine.getBoundingClientRect(), ar = area.getBoundingClientRect();
+          let x, y;
+          const inside = fine && performance.now() - ptr.t < 2500 && ptr.x >= ar.left && ptr.x <= ar.right && ptr.y >= ar.top && ptr.y <= ar.bottom;
+          if (inside) { x = ptr.x - r.left; y = ptr.y - r.top; }
+          else { x = r.width / 2 + Math.sin(t / 650) * r.width * .32; y = r.height / 2 + Math.cos(t / 850) * r.height * .2; }
+          chars.forEach((el, k) => {
+            const dx = base[k].x - x, dy = base[k].y - y, d = Math.hypot(dx, dy) + 1, s = Math.max(0, 1 - d / (fs * 1.9));
+            el.style.transform = 'translate3d(' + (dx / d * s * fs * .48).toFixed(1) + 'px,' + (dy / d * s * fs * .48).toFixed(1) + 'px,0) scale(' + (1 + s * .4).toFixed(3) + ')';
+          });
+        });
+      }
+    },
+    async blur(id) {
+      while (id === runId) {
+        const { chars } = build(nextWord(), ch => mk(ch, 'hx-b'));
+        void target.offsetWidth;
+        chars.forEach((el, k) => { el.style.transitionDelay = (k * 45) + 'ms'; el.classList.add('in'); });
+        await sleep(1700 + chars.length * 45);
+        if (id !== runId) return;
+        chars.forEach((el, k) => { el.style.transitionDelay = (k * 15) + 'ms'; el.classList.remove('in'); el.classList.add('out'); });
+        await sleep(700);
+      }
+    },
+    async mask(id) {
+      while (id === runId) {
+        const wrap = document.createElement('span');
+        wrap.className = 'hx-w';
+        const mvs = [];
+        linesOf(nextWord()).forEach(text => {
+          const clip = document.createElement('span');
+          clip.className = 'hx-clip';
+          const mv = document.createElement('span');
+          mv.className = 'hx-mv';
+          mv.textContent = text;
+          clip.appendChild(mv);
+          wrap.appendChild(clip);
+          mvs.push(mv);
+        });
+        target.textContent = '';
+        target.appendChild(wrap);
+        void wrap.offsetWidth;
+        mvs.forEach((el, k) => { el.style.transitionDelay = (k * 90) + 'ms'; el.classList.add('in'); });
+        await sleep(1900);
+        if (id !== runId) return;
+        mvs.forEach(el => { el.classList.remove('in'); el.classList.add('out'); });
+        await sleep(650);
+      }
+    }
+  };
+  const start = () => {
+    runId++;
+    const id = runId;
+    started = true;
+    wordPos = 0;
+    spacer.textContent = '';
+    if (tvLine) { tvLine.classList.remove('tv-glitch'); tvLine.classList.toggle('hx-wavefont', effect === 'wave'); }
+    const plain = reduceMotion || effect === 'type' || !fx[effect];
+    if (cursorEl) cursorEl.style.display = plain ? '' : 'none';
+    if (reduceMotion) { render(words[0], words[0].length); return; }
+    (plain ? fx.type : fx[effect])(id);
+  };
+  const schedule = () => {
+    if (pending) return;
+    pending = true;
+    Promise.resolve().then(() => { pending = false; start(); });
+  };
   window.__setHeroTypewriterWords = list => {
     if (!Array.isArray(list) || !list.length) return;
     words.splice(0, words.length, ...list);
-    if (resetWords) resetWords(); else render(words[0], words[0].length);
+    schedule();
   };
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    render(words[0], words[0].length);
-    return;
-  }
+  window.__setHeroTypewriterEffect = name => {
+    const next = FX_NAMES.indexOf(name) >= 0 ? name : 'type';
+    if (next === effect) return;
+    effect = next;
+    schedule();
+  };
   render(words[0], words[0].length);
-  let wordIndex = 0;
-  let charIndex = words[0].length;
-  let deleting = false;
-  resetWords = () => { wordIndex = 0; charIndex = words[0].length; deleting = false; render(words[0], words[0].length); };
-  const type = () => {
-    const word = words[wordIndex];
-    if (tvLine) tvLine.classList.remove('tv-glitch');
-    render(word, charIndex);
-    let delay = deleting ? 48 : 105;
-    if (!deleting && charIndex === word.length) {
-      delay = 1350;
-      deleting = true;
-      if (tvLine) window.setTimeout(() => tvLine.classList.add('tv-glitch'), 1000);
-    } else if (deleting && charIndex === 0) {
-      deleting = false;
-      wordIndex = (wordIndex + 1) % words.length;
-      delay = 320;
-    } else {
-      charIndex += deleting ? -1 : 1;
-    }
-    window.setTimeout(type, delay);
-  };
-  window.setTimeout(() => {
-    deleting = true;
-    type();
-  }, 900);
+  start();
 })();
 // Chữ chạy trên ảnh Hero: nội dung, màu và font lấy từ Admin (cột hero_typewriter)
 (() => {
@@ -472,6 +660,7 @@ loadHomepageSettings();
       const list = cfg.words.map(word => String(word).trim()).filter(Boolean).slice(0, 12);
       if (list.length && window.__setHeroTypewriterWords) window.__setHeroTypewriterWords(list);
     }
+    if (window.__setHeroTypewriterEffect) window.__setHeroTypewriterEffect(typeof cfg.effect === 'string' ? cfg.effect : 'type');
     if (/^#[0-9a-f]{3,8}$/i.test(cfg.color || '')) line.style.color = cfg.color;
     const alignMap = { left:'flex-start', center:'center', right:'flex-end' };
     if (alignMap[cfg.align]) { line.parentElement.style.justifyContent = alignMap[cfg.align]; line.style.textAlign = cfg.align; currentAlign = cfg.align; place(); }
