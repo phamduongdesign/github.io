@@ -63,6 +63,15 @@ input[type=checkbox]{width:auto}
 #heroForm>.cms-group:first-child{margin-top:0}
 #heroForm .cms-group>h3{margin-bottom:10px}
 #heroForm .actions{margin-top:44px}
+.sp-table{margin-top:14px;border:1px solid var(--line)}
+.sp-row{display:grid;grid-template-columns:1fr 120px 120px;gap:14px;align-items:center;padding:12px 14px;border-top:1px solid var(--line)}
+.sp-row:first-child{border-top:0}
+.sp-row.sp-head{background:#f6f4ef;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sp-row strong{display:block;font-size:13px;font-weight:600}
+.sp-row small{display:block;color:var(--muted);font-size:11px;line-height:1.5;margin-top:3px}
+.sp-row input{padding:9px 10px;text-align:right}
+.sp-row .sp-def{font-size:10px;color:var(--muted);text-align:right;margin-top:3px}
+@media (max-width:700px){.sp-row{grid-template-columns:1fr 1fr}.sp-row>div:first-child{grid-column:1 / -1}.sp-row.sp-head>div:first-child{display:none}}
 .cms-note{background:#f5f4ef;padding:12px 14px;font-size:12px;line-height:1.65;color:#62645b;margin:14px 0}
 .color-field{display:grid;grid-template-columns:54px 1fr;gap:10px;align-items:center}
 .color-field input[type=color]{width:54px;height:42px;padding:4px;cursor:pointer}
@@ -287,6 +296,12 @@ input[type=checkbox]{width:auto}
         <label>Các lĩnh vực / địa điểm</label>
         <textarea id="heroMetaLines" placeholder="Editorial · Identity · Digital&#10;Ho Chi Minh City, VN"></textarea>
         <small class="field-help">Vị trí: các dòng thông tin nhỏ bên phải phần giới thiệu.</small>
+      </div>
+      <div class="cms-group">
+        <h3>Khoảng cách giữa các mục trang chủ</h3>
+        <small class="field-help">Tự canh khoảng cách (px) giữa các mục của trang chủ, riêng cho máy tính và điện thoại. Số nhỏ = các mục sát nhau, số lớn = thoáng hơn. Ô nào để nguyên giá trị mặc định thì trang giữ như hiện tại. Bấm “Lưu nội dung trang chủ” để áp dụng.</small>
+        <div class="sp-table" id="spacingTable"></div>
+        <div class="actions" style="margin-top:10px"><button type="button" class="btn secondary" id="spacingReset">Đặt lại mặc định</button></div>
       </div>
       <div class="actions"><button class="btn" type="submit" id="saveHeroButton">Lưu nội dung trang chủ</button></div>
       <div id="heroMessage" aria-live="polite"></div>
@@ -684,6 +699,7 @@ async function loadHeroSettings() {
   $('heroMetaLines').value = data.hero_meta_lines || '';
   fillHeroTypewriter(data.hero_typewriter);
   fillAvailability(data.availability);
+  fillSpacing(data.layout_spacing);
   currentHeroImageUrl = data.hero_image || '';
   if (currentHeroImageUrl) {
     $('heroImagePreview').src = currentHeroImageUrl;
@@ -730,10 +746,11 @@ $('heroForm').addEventListener('submit', async event => {
     currentHeroImageUrl = imageUrl;
     const heroTypeWarning = await saveHeroTypewriter();
     const availWarning = await saveAvailability();
+    const spacingWarning = await saveSpacing();
     $('heroImageFile').value = '';
     $('heroImageInfo').innerHTML = '';
     $('heroMessage').textContent = 'Đã lưu nội dung Hero. Sau khi kết nối trang chủ với bảng cài đặt, nội dung sẽ hiển thị trên website.';
-    const heroWarnings = [heroTypeWarning, availWarning].filter(Boolean).join(' | ');
+    const heroWarnings = [heroTypeWarning, availWarning, spacingWarning].filter(Boolean).join(' | ');
     if (heroWarnings) { $('heroMessage').textContent = heroWarnings; $('heroMessage').style.color = '#a45a24'; }
   } catch (error) {
     $('heroMessage').textContent = 'Không thể lưu: ' + error.message;
@@ -1042,6 +1059,52 @@ async function saveAvailability() {
     return 'Đã lưu phần Hero, nhưng chưa lưu được dòng trạng thái: ' + error.message + ' — hãy kiểm tra đã chạy câu SQL thêm cột availability trong Supabase chưa.';
   }
 }
+// ===== Khoảng cách giữa các mục trang chủ (cột layout_spacing, dạng JSON) =====
+const SPACING_ITEMS = [
+  { key:'heroImg', label:'Ảnh Hero → dòng chữ giới thiệu', help:'Từ mép dưới ảnh Hero đến dòng nhỏ và tiêu đề lớn.', d:56, m:56 },
+  { key:'sec', label:'Quanh các đường kẻ ngăn mục', help:'Khoảng cách phía trên và phía dưới đường kẻ: Hero → Selected work và Selected work → About.', d:65, m:87 },
+  { key:'head', label:'Tiêu đề “Selected work” → danh sách dự án', help:'Từ dòng tiêu đề mục và các nút lọc đến hàng dự án đầu tiên.', d:44, m:44 },
+  { key:'rows', label:'Giữa các hàng dự án', help:'Khoảng cách dọc giữa hàng dự án trên và hàng dự án dưới.', d:64, m:42 },
+  { key:'about', label:'About → Contact', help:'Khoảng trống phía dưới phần About, trước khối Contact màu xanh.', d:140, m:100 },
+  { key:'contactTop', label:'Đầu khối Contact → tiêu đề', help:'Khoảng trống phía trên tiêu đề “Have a good idea?”.', d:80, m:80 },
+  { key:'contactBottom', label:'Cuối khối Contact', help:'Khoảng trống dưới cùng của khối Contact (dưới chân trang).', d:44, m:44 },
+  { key:'footer', label:'Nút liên hệ → đường kẻ chân trang', help:'Khoảng cách giữa nội dung Contact và đường kẻ trên chân trang.', d:90, m:68 }
+];
+(function buildSpacingTable() {
+  const table = $('spacingTable');
+  table.innerHTML = '<div class="sp-row sp-head"><div>Mục</div><div style="text-align:right">Máy tính</div><div style="text-align:right">Điện thoại</div></div>' +
+    SPACING_ITEMS.map(item => '<div class="sp-row"><div><strong>' + item.label + '</strong><small>' + item.help + '</small></div>' +
+      '<div><input type="number" min="0" max="300" step="1" inputmode="numeric" id="sp_' + item.key + '_d" aria-label="' + item.label + ' — máy tính"><div class="sp-def">mặc định ' + item.d + '</div></div>' +
+      '<div><input type="number" min="0" max="300" step="1" inputmode="numeric" id="sp_' + item.key + '_m" aria-label="' + item.label + ' — điện thoại"><div class="sp-def">mặc định ' + item.m + '</div></div></div>').join('');
+  SPACING_ITEMS.forEach(item => { $('sp_' + item.key + '_d').value = item.d; $('sp_' + item.key + '_m').value = item.m; });
+})();
+function spacingNumber(value, fallback) {
+  if (value === '' || value === null || value === undefined) return fallback;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 && n <= 300 ? Math.round(n) : fallback;
+}
+function fillSpacing(cfg) {
+  const saved = (cfg && typeof cfg === 'object') ? cfg : {};
+  SPACING_ITEMS.forEach(item => {
+    const v = saved[item.key] && typeof saved[item.key] === 'object' ? saved[item.key] : {};
+    $('sp_' + item.key + '_d').value = spacingNumber(v.d, item.d);
+    $('sp_' + item.key + '_m').value = spacingNumber(v.m, item.m);
+  });
+}
+async function saveSpacing() {
+  try {
+    const cfg = {};
+    SPACING_ITEMS.forEach(item => {
+      cfg[item.key] = { d: spacingNumber($('sp_' + item.key + '_d').value, item.d), m: spacingNumber($('sp_' + item.key + '_m').value, item.m) };
+    });
+    const {error} = await db.from('site_settings').update({layout_spacing:cfg}).eq('id', 'homepage');
+    if (error) throw error;
+    return '';
+  } catch (error) {
+    return 'Đã lưu phần Hero, nhưng chưa lưu được khoảng cách giữa các mục: ' + error.message + ' — hãy kiểm tra đã chạy câu SQL thêm cột layout_spacing trong Supabase chưa.';
+  }
+}
+$('spacingReset').addEventListener('click', () => fillSpacing(null));
 $('availText').addEventListener('input', refreshAvailPreview);
 $('availLight').addEventListener('change', refreshAvailPreview);
 $('availPresetOpen').addEventListener('click', () => { $('availText').value = 'Available for work'; $('availLight').value = 'on'; refreshAvailPreview(); });
