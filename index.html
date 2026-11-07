@@ -254,6 +254,66 @@ html.liq-touch :is(.filter, .skill, .contact-action, .footer-social a)[data-liq=
 html.liq-touch .filter.active { background:transparent; color:#6c6b64; } /* nền xanh + chữ trắng của bộ lọc đang chọn do mực đảm nhiệm (màu chữ gốc của .filter) */
 html.liq-touch :is(.filter, .skill, .contact-action, .footer-social a)[data-liq-hold] { background:transparent; border-color:var(--liq-bg); transition:background .2s ease, color .15s ease, border-color .3s ease .1s; }
 html.liq-touch :is(.filter, .skill, .contact-action, .footer-social a)[data-liq-ink] { color:var(--liq-fg); }
+/* Editorial: sách lật trang (thay cho lưới ảnh ở dự án Editorial). Font/màu lấy từ biến theme của trang. */
+.detail-mockups.flip-on { display:block; }
+.flip { --pr:1.4; }
+.flip-issues { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
+.issue { background:transparent; border:1px solid rgba(41,41,35,.2); color:#6c6b64; padding:9px 13px; border-radius:999px; font-size:13.2px; transition:all .2s ease; }
+.issue:hover, .issue:focus-visible { background:var(--site-hover-bg); color:var(--site-hover-text); border-color:var(--site-hover-border); }
+.issue.active, .issue.active:hover { background:var(--site-primary); color:var(--site-on-primary); border-color:var(--site-primary); }
+.flip-stage { --pw:min(34vw,480px); position:relative; display:flex; justify-content:center; perspective:2600px; padding:8px 0 34px; overflow-x:clip; }
+.flip-stage::after { content:""; position:absolute; left:50%; bottom:10px; width:calc(var(--pw) * 1.8); height:22px; transform:translateX(-50%); background:radial-gradient(closest-side, rgba(0,0,0,.3), transparent); filter:blur(6px); z-index:-1; }
+.flip-leaves { position:relative; width:calc(var(--pw) * 2); height:calc(var(--pw) * var(--pr)); transform-style:preserve-3d; transition:transform .9s cubic-bezier(.5,.05,.2,1), opacity .2s; cursor:pointer; touch-action:pan-y; user-select:none; }
+.flip-leaves.s0 { transform:translateX(-25%); } .flip-leaves.se { transform:translateX(25%); }
+.flip-leaf { position:absolute; right:0; top:0; width:50%; height:100%; transform-origin:left center; transform-style:preserve-3d; transition:transform 1s cubic-bezier(.5,.05,.2,1); }
+.flip-leaf.fl { transform:rotateY(-180deg); }
+.flip-leaves.noa, .flip-leaves.noa .flip-leaf { transition:none !important; }
+.flip-face { position:absolute; inset:0; overflow:hidden; backface-visibility:hidden; -webkit-backface-visibility:hidden; background:var(--site-secondary); }
+.flip-face.b { transform:rotateY(180deg); }
+.flip-face img { display:block; width:100%; height:100%; object-fit:contain; } /* hiển thị đủ nội dung ảnh, không cắt mép */
+.flip-face::after { content:""; position:absolute; inset:0; pointer-events:none; }
+.flip-face.f::after { background:linear-gradient(90deg, rgba(0,0,0,.24), transparent 12%); }
+.flip-face.b::after { background:linear-gradient(270deg, rgba(0,0,0,.24), transparent 12%); }
+.flip-leaves.one { width:var(--pw); } .flip-leaves.one .flip-leaf { width:100%; left:0; right:auto; }
+.flip-prog { margin-top:6px; }
+.flip-meta { display:flex; justify-content:space-between; gap:12px; margin-bottom:10px; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#77766f; font-variant-numeric:tabular-nums; }
+.flip-line { height:2px; background:color-mix(in srgb, currentColor 18%, transparent); }
+.flip-line i { display:block; height:100%; width:0; background:var(--site-accent); transition:width .6s cubic-bezier(.4,0,.2,1); }
+.flip-strip { display:flex; align-items:center; gap:10px; margin-top:14px; }
+.flip-ar { flex:none; display:grid; place-items:center; width:36px; height:36px; padding:0; border:1px solid rgba(41,41,35,.25); border-radius:50%; background:transparent; color:inherit; transition:all .2s ease; }
+.flip-ar svg { display:block; width:15px; height:15px; }
+.flip-ar:hover:not(:disabled), .flip-ar:focus-visible { background:var(--site-hover-bg); color:var(--site-hover-text); border-color:var(--site-hover-border); }
+.flip-ar:disabled { opacity:.3; cursor:default; }
+.flip-ths { flex:1; display:flex; gap:10px; overflow-x:auto; padding:8px 4px; scrollbar-width:none; } .flip-ths::-webkit-scrollbar { display:none; }
+.flip-th { flex:none; display:flex; gap:1px; padding:2px; border:1.5px solid transparent; border-radius:3px; background:none; opacity:.5; transition:opacity .25s, border-color .25s; }
+.flip-th:hover { opacity:.85; } .flip-th.on { opacity:1; border-color:var(--site-accent); }
+.flip-th span { display:block; width:44px; height:calc(44px * var(--pr)); background:var(--site-secondary); overflow:hidden; }
+.flip-th img { display:block; width:100%; height:100%; object-fit:contain; }
+@media (max-width:720px) { .flip-stage { --pw:min(78vw,340px); } }
+/* Chọn cỡ sách (S/M/L) + chế độ toàn màn hình. Mặc định M = min(34vw,480px). Bật/tắt từng nút ở FLIP_UI trong phần script. */
+.flip-tools { display:flex; justify-content:flex-end; align-items:center; gap:8px; margin:-6px 0 4px; }
+.flip-sizes { display:flex; gap:6px; }
+.flip-tool { display:grid; place-items:center; min-width:32px; height:32px; padding:0 11px; border:1px solid rgba(41,41,35,.25); border-radius:999px; background:transparent; color:inherit; font-size:12px; letter-spacing:.06em; transition:all .2s ease; }
+.flip-tool svg { display:block; width:15px; height:15px; }
+.flip-tool.fs { padding:0; width:32px; }
+.flip-tool:hover, .flip-tool:focus-visible { background:var(--site-hover-bg); color:var(--site-hover-text); border-color:var(--site-hover-border); }
+.flip-tool.on, .flip-tool.on:hover { background:var(--site-primary); color:var(--site-on-primary); border-color:var(--site-primary); }
+@media (min-width:721px) {
+  .flip[data-size="s"] .flip-stage { --pw:min(30vw,340px); }
+  .flip[data-size="l"] .flip-stage { --pw:min(42vw,620px,max(240px,calc((100svh - 160px) / var(--pr)))); }
+}
+@media (max-width:720px) { .flip-sizes { display:none; } }
+.flip.is-full { position:fixed; inset:0; z-index:1000; display:flex; flex-direction:column; justify-content:center; padding:16px 24px; overflow:auto; overscroll-behavior:contain; background:var(--site-background); color:var(--site-on-background); }
+.flip.is-full .flip-issues { display:none; }
+.flip.is-full .flip-tools { margin:0 0 4px; }
+.flip.is-full[data-size] .flip-stage { --pw:min(46vw,max(240px,calc((100svh - 240px) / var(--pr)))); padding:0 0 18px; }
+@media (max-width:720px) { .flip.is-full[data-size] .flip-stage { --pw:min(92vw,max(240px,calc((100svh - 240px) / var(--pr)))); } .flip.is-full { padding:12px 14px; } }
+/* Trang đôi được cắt đôi: nửa trái / nửa phải của cùng một ảnh */
+.flip-face.half-l img, .flip-face.half-r img { width:200%; max-width:none; }
+.flip-face.half-r img { margin-left:-100%; }
+.flip-th span.half-l img, .flip-th span.half-r img { width:200%; max-width:none; }
+.flip-th span.half-r img { margin-left:-100%; }
+@media (prefers-reduced-motion:reduce) { .flip-leaves, .flip-leaf { transition-duration:.01s !important; } }
 </style>
 </head>
 <body>
@@ -888,6 +948,121 @@ function showHome() {
   detailPage.classList.remove('active');
   document.title = siteSeoTitle;
 }
+/* ===== Editorial: sách lật trang. Với dự án Editorial, mỗi ảnh trong gallery_images là 1 trang (ảnh đầu = bìa, ảnh cuối = bìa sau).
+   Các "số tạp chí" chính là các dự án Editorial. Đổi chữ hiển thị ở FLIP_TXT. ===== */
+const FLIP_TXT = { page:'Page', pages:'Pages', spreads:'Spreads', prev:'Previous', next:'Next', size:'Size', full:'Full screen', exit:'Close full screen' };
+const FLIP_UI = { sizes:true, full:true }; // nút chọn cỡ S/M/L và nút toàn màn hình: đặt false để tắt nút nào đó
+const flipMQ = window.matchMedia('(max-width:720px)');
+const flip = { el:null, L:null, st:0, ps:0, max:0, nl:0, single:false, pages:[], tm:0, x0:null, moved:false };
+const isEditorial = item => /editorial|e-magazine|magazine/i.test(item.dataset.category || '');
+const flipPages = () => flip.single ? flip.pages.filter(Boolean) : flip.pages;
+const flipPad = n => String(n).padStart(3, '0');
+function flipLabel(s) {
+  const n = flipPages().length;
+  if (flip.single) return FLIP_TXT.page + ' ' + flipPad(s + 1);
+  if (s === 0) return FLIP_TXT.page + ' ' + flipPad(1);
+  if (s === flip.nl) return FLIP_TXT.page + ' ' + flipPad(n);
+  return FLIP_TXT.pages + ' ' + flipPad(2 * s) + '–' + flipPad(2 * s + 1);
+}
+function flipFace(pg, cls) {
+  const d = document.createElement('div'); d.className = 'flip-face ' + cls;
+  if (pg) { if (pg.h) d.classList.add('half-' + pg.h); const im = document.createElement('img'); im.src = pg.u; im.alt = ''; im.loading = 'lazy'; im.draggable = false; d.appendChild(im); }
+  return d;
+}
+function flipRender() {
+  const f = flip, pg = flipPages(), TH = f.el.querySelector('.flip-ths'), nl = f.single ? pg.length : pg.length / 2, ns = f.single ? pg.length : nl + 1;
+  f.L.innerHTML = ''; TH.innerHTML = ''; f.L.className = 'flip-leaves' + (f.single ? ' one' : '');
+  for (let k = 0; k < nl; k++) {
+    const d = document.createElement('div'); d.className = 'flip-leaf';
+    if (f.single) d.append(flipFace(pg[k], 'f')); else d.append(flipFace(pg[2 * k], 'f'), flipFace(pg[2 * k + 1], 'b'));
+    f.L.append(d);
+  }
+  for (let s = 0; s < ns; s++) {
+    const idx = f.single ? [s] : s === 0 ? [0] : s === nl ? [pg.length - 1] : [2 * s - 1, 2 * s], b = document.createElement('button');
+    b.type = 'button'; b.className = 'flip-th'; b.setAttribute('aria-label', flipLabel(s)); b.onclick = () => flipGo(s);
+    idx.forEach(x => { const t = document.createElement('span'); if (pg[x]) { if (pg[x].h) t.classList.add('half-' + pg[x].h); const im = document.createElement('img'); im.src = pg[x].u; im.alt = ''; im.loading = 'lazy'; im.draggable = false; t.append(im); } b.append(t); });
+    TH.append(b);
+  }
+  f.nl = nl; f.max = ns - 1; f.st = f.ps = 0; flipApply(true);
+}
+function flipGo(s) { flip.st = Math.max(0, Math.min(flip.max, s)); flipApply(); }
+function flipApply(init) {
+  const f = flip, lv = [...f.L.children], n = lv.length, fw = f.st >= f.ps; let ch = [];
+  lv.forEach((lf, k) => { if ((k < f.st) !== lf.classList.contains('fl')) ch.push(k); });
+  if (!fw) ch.reverse();
+  f.L.classList.toggle('noa', !!init);
+  lv.forEach((lf, k) => { const o = ch.indexOf(k); lf.style.transitionDelay = (o < 0 || init) ? '0ms' : o * 80 + 'ms'; if (o >= 0) lf.style.zIndex = 100 + (fw ? k : n - k); lf.classList.toggle('fl', k < f.st); });
+  f.L.classList.toggle('s0', !f.single && f.st === 0); f.L.classList.toggle('se', !f.single && f.st === n);
+  clearTimeout(f.tm); f.tm = setTimeout(() => lv.forEach((lf, k) => lf.style.zIndex = k < f.st ? 10 + k : 10 + n - k), init ? 0 : 1300 + ch.length * 80);
+  if (init) requestAnimationFrame(() => requestAnimationFrame(() => f.L.classList.remove('noa')));
+  f.ps = f.st;
+  const el = f.el, ths = [...el.querySelector('.flip-ths').children];
+  ths.forEach((b, s) => b.classList.toggle('on', s === f.st));
+  el.querySelector('.flip-lab').textContent = flipLabel(f.st);
+  el.querySelector('.flip-cnt').textContent = (f.st + 1) + ' / ' + (f.max + 1) + ' ' + (f.single ? FLIP_TXT.pages : FLIP_TXT.spreads);
+  el.querySelector('.flip-line i').style.width = ((f.st + 1) / (f.max + 1) * 100) + '%';
+  const [pv, nx] = el.querySelectorAll('.flip-ar'); pv.disabled = f.st === 0; nx.disabled = f.st === f.max;
+  const t = ths[f.st], box = el.querySelector('.flip-ths'); if (t) box.scrollTo({ left: t.offsetLeft - (box.clientWidth - t.offsetWidth) / 2, behavior: init ? 'auto' : 'smooth' });
+}
+const FLIP_ICON = { full:'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5', close:'M6 6l12 12M18 6L6 18' };
+const flipIcon = d => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function flipToolsHtml() {
+  if (!FLIP_UI.sizes && !FLIP_UI.full) return '';
+  return '<div class="flip-tools">'
+    + (FLIP_UI.sizes ? '<div class="flip-sizes" role="group" aria-label="' + FLIP_TXT.size + '">' + ['s', 'm', 'l'].map(k => '<button type="button" class="flip-tool" data-s="' + k + '">' + k.toUpperCase() + '</button>').join('') + '</div>' : '')
+    + (FLIP_UI.full ? '<button type="button" class="flip-tool fs" aria-label="' + FLIP_TXT.full + '">' + flipIcon(FLIP_ICON.full) + '</button>' : '')
+    + '</div>';
+}
+function flipSetFull(el, on) {
+  el.classList.toggle('is-full', on);
+  const b = el.querySelector('.flip-tool.fs');
+  if (b) { b.innerHTML = flipIcon(on ? FLIP_ICON.close : FLIP_ICON.full); b.setAttribute('aria-label', on ? FLIP_TXT.exit : FLIP_TXT.full); }
+}
+function flipToolsInit(el) {
+  let size = 'm';
+  if (FLIP_UI.sizes) { try { const v = localStorage.getItem('flipSize'); if (v === 's' || v === 'm' || v === 'l') size = v; } catch (_) {} } // nhớ cỡ đã chọn
+  const setSize = s => {
+    el.dataset.size = s;
+    el.querySelectorAll('.flip-tool[data-s]').forEach(b => { const on = b.dataset.s === s; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    try { localStorage.setItem('flipSize', s); } catch (_) {}
+  };
+  setSize(size);
+  el.querySelectorAll('.flip-tool[data-s]').forEach(b => b.onclick = () => setSize(b.dataset.s));
+  const fs = el.querySelector('.flip-tool.fs'); if (fs) fs.onclick = e => { e.stopPropagation(); flipSetFull(el, !el.classList.contains('is-full')); }; // chặn nổi bọt: nút bị vẽ lại nên trang không được tưởng là bấm ra ngoài
+}
+function buildFlip(project, imgs) {
+  const box = detailFields.mockups; box.classList.remove('flip-on');
+  if (!isEditorial(project) || imgs.length < 2) return;
+  const pages = []; imgs.forEach((i, n) => { if (n > 0 && i.kind === 'spread') pages.push({ u:i.url, h:'l' }, { u:i.url, h:'r' }); else pages.push({ u:i.url }); }); // ảnh đầu (bìa) luôn là trang đơn; trang đôi được cắt đôi ở giữa
+  if (pages.length % 2) { const lastPg = pages[pages.length - 1]; if (lastPg.h) pages.push(null); else pages.splice(pages.length - 1, 0, null); } // số trang lẻ: chèn 1 trang trắng trước bìa sau
+  const arrow = d => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  box.innerHTML = '<div class="flip"><div class="flip-issues" role="group" aria-label="Issues"></div>' + flipToolsHtml() + '<div class="flip-stage"><div class="flip-leaves"></div></div>'
+    + '<div class="flip-prog"><div class="flip-meta"><span class="flip-lab"></span><span class="flip-cnt"></span></div><div class="flip-line"><i></i></div></div>'
+    + '<div class="flip-strip"><button type="button" class="flip-ar" data-d="-1" aria-label="' + FLIP_TXT.prev + '">' + arrow('M15 6l-6 6 6 6') + '</button><div class="flip-ths"></div><button type="button" class="flip-ar" data-d="1" aria-label="' + FLIP_TXT.next + '">' + arrow('M9 6l6 6-6 6') + '</button></div></div>';
+  box.classList.add('flip-on');
+  const el = box.firstElementChild, bar = el.firstElementChild, issues = projects.filter(isEditorial);
+  Object.assign(flip, { el, L: el.querySelector('.flip-leaves'), pages, single: flipMQ.matches });
+  flipToolsInit(el);
+  if (issues.length > 1) issues.forEach(p => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'issue' + (p === project ? ' active' : ''); b.textContent = p.dataset.title;
+    b.onclick = e => { e.stopPropagation(); if (p === project) return; const y = window.scrollY; openProject(p); window.scrollTo({ top: y, behavior: 'instant' }); };
+    bar.append(b);
+  }); else bar.remove();
+  el.querySelectorAll('.flip-ar').forEach(b => b.onclick = () => flipGo(flip.st + Number(b.dataset.d)));
+  flip.L.onclick = e => { if (flip.moved) return; const r = flip.L.getBoundingClientRect(), x = (e.clientX - r.left) / r.width; flipGo(flip.st + ((flip.single ? x < .3 : x < .5) ? -1 : 1)); };
+  // Khổ sách tự theo các trang: lấy tỉ lệ cao/rộng ở giữa (median) của mọi trang, trang đôi tính theo 1 nửa. Ảnh chưa có kích thước (số cũ) thì đo trực tiếp.
+  const rs = [], need = [];
+  imgs.forEach((i, n) => { const k = (n > 0 && i.kind === 'spread') ? 2 : 1; if (i.w && i.h) rs.push(i.h / (i.w / k)); else need.push([i, k]); });
+  const applyPr = () => { if (!rs.length || !el.isConnected) return; const a = [...rs].sort((x, y) => x - y), m = a.length >> 1; el.style.setProperty('--pr', a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2); };
+  applyPr();
+  need.forEach(([i, k]) => { const pr = new Image(); pr.onload = () => { if (pr.naturalWidth) { rs.push(pr.naturalHeight / (pr.naturalWidth / k)); applyPr(); } }; pr.src = i.url; });
+  flipRender();
+}
+addEventListener('pointerdown', e => { flip.x0 = (e.target.closest && e.target.closest('.flip-leaves')) ? e.clientX : null; });
+addEventListener('pointerup', e => { if (flip.x0 === null) return; const d = e.clientX - flip.x0; flip.x0 = null; if (Math.abs(d) > 40) { flip.moved = true; flipGo(flip.st + (d < 0 ? 1 : -1)); setTimeout(() => flip.moved = false, 60); } });
+addEventListener('keydown', e => { if (!flip.el || !flip.el.isConnected || !detailPage.classList.contains('active')) return; if (e.key === 'ArrowRight') flipGo(flip.st + 1); else if (e.key === 'ArrowLeft') flipGo(flip.st - 1); });
+addEventListener('keydown', e => { if (e.key === 'Escape' && flip.el && flip.el.classList.contains('is-full')) flipSetFull(flip.el, false); });
+flipMQ.addEventListener('change', e => { if (flip.el && flip.el.isConnected) { flip.single = e.matches; flipRender(); } });
 function openProject(project, updateHistory = true) {
   activeProjectIndex = projects.indexOf(project);
   detailFields.title.textContent = project.dataset.title;
@@ -900,7 +1075,7 @@ function openProject(project, updateHistory = true) {
   let galleryImages = [];
   try { galleryImages = JSON.parse(project.dataset.galleryImages || '[]'); } catch (_) { galleryImages = []; }
   if (!Array.isArray(galleryImages)) galleryImages = [];
-  galleryImages = galleryImages.map(image => typeof image === 'string' ? { url:image, columns:3 } : ({ url:image?.url || image?.src || image?.image_url || '', columns:[1,2,3].includes(Number(image?.columns || image?.per_row)) ? Number(image.columns || image.per_row) : 3 })).filter(image => image.url);
+  galleryImages = galleryImages.map(image => typeof image === 'string' ? { url:image, columns:3 } : ({ url:image?.url || image?.src || image?.image_url || '', columns:[1,2,3].includes(Number(image?.columns || image?.per_row)) ? Number(image.columns || image.per_row) : 3, kind:image?.kind === 'spread' ? 'spread' : 'single', w:Number(image?.w) || 0, h:Number(image?.h) || 0 })).filter(image => image.url);
   if (!galleryImages.length) {
     const cover = project.querySelector('.art img');
     if (cover?.src) galleryImages = [{ url:cover.src, columns:3 }];
@@ -914,6 +1089,7 @@ function openProject(project, updateHistory = true) {
     frame.appendChild(image);
     detailFields.mockups.appendChild(frame);
   });
+  buildFlip(project, galleryImages);
   homeSections.forEach(section => section.style.display = 'none');
   document.querySelector('.topbar').classList.add('project-open');
   document.querySelector('.site-root').classList.add('project-open');
