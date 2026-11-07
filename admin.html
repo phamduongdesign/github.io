@@ -105,6 +105,31 @@ input[type=checkbox]{width:auto}
  header{align-items:flex-start;gap:15px}
  h1{font-size:20px}
 }
+
+/* Editorial: tải ảnh theo trang (đơn / đôi) + xem trước sách */
+.gallery-item.ed img{height:auto;max-height:170px;object-fit:contain}
+.gallery-item.is-spread{grid-column:span 2}
+.gallery-item.has-warn{border-color:#c9a36b;background:#fffaf0}
+.gi-img{position:relative;line-height:0}
+.gi-img.cut::after{content:"";position:absolute;top:0;bottom:0;left:50%;border-left:1.5px dashed #c0392b;pointer-events:none}
+.gi-warn{margin:5px 0 2px;font-size:10.5px;line-height:1.5;color:#9a5b12}
+.book-preview{margin-top:18px;padding:16px;border:1px solid var(--line);background:var(--bg)}
+.book-preview[hidden]{display:none}
+.bp-title{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.bp-stage{display:flex;justify-content:center;padding:6px 0 14px}
+.bp-page{position:relative;width:min(34%,240px);aspect-ratio:var(--bp-ar,1 / 1.414);overflow:hidden;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.16)}
+.bp-page.blank{background:#ece9df}
+.bp-page img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block}
+.bp-page.half-l img,.bp-page.half-r img{width:200%;max-width:none}
+.bp-page.half-r img{left:-100%}
+.bp-page::after{content:"";position:absolute;inset:0;pointer-events:none}
+.bp-page.l::after{background:linear-gradient(270deg,rgba(0,0,0,.24),transparent 12%)}
+.bp-page.r::after{background:linear-gradient(90deg,rgba(0,0,0,.24),transparent 12%)}
+.bp-nav{display:flex;align-items:center;justify-content:center;gap:14px}
+.bp-nav button{border:1px solid var(--line);background:#fff;padding:6px 14px;font-size:13px}
+.bp-nav button:disabled{opacity:.35}
+.bp-nav span{min-width:150px;text-align:center;font-size:12px}
+.bp-info{margin-top:10px;font-size:11.5px;line-height:1.6;color:var(--muted);text-align:center}
 </style>
 </head>
 <body>
@@ -375,12 +400,18 @@ input[type=checkbox]{width:auto}
       <div id="coverFileInfo" class="file-check" aria-live="polite"></div>
       <img id="imagePreview" class="preview" alt="Xem trước ảnh bìa">
 
-      <label>Ảnh thư viện dự án (có thể chọn nhiều ảnh)</label>
+      <label id="galleryLabel">Ảnh thư viện dự án (có thể chọn nhiều ảnh)</label>
       <input id="galleryFiles" type="file" accept="image/*" multiple>
-      <small class="upload-note">KÍCH THƯỚC ĐỀ XUẤT: cạnh dài khoảng <strong>1800 px</strong>, giữ nguyên tỷ lệ ảnh gốc · Ưu tiên JPG/WebP · khoảng <strong>250–600 KB/ảnh</strong>. Có thể dùng ảnh ngang, dọc hoặc vuông trong cùng dự án. PNG phù hợp khi cần nền trong suốt.</small>
+      <small id="galleryNote" class="upload-note">KÍCH THƯỚC ĐỀ XUẤT: cạnh dài khoảng <strong>1800 px</strong>, giữ nguyên tỷ lệ ảnh gốc · Ưu tiên JPG/WebP · khoảng <strong>250–600 KB/ảnh</strong>. Có thể dùng ảnh ngang, dọc hoặc vuông trong cùng dự án. PNG phù hợp khi cần nền trong suốt.</small>
       <div id="galleryFileInfo" class="file-check" aria-live="polite"></div>
-      <small>Chọn nhiều ảnh cùng lúc. Với từng ảnh, chọn 1, 2 hoặc 3 ảnh trên mỗi hàng. Ảnh sẽ được thêm vào thư viện khi bạn lưu.</small>
+      <small id="galleryHint">Chọn nhiều ảnh cùng lúc. Với từng ảnh, chọn 1, 2 hoặc 3 ảnh trên mỗi hàng. Ảnh sẽ được thêm vào thư viện khi bạn lưu.</small>
       <div id="galleryPreview" class="gallery-preview"></div>
+      <div id="bookPreview" class="book-preview" hidden>
+        <div class="bp-title">Xem trước sách (mở như đang cầm tạp chí)</div>
+        <div id="bpStage" class="bp-stage"></div>
+        <div class="bp-nav"><button type="button" id="bpPrev" aria-label="Lần mở trước">←</button><span id="bpLabel"></span><button type="button" id="bpNext" aria-label="Lần mở sau">→</button></div>
+        <div id="bpInfo" class="bp-info"></div>
+      </div>
 
       <label>
         <input id="published" type="checkbox" checked>
@@ -416,6 +447,13 @@ const $ = id => document.getElementById(id);
 let currentImageUrl = '';
 let currentGalleryImages = [];
 let pendingGalleryColumns = [];
+let pendingGalleryKinds = [];   // Editorial: 'single' (trang đơn) hoặc 'spread' (trang đôi) cho từng ảnh mới
+let pendingGalleryDims = [];    // Editorial: kích thước thật {w,h} của từng ảnh mới
+let pendingGalleryUrls = [];    // Editorial: URL xem trước của từng ảnh mới
+const bp = { st: 0 };           // Editorial: lần mở sách đang xem thử
+const GALLERY_DEFAULTS = { label: $('galleryLabel').textContent, note: $('galleryNote').innerHTML, hint: $('galleryHint').textContent };
+const EDITORIAL_NOTE = 'CÁCH TẢI ẢNH CHO SỐ TẠP CHÍ: tải lần lượt theo thứ tự trang. <strong>Ảnh đầu = bìa trước, ảnh cuối = bìa sau</strong> (luôn là trang đơn). Các trang giữa có thể là <strong>trang đơn</strong> hoặc <strong>trang đôi</strong> (2 trang liền nhau trên một ảnh, hệ thống tự cắt đôi ở giữa và lật từng trang). <strong>Không cần chỉnh kích thước trước khi tải</strong>: khổ sách trên website tự theo tỉ lệ các trang và ảnh luôn hiển thị đủ nội dung, không bị cắt. Nên giữ các trang cùng tỉ lệ để sách đẹp nhất. Ưu tiên JPG/WebP, cạnh dài khoảng 1800–2400 px, 250–600 KB/ảnh.';
+const EDITORIAL_HINT = 'Chọn nhiều ảnh cùng lúc. Ảnh nằm ngang có bề rộng gấp đôi bìa sẽ tự nhận là trang đôi; bạn có thể đổi lại ở từng ảnh. Ảnh được thêm vào số tạp chí khi bạn lưu.';
 let activeTab = 'hero';
 let cachedProjects = [];
 let currentHeroImageUrl = '';
@@ -472,6 +510,7 @@ function setActiveTab(tab) {
     $('projectListHelp').textContent = 'Đang xem riêng các dự án thuộc nhóm ' + categoryTabs[tab].label + '. Dự án đã có vẫn được giữ nguyên.';
     $('formTitle').textContent = 'Thêm dự án — ' + categoryTabs[tab].label;
     renderProjectList();
+    renderGalleryPreview();
   } else {
     $('projectEditorPanel').hidden = true;
     $('projectListPanel').hidden = true;
@@ -1125,6 +1164,9 @@ async function uploadGalleryImage(file) {
 function renderGalleryPreview() {
   const container = $('galleryPreview');
   container.innerHTML = '';
+  refreshGalleryMode();
+  if (isEditorialForm()) { renderEditorialGallery(); return; }
+  $('bookPreview').hidden = true;
 
   currentGalleryImages.forEach((entry, index) => {
     const imageData = typeof entry === 'string' ? {url:entry, columns:3} : {
@@ -1189,6 +1231,177 @@ function renderGalleryPreview() {
   });
 }
 
+/* ===== Editorial: tải ảnh theo trang (đơn / đôi) + xem trước sách ===== */
+function isEditorialForm() { return $('category').value === 'editorial'; }
+
+function normGalleryEntry(entry) {
+  const e = typeof entry === 'string' ? {url:entry} : (entry || {});
+  const out = {
+    url: e.url || e.src || e.image_url || '',
+    columns: [1,2,3].includes(Number(e.columns || e.per_row)) ? Number(e.columns || e.per_row) : 3
+  };
+  if (e.kind === 'spread' || e.kind === 'single') out.kind = e.kind;
+  if (Number(e.w) > 0 && Number(e.h) > 0) { out.w = Number(e.w); out.h = Number(e.h); }
+  return out;
+}
+
+async function readImageDims(file) {
+  try { const bmp = await createImageBitmap(file); const d = {w:bmp.width, h:bmp.height}; bmp.close(); return d; } catch (_) { return null; }
+}
+
+// Tự nhận biết: ảnh rộng gấp đôi bìa => trang đôi. Chưa có bìa để so thì ảnh nằm ngang rõ rệt => trang đôi.
+function guessKind(dim, coverRatio) {
+  if (!dim) return 'single';
+  const r = dim.w / dim.h;
+  return coverRatio ? (r / coverRatio > 1.6 ? 'spread' : 'single') : (r > 1.15 ? 'spread' : 'single');
+}
+
+function resetPendingGalleryMeta() {
+  pendingGalleryUrls.forEach(u => URL.revokeObjectURL(u));
+  pendingGalleryUrls = []; pendingGalleryKinds = []; pendingGalleryDims = [];
+}
+
+async function preparePendingGallery() {
+  const files = [...$('galleryFiles').files];
+  resetPendingGalleryMeta();
+  pendingGalleryUrls = files.map(f => URL.createObjectURL(f));
+  if (!isEditorialForm() || !files.length) return;
+  pendingGalleryDims = await Promise.all(files.map(readImageDims));
+  const cur0 = currentGalleryImages[0] ? normGalleryEntry(currentGalleryImages[0]) : null;
+  const coverRatio = cur0 ? (cur0.w && cur0.h ? cur0.w / cur0.h : 0) : (pendingGalleryDims[0] ? pendingGalleryDims[0].w / pendingGalleryDims[0].h : 0);
+  pendingGalleryKinds = files.map((f, i) => (!cur0 && i === 0) ? 'single' : guessKind(pendingGalleryDims[i], coverRatio));
+}
+
+function refreshGalleryMode() {
+  const ed = isEditorialForm();
+  $('galleryLabel').textContent = ed ? 'Các trang của số tạp chí (theo thứ tự trang)' : GALLERY_DEFAULTS.label;
+  $('galleryNote').innerHTML = ed ? EDITORIAL_NOTE : GALLERY_DEFAULTS.note;
+  $('galleryHint').textContent = ed ? EDITORIAL_HINT : GALLERY_DEFAULTS.hint;
+}
+
+// Danh sách trang theo đúng thứ tự sẽ hiển thị: ảnh đã lưu trước, ảnh mới chọn sau. Ảnh đầu luôn là bìa (trang đơn).
+function galleryModel() {
+  const items = [];
+  currentGalleryImages.forEach((entry, ci) => {
+    const e = normGalleryEntry(entry); if (!e.url) return;
+    items.push({ src:e.url, kind:e.kind === 'spread' ? 'spread' : 'single', w:e.w || 0, h:e.h || 0, pending:false, ci });
+  });
+  [...$('galleryFiles').files].forEach((file, pi) => {
+    const d = pendingGalleryDims[pi];
+    items.push({ src:pendingGalleryUrls[pi] || '', kind:pendingGalleryKinds[pi] === 'spread' ? 'spread' : 'single', w:d ? d.w : 0, h:d ? d.h : 0, pending:true, pi, name:file.name });
+  });
+  if (items[0]) items[0].kind = 'single';
+  // Khổ sách = tỉ lệ rộng/cao ở giữa (median) của mọi trang đã biết kích thước; trang đôi tính theo 1 nửa
+  const units = items.filter(it => it.w && it.h).map(it => (it.w / it.h) / (it.kind === 'spread' ? 2 : 1)).sort((a, b) => a - b);
+  const ratio = units.length ? (units.length % 2 ? units[units.length >> 1] : (units[units.length / 2 - 1] + units[units.length / 2]) / 2) : 0;
+  let pos = 1;
+  items.forEach((it, n) => {
+    it.start = pos; pos += it.kind === 'spread' ? 2 : 1; it.warn = [];
+    if (n === 0) return;
+    if (it.kind === 'spread' && it.start % 2 !== 0) it.warn.push('Trang đôi này bắt đầu ở trang lẻ (' + it.start + ') nên 2 nửa sẽ nằm ở 2 lần mở sách khác nhau. Hãy thêm hoặc bớt 1 trang đơn phía trước nó.');
+    if (it.kind === 'spread' && n === items.length - 1) it.warn.push('Bìa sau nên là trang đơn.');
+    const ar = it.w && it.h ? (it.w / it.h) / (it.kind === 'spread' ? 2 : 1) : 0;
+    if (ratio && ar && Math.abs(ar / ratio - 1) > 0.06) it.warn.push('Tỉ lệ trang khác các trang còn lại. Ảnh vẫn hiển thị đủ nội dung nhưng sẽ có viền trống hai bên hoặc trên dưới.');
+  });
+  return { items, total: pos - 1, ratio };
+}
+
+function renderEditorialGallery() {
+  const container = $('galleryPreview');
+  container.innerHTML = '';
+  const m = galleryModel();
+  m.items.forEach((it, n) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item ed' + (it.kind === 'spread' ? ' is-spread' : '') + (it.warn.length ? ' has-warn' : '');
+
+    const wrap = document.createElement('div');
+    wrap.className = 'gi-img' + (it.kind === 'spread' ? ' cut' : '');
+    const img = document.createElement('img');
+    img.src = it.src; img.alt = 'Trang ' + it.start;
+    wrap.append(img);
+
+    const label = document.createElement('small');
+    label.textContent = (n === 0 ? 'Bìa trước · ' : '') + (it.kind === 'spread' ? 'Trang ' + it.start + '–' + (it.start + 1) : 'Trang ' + it.start) + (it.pending ? ' · mới: ' + it.name : '');
+
+    const kind = document.createElement('select');
+    kind.setAttribute('aria-label', 'Loại ảnh');
+    kind.innerHTML = '<option value="single">Trang đơn</option><option value="spread">Trang đôi (tự cắt đôi)</option>';
+    kind.value = it.kind; kind.disabled = n === 0;
+    kind.addEventListener('change', () => {
+      if (it.pending) pendingGalleryKinds[it.pi] = kind.value;
+      else currentGalleryImages[it.ci] = { ...normGalleryEntry(currentGalleryImages[it.ci]), kind:kind.value };
+      renderGalleryPreview();
+    });
+
+    item.append(wrap, label, kind);
+
+    if (!it.pending) {
+      const up = document.createElement('button');
+      up.type = 'button'; up.textContent = '↑'; up.title = 'Di chuyển lên'; up.disabled = it.ci === 0;
+      up.addEventListener('click', () => {
+        [currentGalleryImages[it.ci - 1], currentGalleryImages[it.ci]] = [currentGalleryImages[it.ci], currentGalleryImages[it.ci - 1]];
+        renderGalleryPreview();
+      });
+      const down = document.createElement('button');
+      down.type = 'button'; down.textContent = '↓'; down.title = 'Di chuyển xuống'; down.disabled = it.ci === currentGalleryImages.length - 1;
+      down.addEventListener('click', () => {
+        [currentGalleryImages[it.ci + 1], currentGalleryImages[it.ci]] = [currentGalleryImages[it.ci], currentGalleryImages[it.ci + 1]];
+        renderGalleryPreview();
+      });
+      const remove = document.createElement('button');
+      remove.type = 'button'; remove.className = 'remove-gallery'; remove.textContent = 'Xóa';
+      remove.addEventListener('click', () => { currentGalleryImages.splice(it.ci, 1); renderGalleryPreview(); });
+      item.append(up, down, remove);
+    }
+    it.warn.forEach(text => { const w = document.createElement('div'); w.className = 'gi-warn'; w.textContent = '⚠ ' + text; item.append(w); });
+    container.append(item);
+  });
+  renderBookPreview(m);
+}
+
+// Cùng cách ghép trang với website: trang đôi => 2 nửa liên tiếp; số trang lẻ => chèn 1 trang trắng trước bìa sau.
+function bookPages(items) {
+  const pg = [];
+  items.forEach(it => { if (it.kind === 'spread') pg.push({u:it.src, h:'l'}, {u:it.src, h:'r'}); else pg.push({u:it.src}); });
+  if (pg.length % 2) { const last = pg[pg.length - 1]; if (last.h) pg.push(null); else pg.splice(pg.length - 1, 0, null); }
+  return pg;
+}
+
+function bpPage(pg, side) {
+  const box = document.createElement('div');
+  box.className = 'bp-page ' + side + (pg && pg.h ? ' half-' + pg.h : '') + (pg ? '' : ' blank');
+  if (pg) { const im = document.createElement('img'); im.src = pg.u; im.alt = ''; box.append(im); }
+  return box;
+}
+
+function renderBookPreview(m) {
+  const box = $('bookPreview'), stage = $('bpStage');
+  const pg = isEditorialForm() && m.items.length >= 2 ? bookPages(m.items) : [];
+  box.hidden = pg.length < 2;
+  if (box.hidden) return;
+  const nl = pg.length / 2, n = pg.length;
+  bp.st = Math.max(0, Math.min(nl, bp.st));
+  if (m.ratio) stage.style.setProperty('--bp-ar', m.ratio + ' / 1');
+  else {
+    stage.style.removeProperty('--bp-ar');
+    const probe = new Image();
+    probe.onload = () => { if (probe.naturalWidth) stage.style.setProperty('--bp-ar', probe.naturalWidth + ' / ' + probe.naturalHeight); };
+    probe.src = m.items[0].src;
+  }
+  stage.innerHTML = '';
+  if (bp.st > 0) stage.append(bpPage(pg[2 * bp.st - 1], 'l'));
+  if (bp.st < nl) stage.append(bpPage(pg[2 * bp.st], 'r'));
+  $('bpLabel').textContent = bp.st === 0 ? 'Bìa trước · trang 1' : bp.st === nl ? 'Bìa sau · trang ' + n : 'Trang ' + (2 * bp.st) + '–' + (2 * bp.st + 1);
+  $('bpPrev').disabled = bp.st === 0; $('bpNext').disabled = bp.st === nl;
+  $('bpInfo').textContent = 'Tổng ' + n + ' trang' + (m.total % 2 ? ' (số trang lẻ nên website tự thêm 1 trang trắng trước bìa sau)' : '') + ' · ' + (nl + 1) + ' lần mở sách'
+    + (m.ratio ? ' · khổ sách tự theo các trang bạn tải lên (tỉ lệ 1 : ' + (1 / m.ratio).toFixed(2) + ')' : '')
+    + '. Hiệu ứng lật thật sẽ xem trên website.';
+}
+
+$('bpPrev').addEventListener('click', () => { bp.st -= 1; renderBookPreview(galleryModel()); });
+$('bpNext').addEventListener('click', () => { bp.st += 1; renderBookPreview(galleryModel()); });
+$('category').addEventListener('change', async () => { await preparePendingGallery(); renderGalleryPreview(); });
+
 function formatFileSize(bytes) {
   if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
   return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
@@ -1250,6 +1463,7 @@ $('coverFile').addEventListener('change', async () => {
 
 $('galleryFiles').addEventListener('change', async () => {
   pendingGalleryColumns = [...$('galleryFiles').files].map(() => 3);
+  await preparePendingGallery();
   renderGalleryPreview();
   await showImageFileInfo([...$('galleryFiles').files], 'galleryFileInfo', 'gallery');
 });
@@ -1269,15 +1483,16 @@ $('projectForm').addEventListener('submit', async e => {
 
     const uploadedGalleryImages = [];
     for (const galleryFile of galleryFiles) {
-      uploadedGalleryImages.push({url:await uploadGalleryImage(galleryFile),columns:[1,2,3].includes(Number(pendingGalleryColumns[uploadedGalleryImages.length])) ? Number(pendingGalleryColumns[uploadedGalleryImages.length]) : 3});
+      const pi = uploadedGalleryImages.length;
+      const entry = {url:await uploadGalleryImage(galleryFile),columns:[1,2,3].includes(Number(pendingGalleryColumns[pi])) ? Number(pendingGalleryColumns[pi]) : 3};
+      if (isEditorialForm()) { entry.kind = pendingGalleryKinds[pi] === 'spread' ? 'spread' : 'single'; const d = pendingGalleryDims[pi]; if (d) { entry.w = d.w; entry.h = d.h; } }
+      uploadedGalleryImages.push(entry);
     }
     const galleryImages = [
-      ...currentGalleryImages.map(entry => typeof entry === 'string' ? {url:entry,columns:3} : ({
-        url:entry.url || entry.src || entry.image_url || '',
-        columns:[1,2,3].includes(Number(entry.columns || entry.per_row)) ? Number(entry.columns || entry.per_row) : 3
-      })).filter(entry => entry.url),
+      ...currentGalleryImages.map(normGalleryEntry).filter(entry => entry.url),
       ...uploadedGalleryImages
     ];
+    if (isEditorialForm() && galleryImages[0]) galleryImages[0].kind = 'single'; // bìa trước luôn là trang đơn
 
     const record = {
       title: $('title').value.trim(),
@@ -1324,14 +1539,10 @@ function editProject(project) {
   $('published').checked = !!project.is_published;
 
   currentImageUrl = project.cover_image || '';
-  currentGalleryImages = Array.isArray(project.gallery_images)
-    ? project.gallery_images.map(item => typeof item === 'string'
-      ? {url:item,columns:3}
-      : ({url:item.url || item.src || item.image_url || '',columns:[1,2,3].includes(Number(item.columns || item.per_row)) ? Number(item.columns || item.per_row) : 3}))
-      .filter(item => item.url)
-    : [];
+  currentGalleryImages = Array.isArray(project.gallery_images) ? project.gallery_images.map(normGalleryEntry).filter(item => item.url) : [];
   $('coverFile').value = '';
   $('galleryFiles').value = '';
+  resetPendingGalleryMeta();
   pendingGalleryColumns = [];
   $('coverFileInfo').innerHTML = '';
   $('galleryFileInfo').innerHTML = '';
@@ -1390,6 +1601,7 @@ function resetForm() {
   $('imagePreview').style.display = 'none';
   $('coverFile').value = '';
   $('galleryFiles').value = '';
+  resetPendingGalleryMeta();
   pendingGalleryColumns = [];
   $('coverFileInfo').innerHTML = '';
   $('galleryFileInfo').innerHTML = '';
